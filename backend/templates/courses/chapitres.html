@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}{{ chapitre.titre }}{% endblock %}
+{% block page_title %}{{ chapitre.titre }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+
+  <!-- Fil d'Ariane -->
+  <nav class="flex items-center gap-2 text-sm text-gray-500">
+    <a href="{% url 'matieres' %}" class="hover:text-indigo-600 transition-colors">Mes cours</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <span class="text-gray-800 font-medium">{{ chapitre.titre }}</span>
+  </nav>
+
+  <!-- En-tête chapitre -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-6 py-6 border-b border-gray-100
+                {% if chapitre.matiere.nom == 'physique' %}bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200
+                {% elif chapitre.matiere.nom == 'chimie' %}bg-gradient-to-r from-emerald-50 to-emerald-100 border-emerald-200
+                {% else %}bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200{% endif %}">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full
+                         {% if chapitre.matiere.nom == 'physique' %}bg-blue-200 text-blue-800
+                         {% elif chapitre.matiere.nom == 'chimie' %}bg-emerald-200 text-emerald-800
+                         {% else %}bg-purple-200 text-purple-800{% endif %}">
+              {{ chapitre.matiere.get_nom_display }}
+            </span>
+            <span class="text-xs text-gray-500 capitalize">{{ chapitre.get_niveau_display }}</span>
+          </div>
+          <h1 class="text-xl font-bold text-gray-900">{{ chapitre.titre }}</h1>
+          {% if chapitre.description %}
+          <p class="text-gray-600 text-sm mt-1">{{ chapitre.description }}</p>
+          {% endif %}
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="text-2xl font-bold
+                    {% if chapitre.matiere.nom == 'physique' %}text-blue-700
+                    {% elif chapitre.matiere.nom == 'chimie' %}text-emerald-700
+                    {% else %}text-purple-700{% endif %}">
+            {{ nb_terminees }}/{{ nb_lecons }}
+          </p>
+          <p class="text-xs text-gray-500 mt-0.5">leçons terminées</p>
+        </div>
+      </div>
+
+      <!-- Barre de progression globale du chapitre -->
+      {% if nb_lecons > 0 %}
+      <div class="mt-4 bg-white/60 rounded-full h-2">
+        <div class="h-2 rounded-full transition-all duration-500
+                    {% if chapitre.matiere.nom == 'physique' %}bg-blue-600
+                    {% elif chapitre.matiere.nom == 'chimie' %}bg-emerald-600
+                    {% else %}bg-purple-600{% endif %}"
+             style="width: {{ progression_pct }}%"></div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Liste des leçons -->
+    <div class="divide-y divide-gray-50">
+      {% for ld in lecons_data %}
+      {% with lecon=ld.lecon %}
+      <div class="px-5 py-4 flex items-center gap-4 group
+                  {% if ld.statut == 'non_commence' and not forloop.first %}opacity-80{% endif %}">
+
+        <!-- Icône statut -->
+        <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-sm
+                    {% if ld.statut == 'termine' %}bg-emerald-100 text-emerald-700
+                    {% elif ld.statut == 'en_cours' %}
+                      {% if chapitre.matiere.nom == 'physique' %}bg-blue-100 text-blue-700
+                      {% elif chapitre.matiere.nom == 'chimie' %}bg-emerald-100 text-emerald-700
+                      {% else %}bg-purple-100 text-purple-700{% endif %}
+                    {% else %}bg-gray-100 text-gray-400{% endif %}">
+          {% if ld.statut == 'termine' %}
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
+          {% elif ld.statut == 'en_cours' %}
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          {% else %}
+            <span class="font-bold text-gray-400">{{ lecon.ordre }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Infos leçon -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <a href="{% url 'lecon' lecon.pk %}"
+               class="font-semibold text-gray-800 hover:text-indigo-600 transition-colors text-sm">
+              {{ lecon.titre }}
+            </a>
+            {% if lecon.has_quiz %}
+            <span class="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">Quiz</span>
+            {% endif %}
+          </div>
+          <p class="text-xs text-gray-400 mt-0.5">
+            ≈ {{ lecon.duree_estimee }} min
+            {% if ld.statut == 'en_cours' %}&nbsp;&bull;&nbsp;<span class="text-indigo-500">En cours</span>{% endif %}
+            {% if ld.statut == 'termine' %}&nbsp;&bull;&nbsp;<span class="text-emerald-600">Terminée ✓</span>{% endif %}
+          </p>
+        </div>
+
+        <!-- Bouton accès -->
+        <a href="{% url 'lecon' lecon.pk %}"
+           class="flex-shrink-0 text-xs font-medium px-3 py-2 rounded-lg border transition-colors
+                  {% if ld.statut == 'termine' %}border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100
+                  {% elif ld.statut == 'en_cours' %}
+                    {% if chapitre.matiere.nom == 'physique' %}border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100
+                    {% elif chapitre.matiere.nom == 'chimie' %}border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100
+                    {% else %}border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100{% endif %}
+                  {% else %}border-gray-200 text-gray-600 bg-white hover:bg-gray-50{% endif %}">
+          {% if ld.statut == 'termine' %}Revoir{% elif ld.statut == 'en_cours' %}Continuer{% else %}Commencer{% endif %}
+        </a>
+
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Score minimum pour débloquer la suite -->
+  {% if chapitre.score_minimum_deblocage > 0 %}
+  <p class="text-xs text-gray-400 text-center">
+    Score minimum de {{ chapitre.score_minimum_deblocage|floatformat:0 }}% requis pour débloquer le chapitre suivant.
+  </p>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+<!-- Fragment HTMX — résultat du quiz (remplace le quiz-container) -->
+<div class="divide-y divide-gray-50">
+
+  <!-- Score -->
+  <div class="px-6 py-8 text-center">
+    <div class="inline-flex items-center justify-center w-24 h-24 rounded-full text-3xl font-bold mb-4
+                {% if passe %}bg-emerald-100 text-emerald-700 ring-4 ring-emerald-200
+                {% else %}bg-red-100 text-red-600 ring-4 ring-red-200{% endif %}">
+      {{ score|floatformat:0 }}%
+    </div>
+    <h2 class="text-lg font-bold {% if passe %}text-emerald-700{% else %}text-red-600{% endif %} mb-1">
+      {% if passe %}Félicitations, vous avez réussi ! 🎉{% else %}Pas encore validé this fois{% endif %}
+    </h2>
+    <p class="text-sm text-gray-500">
+      {{ nb_bonnes_reponses }} bonne{% if nb_bonnes_reponses > 1 %}s{% endif %} réponse{% if nb_bonnes_reponses > 1 %}s{% endif %}
+      sur {{ corrections|length }} question{% if corrections|length > 1 %}s{% endif %}
+      &bull; {{ resultat.nb_tentatives }} tentative{% if resultat.nb_tentatives > 1 %}s{% endif %}
+    </p>
+    {% if debloque_suivant %}
+    <div class="mt-4 inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium px-4 py-2 rounded-xl">
+      🔓 Le chapitre suivant a été débloqué !
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Détail des corrections -->
+  <div class="px-6 py-4">
+    <h3 class="font-semibold text-gray-700 text-sm mb-4">Correction détaillée</h3>
+    <div class="space-y-4">
+      {% for c in corrections %}
+      <div class="rounded-xl border p-4 {% if c.correct %}border-emerald-200 bg-emerald-50{% else %}border-red-200 bg-red-50{% endif %}">
+        <div class="flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5
+                      {% if c.correct %}bg-emerald-200 text-emerald-800{% else %}bg-red-200 text-red-800{% endif %}">
+            {{ forloop.counter }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-800 mb-2">{{ c.question.texte }}</p>
+
+            {% if c.question.type == 'vrai_faux' %}
+            <div class="flex gap-3 text-xs mb-2">
+              <span class="px-2 py-0.5 rounded {% if c.correct %}bg-emerald-200 text-emerald-800{% else %}bg-red-200 text-red-800{% endif %}">
+                Votre réponse : {{ c.reponse_donnee|title }}
+              </span>
+              {% if not c.correct %}
+              <span class="px-2 py-0.5 rounded bg-emerald-200 text-emerald-800">
+                Bonne réponse : {{ c.question.reponse_correcte|title }}
+              </span>
+              {% endif %}
+            </div>
+            {% elif c.question.type == 'texte_libre' %}
+            <div class="flex flex-wrap gap-2 text-xs mb-2">
+              <span class="px-2 py-1 rounded-lg font-mono {% if c.correct %}bg-emerald-200 text-emerald-800{% else %}bg-red-200 text-red-800{% endif %}">
+                Votre réponse : « {{ c.reponse_donnee_texte|default:"—" }} »
+              </span>
+              {% if not c.correct %}
+              <span class="px-2 py-1 rounded-lg font-mono bg-emerald-200 text-emerald-800">
+                Réponse attendue : « {{ c.reponse_correcte_texte }} »
+              </span>
+              {% endif %}
+            </div>
+            {% else %}
+            <!-- QCM -->
+            <div class="flex flex-wrap gap-2 text-xs mb-2">
+              <span class="px-2 py-0.5 rounded {% if c.correct %}bg-emerald-200 text-emerald-800{% else %}bg-red-200 text-red-800{% endif %}">
+                Votre réponse : {{ c.reponse_donnee_texte }}
+              </span>
+              {% if not c.correct %}
+              <span class="px-2 py-0.5 rounded bg-emerald-200 text-emerald-800">
+                Bonne réponse : {{ c.reponse_correcte_texte }}
+              </span>
+              {% endif %}
+            </div>
+            {% endif %}
+
+            {% if c.question.explication %}
+            <p class="text-xs text-gray-600 bg-white/70 rounded-lg p-2 mt-1">
+              💡 {{ c.question.explication }}
+            </p>
+            {% endif %}
+          </div>
+          <div class="flex-shrink-0 text-lg">
+            {% if c.correct %}✅{% else %}❌{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="px-6 py-4 bg-gray-50 flex items-center justify-between flex-wrap gap-3">
+    {% if not passe %}
+    <button
+      onclick="window.location.href='{% url 'quiz' lecon.pk %}'"
+      class="text-sm font-semibold px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white transition-colors">
+      Réessayer ↺
+    </button>
+    {% else %}
+    <div></div>
+    {% endif %}
+
+    <div class="flex items-center gap-3">
+      <a href="{% url 'lecon' quiz.lecon.pk %}"
+         class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">
+        Relire la leçon
+      </a>
+      {% if lecon_suivante %}
+      <a href="{% url 'lecon' lecon_suivante.pk %}"
+         class="text-sm font-semibold px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-colors">
+        Leçon suivante →
+      </a>
+      {% else %}
+      <a href="{% url 'chapitre' quiz.lecon.chapitre.pk %}"
+         class="text-sm font-semibold px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-colors">
+        Retour au chapitre →
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+</div>

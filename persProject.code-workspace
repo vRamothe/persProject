@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.languageServer": "Pylance",
+		"python.analysis.extraPaths": [
+			"/home/vramothe/QA/ahp_nrt_shopping/etc",
+			"/home/vramothe/QA/ahp_nrt_shopping/lib",
+			"/home/vramothe/QA/ahp_nrt_shopping/tools",
+			"/home/vramothe/dev/ahp_nrt_shopping/etc",
+			"/home/vramothe/dev/ahp_nrt_shopping/lib",
+			"/home/vramothe/dev/ahp_nrt_shopping/tools",
+			"/opt/1A/ttserver/5.6.5/lib"
+		]
+	}
+}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}{{ lecon.titre }}{% endblock %}
+{% block page_title %}{{ lecon.titre }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .prose h1 { font-size: 1.5rem; font-weight: 700; margin: 1.5rem 0 0.75rem; color: #111827; }
+  .prose h2 { font-size: 1.25rem; font-weight: 700; margin: 1.25rem 0 0.6rem; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.25rem; }
+  .prose h3 { font-size: 1rem; font-weight: 600; margin: 1rem 0 0.5rem; color: #374151; }
+  .prose p { margin: 0.75rem 0; color: #374151; line-height: 1.7; }
+  .prose ul { list-style-type: disc; padding-left: 1.5rem; margin: 0.75rem 0; }
+  .prose ol { list-style-type: decimal; padding-left: 1.5rem; margin: 0.75rem 0; }
+  .prose li { margin: 0.3rem 0; color: #374151; line-height: 1.6; }
+  .prose strong { font-weight: 700; color: #111827; }
+  .prose em { font-style: italic; }
+  .prose code { background: #f3f4f6; border-radius: 4px; padding: 0.1em 0.35em; font-size: 0.9em; color: #dc2626; }
+  .prose pre { background: #1f2937; color: #f9fafb; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 1rem 0; }
+  .prose pre code { background: none; color: inherit; padding: 0; }
+  .prose blockquote { border-left: 4px solid #6366f1; padding-left: 1rem; color: #4b5563; font-style: italic; margin: 1rem 0; background: #f5f3ff; border-radius: 0 0.5rem 0.5rem 0; padding: 0.75rem 1rem; }
+  .prose table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  .prose th { background: #f3f4f6; padding: 0.5rem 0.75rem; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; }
+  .prose td { padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; }
+  .prose tr:nth-child(even) td { background: #f9fafb; }
+  .prose .definition { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 1rem 0; }
+  .prose .formule { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 1rem 0; text-align: center; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+
+  <!-- Fil d'Ariane -->
+  <nav class="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
+    <a href="{% url 'matieres' %}" class="hover:text-indigo-600 transition-colors">Mes cours</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <a href="{% url 'chapitre' lecon.chapitre.pk %}" class="hover:text-indigo-600 transition-colors">{{ lecon.chapitre.titre }}</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <span class="text-gray-800 font-medium">{{ lecon.titre }}</span>
+  </nav>
+
+  <!-- Carte leçon -->
+  <article class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+    <!-- En-tête -->
+    <div class="px-6 py-5 border-b border-gray-100 flex items-start justify-between gap-4
+                {% if lecon.chapitre.matiere.nom == 'physique' %}bg-blue-50
+                {% elif lecon.chapitre.matiere.nom == 'chimie' %}bg-emerald-50
+                {% else %}bg-purple-50{% endif %}">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full
+                       {% if lecon.chapitre.matiere.nom == 'physique' %}bg-blue-200 text-blue-800
+                       {% elif lecon.chapitre.matiere.nom == 'chimie' %}bg-emerald-200 text-emerald-800
+                       {% else %}bg-purple-200 text-purple-800{% endif %}">
+            {{ lecon.chapitre.matiere.get_nom_display }}
+          </span>
+          <span class="text-xs text-gray-500">≈ {{ lecon.duree_estimee }} min</span>
+        </div>
+        <h1 class="text-lg font-bold text-gray-900">{{ lecon.titre }}</h1>
+      </div>
+      <!-- Statut -->
+      {% if est_terminee %}
+      <span class="flex-shrink-0 flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        Terminée
+      </span>
+      {% endif %}
+    </div>
+
+    <!-- Contenu Markdown rendu -->
+    <div class="px-6 py-6 prose text-gray-700 text-[0.95rem] leading-relaxed">
+      {{ contenu_html|safe }}
+    </div>
+
+    <!-- Actions bas de page -->
+    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-4 flex-wrap">
+      <!-- Leçon précédente -->
+      <div>
+        {% if lecon_precedente %}
+        <a href="{% url 'lecon' lecon_precedente.pk %}"
+           class="flex items-center gap-1 text-sm text-gray-500 hover:text-indigo-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          {{ lecon_precedente.titre|truncatechars:30 }}
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- Boutons actions -->
+      <div class="flex items-center gap-3">
+        {% if lecon.has_quiz %}
+          {% if est_terminee %}
+          <a href="{% url 'quiz' lecon.pk %}"
+             class="text-sm font-semibold px-4 py-2 rounded-lg transition-colors
+                    {% if lecon.chapitre.matiere.nom == 'physique' %}bg-blue-600 hover:bg-blue-700
+                    {% elif lecon.chapitre.matiere.nom == 'chimie' %}bg-emerald-600 hover:bg-emerald-700
+                    {% else %}bg-purple-600 hover:bg-purple-700{% endif %} text-white">
+            Refaire le quiz
+          </a>
+          {% else %}
+          <a href="{% url 'quiz' lecon.pk %}"
+             class="text-sm font-semibold px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition-colors">
+            Passer le quiz →
+          </a>
+          {% endif %}
+        {% else %}
+          {% if not est_terminee %}
+          <!-- Bouton marquer comme terminée (HTMX) -->
+          <button
+            hx-post="{% url 'terminer_lecon' lecon.pk %}"
+            hx-target="#statut-lecon"
+            hx-swap="innerHTML"
+            class="text-sm font-semibold px-4 py-2 rounded-lg transition-colors
+                   {% if lecon.chapitre.matiere.nom == 'physique' %}bg-blue-600 hover:bg-blue-700
+                   {% elif lecon.chapitre.matiere.nom == 'chimie' %}bg-emerald-600 hover:bg-emerald-700
+                   {% else %}bg-purple-600 hover:bg-purple-700{% endif %} text-white">
+            Marquer comme terminée ✓
+          </button>
+          {% endif %}
+        {% endif %}
+
+        <!-- Leçon suivante -->
+        {% if lecon_suivante %}
+        <a href="{% url 'lecon' lecon_suivante.pk %}"
+           class="flex items-center gap-1 text-sm {% if est_terminee %}text-indigo-600 hover:text-indigo-700 font-medium{% else %}text-gray-400{% endif %} transition-colors">
+          {{ lecon_suivante.titre|truncatechars:25 }}
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+  </article>
+
+  <!-- Zone de statut HTMX -->
+  <div id="statut-lecon" class="text-sm text-center text-gray-400"></div>
+
+</div>
+{% endblock %}

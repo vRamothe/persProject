@@ -1,0 +1,393 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ScienceLycée{% endblock %}</title>
+
+  <!-- Initialisation du thème (avant rendu DOM pour éviter le flash) -->
+  <script>
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            physique:  { 50:'#eff6ff', 100:'#dbeafe', 200:'#bfdbfe', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8' },
+            chimie:    { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 500:'#10b981', 600:'#059669', 700:'#047857' },
+            maths:     { 50:'#f5f3ff', 100:'#ede9fe', 200:'#ddd6fe', 500:'#8b5cf6', 600:'#7c3aed', 700:'#6d28d9' },
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <!-- KaTeX (équations mathématiques) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+
+  <!-- HTMX CSRF setup -->
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <script>
+    document.addEventListener('htmx:configRequest', function(e){
+      e.detail.headers['X-CSRFToken'] = document.querySelector('meta[name="csrf-token"]').content;
+    });
+  </script>
+
+  <style>
+    /* Prose styles pour le rendu Markdown */
+    .prose h1  { font-size:1.75rem; font-weight:700; margin:0 0 1rem; color:#1e1b4b; }
+    .prose h2  { font-size:1.35rem; font-weight:600; margin:1.5rem 0 0.75rem; color:#312e81; padding-bottom:0.3rem; border-bottom:2px solid #e0e7ff; }
+    .prose h3  { font-size:1.1rem; font-weight:600; margin:1.2rem 0 0.5rem; color:#4338ca; }
+    .prose p   { margin:0.75rem 0; line-height:1.75; color:#374151; }
+    .prose ul, .prose ol { padding-left:1.5rem; margin:0.75rem 0; }
+    .prose li  { margin:0.3rem 0; line-height:1.7; color:#374151; }
+    .prose blockquote { border-left:4px solid #6366f1; background:#f0f0ff; padding:0.75rem 1rem; border-radius:0 0.5rem 0.5rem 0; margin:1rem 0; font-style:italic; color:#4338ca; }
+    .prose code { background:#f3f4f6; border:1px solid #e5e7eb; padding:0.1rem 0.4rem; border-radius:0.25rem; font-family:monospace; font-size:0.9em; color:#dc2626; }
+    .prose pre  { background:#1e1b4b; color:#e0e7ff; padding:1rem 1.25rem; border-radius:0.75rem; overflow-x:auto; margin:1rem 0; }
+    .prose pre code { background:none; border:none; color:#e0e7ff; padding:0; }
+    .prose table { width:100%; border-collapse:collapse; margin:1rem 0; }
+    .prose th   { background:#4f46e5; color:white; font-weight:600; padding:0.6rem 0.9rem; text-align:left; }
+    .prose td   { border-bottom:1px solid #e5e7eb; padding:0.55rem 0.9rem; color:#374151; }
+    .prose tr:nth-child(even) td { background:#f9fafb; }
+    .prose strong { font-weight:600; color:#1f2937; }
+    .prose em  { font-style:italic; }
+    .prose a   { color:#4f46e5; text-decoration:underline; }
+    /* Animations */
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ===================== DARK MODE ===================== */
+    /* Surfaces */
+    html.dark body                   { background-color: #111827; }
+    html.dark .bg-white              { background-color: #1f2937 !important; }
+    html.dark .bg-gray-50            { background-color: #111827 !important; }
+    html.dark .bg-gray-100           { background-color: #374151 !important; }
+    /* Borders */
+    html.dark .border-gray-100       { border-color: #374151 !important; }
+    html.dark .border-gray-200       { border-color: #4b5563 !important; }
+    html.dark .border-gray-300       { border-color: #6b7280 !important; }
+    /* Dividers */
+    html.dark .divide-gray-50  > :not([hidden]) ~ :not([hidden]) { border-color: #374151 !important; }
+    html.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]) { border-color: #374151 !important; }
+    /* Text */
+    html.dark .text-gray-900  { color: #f9fafb !important; }
+    html.dark .text-gray-800  { color: #f1f5f9 !important; }
+    html.dark .text-gray-700  { color: #e2e8f0 !important; }
+    html.dark .text-gray-600  { color: #cbd5e1 !important; }
+    html.dark .text-gray-500  { color: #94a3b8 !important; }
+    html.dark .text-gray-400  { color: #6b7280 !important; }
+    /* Hovers */
+    html.dark .hover\:bg-gray-50:hover  { background-color: #374151 !important; }
+    html.dark .hover\:bg-gray-100:hover { background-color: #4b5563 !important; }
+    /* Form inputs */
+    html.dark input:not([type=checkbox]):not([type=radio]),
+    html.dark select,
+    html.dark textarea {
+      background-color: #374151 !important;
+      border-color: #6b7280 !important;
+      color: #f1f5f9 !important;
+    }
+    html.dark input::placeholder,
+    html.dark textarea::placeholder { color: #9ca3af !important; }
+    /* Amber boxes */
+    html.dark .bg-amber-50         { background-color: #451a03 !important; }
+    html.dark .border-amber-100    { border-color: #92400e !important; }
+    html.dark .text-amber-800      { color: #fcd34d !important; }
+    html.dark .text-amber-700      { color: #fbbf24 !important; }
+    /* Subject gradient headers */
+    html.dark .from-blue-50        { --tw-gradient-from: #1e3a5f !important; }
+    html.dark .to-blue-100         { --tw-gradient-to: #1e3a8a !important; }
+    html.dark .from-emerald-50     { --tw-gradient-from: #064e3b !important; }
+    html.dark .to-emerald-100      { --tw-gradient-to: #065f46 !important; }
+    html.dark .from-purple-50      { --tw-gradient-from: #2e1065 !important; }
+    html.dark .to-purple-100       { --tw-gradient-to: #3b0764 !important; }
+    html.dark .border-blue-200     { border-color: #1e40af !important; }
+    html.dark .border-emerald-200  { border-color: #065f46 !important; }
+    html.dark .border-purple-200   { border-color: #581c87 !important; }
+    /* Prose dark */
+    html.dark .prose h1              { color: #e0e7ff !important; }
+    html.dark .prose h2              { color: #c7d2fe !important; border-bottom-color: #3730a3 !important; }
+    html.dark .prose h3              { color: #a5b4fc !important; }
+    html.dark .prose p,
+    html.dark .prose li              { color: #d1d5db !important; }
+    html.dark .prose blockquote      { background: #1e1b4b !important; color: #a5b4fc !important; }
+    html.dark .prose code            { background: #1f2937 !important; border-color: #374151 !important; color: #f87171 !important; }
+    html.dark .prose pre             { background: #0f172a !important; }
+    html.dark .prose strong          { color: #f9fafb !important; }
+    html.dark .prose a               { color: #818cf8 !important; }
+    html.dark .prose th              { background: #3730a3 !important; }
+    html.dark .prose td              { color: #d1d5db !important; border-bottom-color: #374151 !important; }
+    html.dark .prose tr:nth-child(even) td { background: #1f2937 !important; }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-gray-50 font-sans h-full"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      x-data="{
+        sidebarOpen: window.innerWidth >= 1024,
+        darkMode: document.documentElement.classList.contains('dark'),
+        toggleTheme() {
+          this.darkMode = !this.darkMode;
+          if (this.darkMode) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+          }
+        }
+      }">
+
+{% if user.is_authenticated %}
+<!-- ================================================================ -->
+<!-- LAYOUT AVEC SIDEBAR                                               -->
+<!-- ================================================================ -->
+
+<!-- Overlay mobile -->
+<div class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+     x-show="sidebarOpen"
+     x-transition:enter="transition-opacity ease-linear duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition-opacity ease-linear duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     @click="sidebarOpen = false"></div>
+
+<!-- SIDEBAR -->
+<aside class="fixed inset-y-0 left-0 z-50 w-64 bg-indigo-950 flex flex-col transform transition-transform duration-300 ease-in-out"
+       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
+
+  <!-- Logo -->
+  <div class="flex items-center h-16 px-5 border-b border-indigo-900 flex-shrink-0">
+    <a href="{% url 'tableau_de_bord' %}" class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-bold text-lg shadow">
+        ⚗
+      </div>
+      <span class="text-white font-bold text-base tracking-tight">ScienceLycée</span>
+    </a>
+    <button @click="sidebarOpen = false" class="ml-auto text-indigo-400 hover:text-white lg:hidden">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- Avatar utilisateur -->
+  <div class="px-4 py-3 border-b border-indigo-900 flex-shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+        {{ user.initiales }}
+      </div>
+      <div class="min-w-0">
+        <p class="text-white text-sm font-medium truncate">{{ user.nom_complet }}</p>
+        <p class="text-indigo-400 text-xs truncate">
+          {% if user.is_admin %}Administrateur{% else %}{{ user.get_niveau_display }}{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+    {% if user.is_admin %}
+      {% include "components/nav_item.html" with url="tableau_de_bord" icon="chart" label="Tableau de bord" %}
+      {% include "components/nav_item.html" with url="admin_utilisateurs" icon="users" label="Élèves" %}
+      {% include "components/nav_item.html" with url="matieres" icon="book" label="Voir les cours" %}
+      <div class="pt-3 pb-1 px-2">
+        <p class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Contenu</p>
+      </div>
+      <a href="{% url 'admin:index' %}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-indigo-200 hover:bg-indigo-800 hover:text-white text-sm transition-colors">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Gestion du contenu
+      </a>
+
+      <!-- Prévisualisation élève -->
+      <div class="pt-3 pb-1 px-2">
+        <p class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Prévisualisation</p>
+      </div>
+      <div class="px-1 space-y-0.5">
+        <a href="{% url 'preview_niveau' 'seconde' %}"
+           class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  {% if request.session.preview_niveau == 'seconde' %}bg-blue-600 text-white{% else %}text-indigo-200 hover:bg-indigo-800 hover:text-white{% endif %}">
+          <span class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold
+                       {% if request.session.preview_niveau == 'seconde' %}bg-white/20{% else %}bg-indigo-800{% endif %}">2<sup>de</sup></span>
+          Seconde
+        </a>
+        <a href="{% url 'preview_niveau' 'premiere' %}"
+           class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  {% if request.session.preview_niveau == 'premiere' %}bg-purple-600 text-white{% else %}text-indigo-200 hover:bg-indigo-800 hover:text-white{% endif %}">
+          <span class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold
+                       {% if request.session.preview_niveau == 'premiere' %}bg-white/20{% else %}bg-indigo-800{% endif %}">1<sup>re</sup></span>
+          Première
+        </a>
+        <a href="{% url 'preview_niveau' 'terminale' %}"
+           class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  {% if request.session.preview_niveau == 'terminale' %}bg-indigo-600 text-white{% else %}text-indigo-200 hover:bg-indigo-800 hover:text-white{% endif %}">
+          <span class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold
+                       {% if request.session.preview_niveau == 'terminale' %}bg-white/20{% else %}bg-indigo-800{% endif %}">T<sup>le</sup></span>
+          Terminale
+        </a>
+        {% if request.session.preview_niveau %}
+        <a href="{% url 'exit_preview' %}"
+           class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-red-900/40 text-red-300 hover:bg-red-900/60 hover:text-red-200">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Quitter
+        </a>
+        {% endif %}
+      </div>
+    {% else %}
+      {% include "components/nav_item.html" with url="tableau_de_bord" icon="home" label="Tableau de bord" %}
+      {% include "components/nav_item.html" with url="matieres" icon="book" label="Mes cours" %}
+      {% include "components/nav_item.html" with url="profil" icon="user" label="Mon profil" %}
+    {% endif %}
+  </nav>
+
+  <!-- Déconnexion -->
+  <div class="border-t border-indigo-900 p-3 flex-shrink-0">
+    <a href="{% url 'deconnexion' %}"
+       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-indigo-300 hover:bg-red-900/40 hover:text-red-300 text-sm transition-colors w-full">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      Se déconnecter
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="lg:pl-64 flex flex-col min-h-screen">
+
+  <!-- Top bar -->
+  <header class="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-14 flex items-center px-4 gap-4">
+    <button @click="sidebarOpen = !sidebarOpen"
+            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none lg:hidden">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+    <h1 class="text-base font-semibold text-gray-800 dark:text-gray-100 flex-1 truncate">{% block page_title %}{% endblock %}</h1>
+    <div class="flex items-center gap-2">
+      <!-- Bouton thème -->
+      <button @click="toggleTheme()"
+              class="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 transition-colors"
+              :title="darkMode ? 'Passer en mode clair' : 'Passer en mode sombre'">
+        <svg x-show="darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+        <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+        </svg>
+      </button>
+      <a href="{% url 'profil' %}" class="text-sm text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400 font-medium hidden sm:block">
+        {{ user.prenom }}
+      </a>
+      <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-semibold">
+        {{ user.initiales }}
+      </div>
+    </div>
+  </header>
+
+  <!-- Bandeau prévisualisation (affiché uniquement en mode preview) -->
+  {% if request.session.preview_niveau and user.is_admin %}
+  <div class="bg-amber-500 text-white px-4 py-2 flex items-center justify-between text-sm font-medium shrink-0">
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+      </svg>
+      Mode prévisualisation —
+      <strong>Vue élève :
+        {% if request.session.preview_niveau == 'seconde' %}Seconde
+        {% elif request.session.preview_niveau == 'premiere' %}Première
+        {% else %}Terminale{% endif %}
+      </strong>
+    </div>
+    <a href="{% url 'exit_preview' %}"
+       class="ml-4 flex items-center gap-1.5 px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-white text-xs font-semibold transition-colors">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+      Quitter la prévisualisation
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Flash messages -->
+  {% if messages %}
+  <div class="px-4 pt-4 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-start gap-3 p-3.5 rounded-xl text-sm border
+                {% if message.tags == 'success' %}bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300
+                {% elif message.tags == 'error' %}bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-700 text-red-800 dark:text-red-300
+                {% elif message.tags == 'warning' %}bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-300
+                {% else %}bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-300{% endif %}">
+      <span class="mt-0.5">
+        {% if message.tags == 'success' %}✓{% elif message.tags == 'error' %}✗{% else %}ℹ{% endif %}
+      </span>
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Page content -->
+  <main class="flex-1 p-4 md:p-6 fade-in">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="px-6 py-3 text-xs text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-gray-700 text-center">
+    ScienceLycée &mdash; Physique, Chimie & Mathématiques
+  </footer>
+</div>
+
+{% else %}
+<!-- LAYOUT SANS SIDEBAR (pages auth) -->
+<!-- Bouton thème flottant pour les pages non authentifiées -->
+<button @click="toggleTheme()"
+        class="fixed top-4 right-4 z-50 p-2.5 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-md border border-gray-200 dark:border-gray-600 text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white transition-all duration-200"
+        :title="darkMode ? 'Passer en mode clair' : 'Passer en mode sombre'">
+  <svg x-show="darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+  </svg>
+  <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+  </svg>
+</button>
+{% block full_content %}{% endblock %}
+{% endif %}
+
+</body>
+</html>

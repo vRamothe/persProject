@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Gestion des utilisateurs{% endblock %}
+{% block page_title %}Utilisateurs{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <!-- Filtres -->
+  <form method="get" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-3 flex-wrap">
+    <!-- Recherche -->
+    <div class="flex-1 min-w-48">
+      <input type="text" name="q" value="{{ search|default_if_none:'' }}"
+             placeholder="Rechercher un élève..."
+             class="w-full border border-gray-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
+    </div>
+    <!-- Filtre niveau -->
+    <select name="niveau"
+            class="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white transition">
+      <option value="">Tous les niveaux</option>
+      <option value="seconde" {% if niveau_filtre == 'seconde' %}selected{% endif %}>Seconde</option>
+      <option value="premiere" {% if niveau_filtre == 'premiere' %}selected{% endif %}>Première</option>
+      <option value="terminale" {% if niveau_filtre == 'terminale' %}selected{% endif %}>Terminale</option>
+    </select>
+    <!-- Filtre statut -->
+    <select name="actif"
+            class="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white transition">
+      <option value="">Tous les statuts</option>
+      <option value="1" {% if actif_filtre == '1' %}selected{% endif %}>Actifs</option>
+      <option value="0" {% if actif_filtre == '0' %}selected{% endif %}>Désactivés</option>
+    </select>
+    <button type="submit"
+            class="text-sm font-semibold px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-colors">
+      Filtrer
+    </button>
+    {% if search or niveau_filtre or actif_filtre %}
+    <a href="{% url 'admin_utilisateurs' %}"
+       class="text-sm text-gray-500 hover:text-red-500 transition-colors">
+      Réinitialiser
+    </a>
+    {% endif %}
+  </form>
+
+  <!-- Compteur -->
+  <div class="flex items-center justify-between">
+    <p class="text-sm text-gray-500">
+      <strong class="text-gray-800">{{ eleves|length }}</strong> élève{% if eleves|length > 1 %}s{% endif %} trouvé{% if eleves|length > 1 %}s{% endif %}
+    </p>
+    <a href="{% url 'admin:users_customuser_add' %}"
+       class="text-sm font-semibold px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors">
+      + Ajouter un élève
+    </a>
+  </div>
+
+  <!-- Tableau -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    {% if eleves %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-100 bg-gray-50">
+            <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Élève</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Niveau</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Progression</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Inscrit le</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Statut</th>
+            <th class="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          {% for eleve in eleves %}
+          <tr class="hover:bg-gray-50/50 transition-colors">
+            <!-- Avatar + nom -->
+            <td class="px-5 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700 flex-shrink-0">
+                  {{ eleve.prenom.0|upper }}{{ eleve.nom.0|upper }}
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-800">{{ eleve.nom_complet }}</p>
+                  <p class="text-xs text-gray-400">{{ eleve.email }}</p>
+                </div>
+              </div>
+            </td>
+            <!-- Niveau -->
+            <td class="px-5 py-3.5">
+              {% if eleve.niveau %}
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full
+                           {% if eleve.niveau == 'seconde' %}bg-blue-100 text-blue-700
+                           {% elif eleve.niveau == 'premiere' %}bg-purple-100 text-purple-700
+                           {% else %}bg-amber-100 text-amber-700{% endif %}">
+                {{ eleve.get_niveau_display }}
+              </span>
+              {% else %}—{% endif %}
+            </td>
+            <!-- Progression -->
+            <td class="px-5 py-3.5 hidden md:table-cell">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 bg-gray-100 rounded-full h-1.5 w-20">
+                  <div class="h-1.5 rounded-full bg-indigo-500 transition-all" style="width: {{ eleve.progression_pct }}%"></div>
+                </div>
+                <span class="text-xs text-gray-500 tabular-nums">{{ eleve.progression_pct|floatformat:0 }}%</span>
+              </div>
+            </td>
+            <!-- Date inscription -->
+            <td class="px-5 py-3.5 text-xs text-gray-400 hidden lg:table-cell">{{ eleve.date_joined|date:"d/m/Y" }}</td>
+            <!-- Statut actif -->
+            <td class="px-5 py-3.5">
+              <form method="post" action="{% url 'admin_toggle_actif' eleve.pk %}" class="inline">
+                {% csrf_token %}
+                <button type="submit"
+                        class="text-xs font-semibold px-2.5 py-1 rounded-full transition-colors
+                               {% if eleve.is_active %}bg-emerald-100 text-emerald-700 hover:bg-emerald-200
+                               {% else %}bg-red-100 text-red-600 hover:bg-red-200{% endif %}">
+                  {% if eleve.is_active %}Actif{% else %}Désactivé{% endif %}
+                </button>
+              </form>
+            </td>
+            <!-- Actions -->
+            <td class="px-5 py-3.5 text-right">
+              <a href="{% url 'admin:users_customuser_change' eleve.pk %}"
+                 class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+                Modifier
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="px-6 py-12 text-center text-gray-400">
+      <p class="text-lg mb-1">Aucun élève trouvé</p>
+      {% if search or niveau_filtre %}
+      <p class="text-sm">Essayez de modifier vos critères de recherche.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

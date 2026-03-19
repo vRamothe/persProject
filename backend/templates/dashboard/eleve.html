@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <!-- Bienvenue -->
+  <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-2xl font-bold">Bonjour, {{ user.prenom }} ! 👋</h2>
+        <p class="text-indigo-200 mt-1 text-sm">
+          Classe de <strong class="text-white">{{ user.get_niveau_display }}</strong> &mdash;
+          Continuez sur votre lancée !
+        </p>
+      </div>
+      <div class="hidden sm:block text-right">
+        <div class="text-3xl font-bold">{{ progression_globale }}%</div>
+        <div class="text-indigo-200 text-xs mt-0.5">de progression</div>
+      </div>
+    </div>
+    <!-- Barre de progression globale -->
+    <div class="mt-4">
+      <div class="flex justify-between text-xs text-indigo-200 mb-1">
+        <span>Progression globale</span>
+        <span>{{ lecons_terminees }} / {{ total_lecons }} leçons</span>
+      </div>
+      <div class="bg-white/20 rounded-full h-2">
+        <div class="bg-white rounded-full h-2 transition-all duration-500"
+             style="width: {{ progression_globale }}%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div class="text-2xl font-bold text-indigo-600">{{ lecons_terminees }}</div>
+      <div class="text-xs text-gray-500 mt-1">Leçons terminées</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div class="text-2xl font-bold text-emerald-600">{{ chapitres_debloques }}</div>
+      <div class="text-xs text-gray-500 mt-1">Chapitres débloqués</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div class="text-2xl font-bold text-purple-600">{{ quiz_passes }}</div>
+      <div class="text-xs text-gray-500 mt-1">Quiz validés</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div class="text-2xl font-bold text-amber-500">{{ score_moyen }}%</div>
+      <div class="text-xs text-gray-500 mt-1">Score moyen quiz</div>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <a href="{% url 'matieres' %}"
+       class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition-all group">
+      <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl mb-3 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+        📚
+      </div>
+      <div class="font-semibold text-gray-800 text-sm">Reprendre les cours</div>
+      <div class="text-xs text-gray-500 mt-0.5">Accéder à vos matières</div>
+    </a>
+    <a href="{% url 'profil' %}"
+       class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition-all group">
+      <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl mb-3 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+        👤
+      </div>
+      <div class="font-semibold text-gray-800 text-sm">Mon profil</div>
+      <div class="text-xs text-gray-500 mt-0.5">Modifier mes informations</div>
+    </a>
+    <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-100">
+      <div class="text-xl mb-3">💡</div>
+      <div class="font-semibold text-amber-800 text-sm">Le saviez-vous ?</div>
+      <div class="text-xs text-amber-700 mt-0.5">Terminez toutes les leçons d'un chapitre pour débloquer le suivant&nbsp;!</div>
+    </div>
+  </div>
+
+  <!-- Activité récente -->
+  {% if activite_recente %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100">
+      <h3 class="font-semibold text-gray-800">Activité récente</h3>
+    </div>
+    <ul class="divide-y divide-gray-50">
+      {% for prog in activite_recente %}
+      <li class="px-5 py-3.5 flex items-center gap-3 hover:bg-gray-50 transition-colors">
+        <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-sm
+                    {% if prog.statut == 'termine' %}bg-emerald-100 text-emerald-700
+                    {% elif prog.statut == 'en_cours' %}bg-blue-100 text-blue-700
+                    {% else %}bg-gray-100 text-gray-500{% endif %}">
+          {% if prog.statut == 'termine' %}✓{% elif prog.statut == 'en_cours' %}▶{% else %}○{% endif %}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-gray-800 truncate">{{ prog.lecon.titre }}</div>
+          <div class="text-xs text-gray-500">{{ prog.lecon.chapitre.matiere.get_nom_display }} — {{ prog.derniere_activite|date:"d/m/Y à H:i" }}</div>
+        </div>
+        <span class="text-xs px-2 py-0.5 rounded-full flex-shrink-0
+                     {% if prog.statut == 'termine' %}bg-emerald-100 text-emerald-700
+                     {% elif prog.statut == 'en_cours' %}bg-blue-100 text-blue-700
+                     {% else %}bg-gray-100 text-gray-500{% endif %}">
+          {{ prog.get_statut_display }}
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+    <div class="text-4xl mb-3">🚀</div>
+    <h3 class="text-gray-700 font-semibold">Commencez votre apprentissage !</h3>
+    <p class="text-gray-500 text-sm mt-1">Choisissez une matière pour démarrer votre première leçon.</p>
+    <a href="{% url 'matieres' %}" class="mt-4 inline-block px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors">
+      Voir les cours
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
