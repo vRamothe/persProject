@@ -21,4 +21,4 @@ USER django
 
 EXPOSE 8000
 
-ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
+CMD ["/bin/sh", "entrypoint.sh"]
