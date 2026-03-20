@@ -1,0 +1,55 @@
+﻿Chapitre 14 : Probabilités - Lois à densité
+L'étude des probabilités s'est jusqu'à présent concentrée sur des phénomènes où l'univers des possibles est fini ou dénombrable. Ce chapitre marque une étape fondamentale de votre formation mathématique : le passage du discret au continu. Nous allons apprendre à modéliser des grandeurs pouvant prendre une infinité de valeurs au sein d'un intervalle, en substituant le calcul de sommes par le calcul intégral.
+1. Introduction aux variables aléatoires continues
+De l'univers fini à l'univers continu
+Jusqu’à présent, nous avons manipulé des  variables aléatoires discrètes . Pour ces variables :
+* L’univers des possibles  $\Omega$  est fini (par exemple, les six faces d'un dé).
+* La loi de probabilité est définie par un tableau associant chaque valeur  $x_i$  à une probabilité  $P(X = x_i)$ .
+* La somme des probabilités est égale à 1 :  $\sum P(X=x_i) = 1$ .Cependant, de nombreux phénomènes réels ne se prêtent pas à ce découpage. Considérons la durée de vie d'un disque dur. La variable aléatoire  $X$  qui lui associe sa durée de fonctionnement peut prendre n'importe quelle valeur réelle dans l'intervalle  $[0 ; +\infty[$ . On ne peut plus lister les probabilités pour chaque point, car la probabilité d'une valeur exacte (ex: exactement 5000,000... heures) est quasi nulle.
+La transition vers l'intégrale
+Dans le cadre continu, la probabilité n'est plus associée à une valeur isolée mais à un  intervalle . Mathématiquement, nous passons d'une logique de sommation discrète à une logique de mesure d'aire sous une courbe : c'est l'introduction de la  fonction de densité .
+2. Généralités sur les fonctions de densité
+Définition : Fonction de densitéOn appelle  fonction de densité  (ou densité) toute fonction  $f$  définie sur un intervalle  $I$  de  $\mathbb{R}$  vérifiant les trois conditions impératives suivantes :
+1. Continuité :   $f$  est continue sur  $I$ .
+2. Positivité :  Pour tout  $x \in I$ ,  $f(x) \ge 0$ .
+3. Unicité de la mesure totale :  L'intégrale de  $f$  sur l'intervalle  $I$  est égale à 1.
+Calcul de probabilité
+Si  $X$  est une variable aléatoire continue sur un intervalle  $a ; b$ , la probabilité que  $X$  appartienne à un intervalle  $c ; d$  inclus dans  $a ; b$  est définie par :$$P(c \le X \le d) = \int_{c}^{d} f(t) \, dt$$Remarque fondamentale sur les bornes :  Pour une variable continue, la probabilité d'un point unique est nulle :  $P(X = c) = \int_{c}^{c} f(t) \, dt = 0$ . Il en résulte que la nature des inégalités (strictes ou larges) n'influence pas le résultat :  $$P(c \le X \le d) = P(c < X < d) = P(c \le X < d)$$  Par extension,  $P(X \le c) = P(X < c)$ .
+Pour prouver qu'une fonction  $f$  est une densité sur un intervalle  $a ; b$ , vous devez rigoureusement :
+1. Justifier la  continuité  sur  $a ; b$  (en citant les fonctions usuelles).
+2. Vérifier la  positivité  de  $f(x)$  pour tout  $x \in a ; b$ .
+3. Calculer l'intégrale  $\int_{a}^{b} f(t) \, dt$  et établir qu'elle est égale à  1 .Exemple d'application :  Démontrer que  $f(x) = 0,5x - 1$  est une densité sur  $2 ; 4$ .
+* Continuité :   $f$  est une fonction affine, elle est donc continue sur  $\mathbb{R}$ , et a fortiori sur  $2 ; 4$ .
+* Positivité :  Sur  $2 ; 4$ ,  $x \ge 2 \implies 0,5x \ge 1 \implies 0,5x - 1 \ge 0$ .
+* Intégrale :   $\int_{2}^{4} (0,5t - 1) \, dt = 0,25t^2 - t_{2}^{4} = (0,25 \times 16 - 4) - (0,25 \times 4 - 2) = (4 - 4) - (1 - 2) = 0 - (-1) = 1$ .
+* Conclusion :  Les trois conditions sont réunies,  $f$  est une densité de probabilité sur  $2 ; 4$ .
+3. Fonction de répartition, Espérance et Variance
+Définitions formelles
+Soit  $X$  une variable aléatoire continue de densité  $f$  sur  $a ; b$ .La Fonction de RépartitionPour tout  $x \in a ; b$ , la fonction  $F$  est définie par :  $$F(x) = P(X \le x) = \int_{a}^{x} f(t) \, dt$$Indicateurs de position et de dispersion
+* Espérance mathématique :  Elle représente la valeur moyenne théorique.  $$E(X) = \int_{a}^{b} t f(t) \, dt$$
+* Variance :  Elle mesure la dispersion des valeurs autour de l'espérance.  $$V(X) = \int_{a}^{b} (t - E(X))^2 f(t) \, dt$$
+Une entreprise produit des dalles dont la production quotidienne  $X$  (en tonnes) suit une densité  $f(x) = 0,015x - 0,00075x^2$  sur  $0 ; 20$ .1. Calcul de la probabilité  $P(X \ge 12)$  :   $$P(12 \le X \le 20) = \int_{12}^{20} (0,015t - 0,00075t^2) \, dt = 0,0075t^2 - 0,00025t^3{12}^{20}$$   $$P(X \ge 12) = (0,0075 \times 20^2 - 0,00025 \times 20^3) - (0,0075 \times 12^2 - 0,00025 \times 12^3)$$   $$P(X \ge 12) = 1 - 0,648 = 0,352$$2. Calcul de l'espérance  $E(X)$  :   $$E(X) = \int{0}^{20} t(0,015t - 0,00075t^2) \, dt = \int_{0}^{20} (0,015t^2 - 0,00075t^3) \, dt$$   $$E(X) = 0,005t^3 - 0,0001875t^4_{0}^{20} = (0,005 \times 8000 - 0,0001875 \times 160000) - 0 = 40 - 30 = 10$$  La production moyenne est de  10 tonnes  par jour.
+4. Étude de la loi uniforme
+Découverte : La loi uniforme sur  $0 ; 1$
+C'est le cas le plus simple où la densité est constante sur l'intervalle unité. On note  $X \sim U(0 ; 1)$ . Sa densité est  $f(x) = 1$ .
+Généralisation : La loi uniforme sur  $a ; b$
+On dit que  $X$  suit une loi uniforme sur  $a ; b$ , notée  $U(a ; b)$ , si sa densité est constante.Propriétés de la loi uniforme  $U(a ; b)$
+* Densité :   $f(x) = \frac{1}{b - a}$  pour  $x \in a ; b$ .
+* Fonction de répartition :   $P(a \le X \le x) = \frac{x - a}{b - a}$ .
+* Espérance :   $E(X) = \frac{a + b}{2}$ .
+* Variance :   $V(X) = \frac{(b - a)^2}{12}$ .Démonstration de l'espérance :   $$E(X) = \int_{a}^{b} t \frac{1}{b-a} \, dt = \frac{1}{b-a} \left\frac{1}{2}t^2 \right_{a}^{b} = \frac{1}{b-a} \times \frac{b^2 - a^2}{2} = \frac{(b-a)(b+a)}{2(b-a)} = \frac{a+b}{2}$$
+5. Étude de la loi exponentielle
+La loi exponentielle de paramètre  $\lambda$  ( $\lambda > 0$ ) est essentielle pour modéliser des durées de vie (composants électroniques, désintégration radioactive).Définition et DensitéUne variable  $X$  suit une loi exponentielle de paramètre  $\lambda$  sur  $[0 ; +\infty[$  si sa densité est :  $$f(x) = \lambda e^{-\lambda x}$$
+Fonction de répartition et Espérance
+Démonstration de la fonction de répartition :  Pour tout  $x \ge 0$  :  $$P(X \le x) = \int_{0}^{x} \lambda e^{-\lambda t} \, dt = -e^{-\lambda t}_{0}^{x} = -e^{-\lambda x} - (-e^0) = 1 - e^{-\lambda x}$$Indicateurs :
+* Fonction de répartition :   $F(x) = 1 - e^{-\lambda x}$
+* Espérance :   $E(X) = \frac{1}{\lambda}$
+Propriété d'absence de mémoire
+C'est la propriété de  "durée de vie sans vieillissement" . Elle signifie que la probabilité qu'un composant survive encore  $h$  heures ne dépend pas du temps  $t$  déjà écoulé.L'absence de mémoirePour tous réels  $t$  et  $h$  positifs :  $$P_{X \ge t}(X \ge t + h) = P(X \ge h)$$   Shorthand utile :   $P_{X \ge a}(X \ge b) = P(X \ge b - a)$
+La durée de vie  $X$  d'un composant suit une loi exponentielle de paramètre  $\lambda = 0,0035$ . Sachant qu'il a déjà fonctionné 200 heures ( $X \ge 200$ ), quelle est la probabilité qu'il tombe en panne avant 300 heures ?Résolution :
+1. On cherche  $P_{X \ge 200}(X \le 300)$ .
+2. Passons par l'événement contraire :  $1 - P_{X \ge 200}(X > 300)$ .
+3. On décompose  $300$  pour utiliser la propriété :  $300 = 200 + 100$ .
+4. Par absence de mémoire :  $P_{X \ge 200}(X > 200 + 100) = P(X > 100)$ .
+5. D'où  $P_{X \ge 200}(X \le 300) = 1 - P(X > 100) = P(X \le 100)$ .
+6. Calcul final :  $P(X \le 100) = 1 - e^{-0,0035 \times 100} = 1 - e^{-0,35} \approx 0,3$ . Il y a environ  30 %  de chances que le composant défaille dans les 100 heures à venir.

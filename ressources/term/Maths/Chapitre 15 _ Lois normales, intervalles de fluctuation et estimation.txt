@@ -1,0 +1,69 @@
+﻿Chapitre 15 : Lois normales, intervalles de fluctuation et estimation
+I. Introduction aux variables aléatoires continues
+1. Définition et densité de probabilité
+Une variable aléatoire  $X$  est dite  continue  (ou à densité) lorsque sa loi de probabilité est définie par une fonction  $f$ , appelée  fonction de densité , telle que la probabilité de tout intervalle inclus dans son ensemble de définition  $I$  s'exprime sous forme d'intégrale.On appelle fonction de densité toute fonction  $f$  définie sur un intervalle  $I$  de  $\mathbb{R}$  remplissant les trois conditions suivantes :
+* Continuité :   $f$  est continue sur  $I$ .
+* Positivité :   $f$  est positive sur  $I$  ( $f(x) \ge 0$  pour tout  $x \in I$ ).
+* Condition de normalisation :  L'intégrale de  $f$  sur l'intervalle  $I$  est égale à 1.
+2. Calcul de probabilités
+Soit  $X$  une variable aléatoire continue de densité  $f$  sur un intervalle  $I$ . La probabilité que  $X$  appartienne à un intervalle  $c, d$  inclus dans  $I$  correspond à l'aire sous la courbe de  $f$  délimitée par l'axe des abscisses et les droites d'équations  $x=c$  et  $x=d$  :  $$P(X \in c, d) = \int_c^d f(t)dt$$Remarque cruciale :  Pour toute variable aléatoire continue, la probabilité ponctuelle est nulle :  $P(X = a) = \int_a^a f(t)dt = 0$ . Par conséquent, l'ajout ou le retrait des bornes d'un intervalle ne modifie pas sa probabilité :  $P(X \le a) = P(X < a)$ .
+3. Fonction de répartition
+Soit  $X$  une variable aléatoire de densité  $f$  sur un intervalle  $a, b$ . Pour tout  $x \in a, b$ , on définit la fonction de répartition  $F$  par :  $$x \mapsto F(x) = P(X \le x) = \int_a^x f(t)dt$$
+4. Espérance et Variance
+Pour une variable à densité sur l'intervalle  $a, b$ , l'espérance mathématique et la variance sont définies par les extensions intégrales des formules discrètes :
+* Espérance :   $E(X) = \int_a^b t f(t)dt$
+* Variance :   $V(X) = \int_a^b (t - E(X))^2 f(t)dt$
+Méthode : Déterminer si une fonction est une densité de probabilité  Démontrer que la fonction  $f$  définie sur  $2 ; 4$  par  $f(x) = 0,5x - 1$  est une fonction de densité.Correction
+1. Continuité :   $f$  est une fonction affine, elle est donc continue sur  $2 ; 4$ .
+2. Positivité :  Pour tout  $x \in 2 ; 4$ , on a  $x \ge 2$ , donc  $0,5x \ge 1$ , d'où  $f(x) \ge 0$ . La fonction est bien positive sur l'intervalle.
+3. Calcul de l'intégrale :   $$\int_2^4 f(t)dt = \int_2^4 (0,5t - 1)dt = \left0,25t^2 - t\right_2^4$$   $$= (0,25 \times 4^2 - 4) - (0,25 \times 2^2 - 2) = (4 - 4) - (1 - 2) = 0 - (-1) = 1$$  L'intégrale sur  $2; 4$  est égale à 1. Les trois conditions étant vérifiées,  $f$  est une fonction de densité.
+II. Étude des lois de probabilité usuelles à densité
+1. Loi Uniforme sur  $a ; b$
+La loi uniforme sur  $a ; b$ , notée  $\mathcal{U}(a ; b)$ , modélise une équirépartition des probabilités sur l'intervalle.
+* Densité :  La fonction  $f$  est constante :  $f(x) = \frac{1}{b - a}$  sur  $a ; b$ .
+* Fonction de répartition :  Pour tout  $x \in a ; b$ ,  $P(a \le X \le x) = \frac{x - a}{b - a}$ .
+* Démonstration :   $P(a \le X \le x) = \int_a^x \frac{1}{b - a}dt = \left\frac{t}{b - a} \right_a^x = \frac{x}{b - a} - \frac{a}{b - a} = \frac{x - a}{b - a}$ .
+* Espérance :   $E(X) = \frac{a + b}{2}$ .
+* Démonstration :   $E(X) = \int_a^b t \frac{1}{b - a}dt = \frac{1}{b - a} \int_a^b t dt = \frac{1}{b - a} \left\frac{1}{2}t^2 \right_a^b$
+* $E(X) = \frac{1}{b - a} \left( \frac{b^2 - a^2}{2} \right) = \frac{(b - a)(b + a)}{2(b - a)} = \frac{a + b}{2}$ .
+* Variance :   $V(X) = \frac{(b - a)^2}{12}$ .
+2. Loi Exponentielle de paramètre  $\lambda$
+Elle modélise souvent des durées de vie ou des temps d'attente sans usure.
+* Densité :   $f(x) = \lambda e^{-\lambda x}$  sur  $[0 ; +\infty[$ , avec  $\lambda > 0$ .
+* Fonction de répartition :   $P(X \le x) = 1 - e^{-\lambda x}$ .
+* Espérance :   $E(X) = \frac{1}{\lambda}$ .Propriété d'absence de mémoire :  La loi exponentielle est dite "sans vieillissement". Pour tous réels  $t$  et  $h$  positifs :  $$P_{X \ge t}(X \ge t+h) = P(X \ge h)$$  Cette propriété peut aussi s'écrire sous une forme souvent plus simple à appliquer :  $$P_{X \ge a}(X \ge b) = P(X \ge b-a)$$
+Méthode : Utiliser la propriété d'absence de mémoire  La durée de vie  $X$  d'un composant suit une loi exponentielle de paramètre  $\lambda = 0,0035$ . Sachant qu'il a fonctionné plus de 200h, calculer la probabilité qu'il tombe en panne avant 300h.Correction  On cherche la probabilité conditionnelle  $P_{X \ge 200}(X \le 300)$ . Par passage à l'événement contraire :  $P_{X \ge 200}(X \le 300) = 1 - P_{X \ge 200}(X > 300)$ . D'après la propriété d'absence de mémoire :  $P_{X \ge 200}(X > 300) = P(X > 300 - 200) = P(X > 100)$ . Ainsi :  $P_{X \ge 200}(X \le 300) = 1 - P(X > 100) = P(X \le 100)$ .  $P(X \le 100) = 1 - e^{-0,0035 \times 100} = 1 - e^{-0,35} \approx 0,3$ .
+III. Moyenne d’un échantillon et Inégalités fondamentales
+Après avoir étudié les propriétés de variables aléatoires isolées, nous analysons maintenant le comportement statistique d'une collection de variables, constituant un échantillon.
+1. Moyenne d'un échantillon
+Soit  $X_1, X_2, \dots, X_n$  un échantillon de taille  $n$  constitué de variables aléatoires indépendantes suivant une même loi que  $X$ . La variable aléatoire  moyenne  de l'échantillon est définie par :  $$M_n = \frac{X_1 + X_2 + \dots + X_n}{n}$$
+2. Propriétés de  $M_n$
+L'espérance, la variance et l'écart-type de  $M_n$  se déduisent de ceux de  $X$  :
+* $E(M_n) = E(X)$
+* $V(M_n) = \frac{V(X)}{n}$
+* $\sigma(M_n) = \frac{\sigma(X)}{\sqrt{n}}$
+3. Inégalité de Bienaymé-Tchebychev
+Pour toute variable aléatoire  $X$  d'espérance  $E(X)$  et de variance  $V(X)$ , et pour tout réel  $\delta > 0$  :  $$P(|X - E(X)| \ge \delta) \le \frac{V(X)}{\delta^2}$$
+4. Inégalité de Concentration
+En appliquant l'inégalité de Bienaymé-Tchebychev à la variable  $M_n$ , on obtient l'inégalité de concentration :  $$P(|M_n - E(X)| \ge \delta) \le \frac{V(X)}{n\delta^2}$$
+IV. Loi des Grands Nombres et Estimation
+1. Loi des Grands Nombres
+Pour tout réel  $\delta > 0$  :  $$\lim_{n \to +\infty} P(|M_n - E(X)| \ge \delta) = 0$$
+2. Interprétation
+Plus la taille de l'échantillon  $n$  augmente, plus la probabilité que la moyenne observée  $M_n$  s'écarte de l'espérance théorique  $E(X)$  devient faible. Graphiquement, les valeurs de la moyenne se concentrent autour de l'espérance.
+3. Méthode d'Estimation
+L'inégalité de concentration permet de déterminer la taille  $n$  nécessaire pour qu'une moyenne appartienne à un intervalle avec une probabilité minimale.
+Méthode : Déterminer la taille d'un échantillon  Soit  $X$  suivant une loi de Bernoulli de paramètre  $p=0,2$ . Déterminer  $n$  pour que la probabilité que  $M_n$  appartienne à l'intervalle  $0,03 ; 0,37$  soit supérieure ou égale à  $0,95$ .Correction
+1. Centrage sur l'espérance :   $E(X) = p = 0,2$ . L'intervalle  $0,03 ; 0,37$  peut s'écrire sous la forme  $0,2 - 0,17 ; 0,2 + 0,17$ . On cherche  $n$  tel que  $P(|M_n - 0,2| < 0,17) \ge 0,95$ .
+2. Passage à l'événement contraire :   $1 - P(|M_n - 0,2| \ge 0,17) \ge 0,95 \iff P(|M_n - 0,2| \ge 0,17) \le 0,05$ .
+3. Application de l'inégalité de concentration :  Avec  $\delta = 0,17$  et  $V(X) = p(1-p) = 0,16$ , on pose :  $\frac{V(X)}{n\delta^2} \le 0,05 \iff \frac{0,16}{n \times 0,17^2} \le 0,05$ .
+4. Résolution :   $n \ge \frac{0,16}{0,05 \times 0,17^2} \approx 110,7$ . Il faut donc choisir un échantillon de taille  $n \ge 111$ .
+V. Synthèse pédagogique
+1. Tableau récapitulatif
+Loi / Variable,Paramètre(s),Densité  $f(x)$,Espérance  $E(X)$
+Loi Uniforme,$a$  et  $b$  (bornes),$f(x) = \frac{1}{b - a}$,$\frac{a + b}{2}$
+Loi Exponentielle,$\lambda > 0$,$f(x) = \lambda e^{-\lambda x}$,$\frac{1}{\lambda}$
+Moyenne  $M_n$,Taille  $n$  et loi de  $X$,(Dépend de la loi de  $X$ ),$E(X)$
+2. Remarques de cours
+* Lien avec la loi normale :  Les résultats sur la concentration de la moyenne et la loi des grands nombres constituent le fondement de l'inférence statistique. Ils préfigurent le théorème de Moivre-Laplace, qui permet d'approcher une loi binomiale par une loi normale sous certaines conditions de taille d'échantillon.
+* Optimalité :  L'inégalité de Bienaymé-Tchebychev est un outil théorique puissant car universel, mais elle n'est pas "optimale" : les probabilités réelles d'écart sont souvent bien plus faibles que la borne supérieure donnée par la formule.

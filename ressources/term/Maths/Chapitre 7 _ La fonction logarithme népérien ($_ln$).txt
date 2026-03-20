@@ -1,0 +1,64 @@
+﻿Manuel de cours : La fonction logarithme népérien ( $\ln$ )
+Ce manuel, conçu pour les élèves du Cycle Terminal, expose de manière rigoureuse l'étude de la fonction logarithme népérien. Il s'appuie sur les propriétés de la fonction exponentielle et les outils de l'analyse (dérivation, convexité, intégration) conformément au programme en vigueur.
+1. Introduction et Fondements de la Fonction  $\ln$
+La fonction logarithme népérien est introduite par le biais de la réciprocité. En s'appuyant sur la Section V.3 du document source, nous définissons  $\ln$  comme la réciproque de la fonction exponentielle.Théorème (Existence et Définition)La fonction exponentielle  $\exp : x \mapsto e^x$  est continue et strictement croissante sur  $\mathbb{R}$  à valeurs dans  $]0 ; +\infty$ . D'après le théorème de la bijection (Section IV.3.1), elle admet une fonction réciproque unique, appelée  fonction logarithme népérien , notée  $\ln$ .Son ensemble de définition est donc l'intervalle  **$0 ; +\infty[**$ .
+Relation fondamentale
+Le passage d'une écriture exponentielle à une écriture logarithmique repose sur l'équivalence suivante :
+Pour tout x ∈ ]0 ; +∞[ et tout y ∈ ℝ :
+y = ln(x) ⟺ x = e^y
+
+
+2. Propriétés Algébriques du Logarithme Népérien
+Les propriétés de la fonction  $\ln$  découlent directement de celles de la fonction exponentielle. Sa caractéristique principale est de transformer un produit en somme.
+* Logarithme d'un produit :   $\ln(a \times b) = \ln(a) + \ln(b)$  pour tous  $a, b > 0$ .
+* Logarithme d'un quotient :   $\ln\left(\frac{a}{b}\right) = \ln(a) - \ln(b)$ .
+* Logarithme d'une puissance :   $\ln(a^n) = n \ln(a)$  pour tout  $n \in \mathbb{Q}$ .
+* Lien avec la notation  $a^b$  :  Cette propriété permet de définir les puissances réelles (Section V.3.1). Pour tout  $a > 0$  et tout réel  $b$ , on pose :  $a^b = e^{b \ln(a)}$ .
+* Logarithme d'une racine carrée :   $\ln(\sqrt{a}) = \frac{1}{2} \ln(a)$ .
+Valeurs particulières
+En cohérence avec la base  $e$  définie au chapitre V.1 :
+* $\ln(1) = 0$  (car  $e^0 = 1$ )
+* $\ln(e) = 1$  (car  $e^1 = e$ )
+3. Étude Analytique Complète
+Dérivabilité
+Conformément à la section V.2.2, la fonction  $\ln$  est dérivable sur son ensemble de définition  $]0 ; +\infty[$ .
+Calcul de la dérivée
+* Fonction de base :  La dérivée de  $f(x) = \ln(x)$  est  $f'(x) = \frac{1}{x}$ .
+* Forme composée :  Soit  $u$  une fonction dérivable sur un intervalle  $I$  telle que pour tout  $x \in I$ ,  $u(x) > 0$ . La fonction  $f = \ln(u)$  est alors dérivable sur  $I$  et sa dérivée est :  $$(\ln(u))' = \frac{u'}{u}$$
+Variations et Continuité
+* Sens de variation :  Pour tout  $x \in ]0 ; +\infty$ ,  $f'(x) = \frac{1}{x} > 0$ . La fonction  $\ln$  est donc  strictement croissante  sur  $0 ; +\infty[$ .
+* Continuité :  Étant dérivable, la fonction est continue sur son domaine, ce qui justifie son caractère bijectif.
+Limites aux bornes
+Les limites se déduisent par symétrie de celles de la fonction exponentielle (Section V.1.4) :
+* $\lim_{x \to 0^+} \ln(x) = -\infty$  (l'axe des ordonnées est asymptote verticale).
+* $\lim_{x \to +\infty} \ln(x) = +\infty$ .
+4. Analyse de la Convexité
+En appliquant la méthodologie du document 20ConvexiteTC.docx (Partie 2), nous étudions la courbure de la courbe  $\mathcal{C}_{\ln}$  via le signe de la dérivée seconde.Méthode : Étude de la convexité
+1. Calcul de la dérivée seconde :   $f'(x) = \frac{1}{x} = x^{-1}$ . Par dérivation,  $f''(x) = -1 \times x^{-2} = \mathbf{-\frac{1}{x^2}}$ .
+2. Analyse du signe :  Pour tout  $x \in ]0 ; +\infty[$ ,  $x^2 > 0$ . Par conséquent,  $f''(x) < 0$ .
+3. Conclusion :  Puisque  $f''(x) \leq 0$  sur son intervalle de définition, la fonction  $\ln$  est  concave .Interprétation graphique :
+* La courbe  $\mathcal{C}_{\ln}$  est située entièrement  en dessous de chacune de ses tangentes .
+* La courbe est située entièrement  au-dessus de chacune de ses cordes  (segments reliant deux points de la courbe).
+5. Comparaison avec la Fonction Exponentielle
+La relation de réciprocité entre  $\exp$  et  $\ln$  implique une propriété géométrique fondamentale mentionnée en Section II.2 du document source.Symétrie axiale :  Les courbes  $\mathcal{C}{\exp}$  et  $\mathcal{C}{\ln}$  sont symétriques par rapport à la droite d'équation  $y = x$ .  Justification :  Un point  $M(a; b)$  appartient à  $\mathcal{C}{\exp}$  si et seulement si  $b = e^a$ , ce qui équivaut à  $a = \ln(b)$ . Le point  $M'(b; a)$  appartient donc nécessairement à  $\mathcal{C}{\ln}$ .
+Tableau comparatif
+Critère,Fonction Exponentielle ( $\exp$ ),Fonction Logarithme ( $\ln$ )
+Ensemble de définition,$\mathbb{R}$,$]0 ; +\infty[$
+Ensemble image,$]0 ; +\infty[$,$\mathbb{R}$
+Comportement en  $-\infty$  (ou  $0^+$  ),$\lim_{x \to -\infty} e^x = 0$,$\lim_{x \to 0^+} \ln(x) = -\infty$
+Comportement en  $+\infty$,$\lim_{x \to +\infty} e^x = +\infty$,$\lim_{x \to +\infty} \ln(x) = +\infty$
+Valeur en 0 ou 1,$e^0 = 1$,$\ln(1) = 0$
+6. Logarithme Népérien et Calcul Intégral
+Selon la section V.2.4, la fonction  $\ln$  peut être définie par l'intégration :
+* La fonction  $\ln$  est l'unique  primitive  de la fonction  $x \mapsto \frac{1}{x}$  sur  $]0 ; +\infty[$  qui  s'annule en 1 .
+* On écrit :  $\ln(x) = \int_{1}^{x} \frac{1}{t} dt$ .
+Primitives de fonctions composées
+En application des règles de dérivation (Section V.2.3), si  $u$  est une fonction dérivable et strictement positive sur un intervalle  $I$ , alors les primitives de la fonction  $\frac{u'}{u}$  sont de la forme :  $F(x) = \ln(u(x)) + C$ , où  $C \in \mathbb{R}$ .
+7. Applications et Exercices Types
+Résolution d'équations : Méthode
+Pour résoudre une équation de type  $\ln(A(x)) = \ln(B(x))$  :
+1. Déterminer l'ensemble de validité :  Résoudre le système d'inéquations  $A(x) > 0$  et  $B(x) > 0$ .
+2. Appliquer la bijectivité :  Utiliser la stricte croissance pour affirmer que  $\ln(A(x)) = \ln(B(x)) \iff A(x) = B(x)$ .
+3. Conclure :  Vérifier que les solutions obtenues appartiennent à l'ensemble de validité.
+Exemple : Croissances comparées
+Problème :  Calculer  $\lim_{x \to +\infty} \frac{\ln(x)}{x}$ .Justification (Section V.3) :  On sait que "l'exponentielle l'emporte sur toute puissance de  $x$ ". Posons le changement de variable  $X = \ln(x)$ , ce qui implique  $x = e^X$ . Lorsque  $x \to +\infty$ , alors  $X \to +\infty$ . L'expression devient :  $\lim_{X \to +\infty} \frac{X}{e^X}$ . Or, nous savons que  $\lim_{X \to +\infty} \frac{e^X}{X} = +\infty$ . Par inverse, on en déduit :  $\lim_{x \to +\infty} \frac{\ln(x)}{x} = 0$ .

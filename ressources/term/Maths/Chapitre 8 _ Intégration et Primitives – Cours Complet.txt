@@ -1,0 +1,47 @@
+﻿Chapitre 8 : Intégration et Primitives – Cours Complet
+Ce document présente une étude rigoureuse de l’intégration et de la recherche de primitives. Ces outils constituent le pilier de l’analyse pour le calcul d’aires, l’étude des lois de probabilités à densité et la modélisation de systèmes physiques ou économiques.
+1. Primitives d’une Fonction
+La recherche de primitives est l’opération inverse de la dérivation. Elle permet de reconstituer une fonction à partir de sa variation instantanée.Définition :  Soit  $f$  une fonction continue sur un intervalle  $I$ . On appelle primitive de  $f$  sur  $I$  toute fonction  $F$  dérivable sur  $I$  telle que, pour tout  $x \in I$  :  $$F'(x) = f(x)$$
+1.1. Propriété des primitives
+Si  $F$  est une primitive de  $f$  sur  $I$ , alors toute autre primitive  $G$  de  $f$  sur  $I$  est de la forme  $G(x) = F(x) + C$ , où  $C$  est une constante réelle. L'ensemble des primitives d'une fonction est donc une famille de fonctions translatées verticalement.
+1.2. Application à la linéarisation par les formules d'Euler
+Pour déterminer les primitives de puissances de fonctions trigonométriques, la méthode de linéarisation est indispensable. Elle s'appuie sur les formules d'Euler :  $\cos(x) = \frac{e^{ix} + e^{-ix}}{2}$  et  $\sin(x) = \frac{e^{ix} - e^{-ix}}{2i}$ .Exemple :  Pour calculer une primitive de  $f(x) = \cos^3(x)$ , on transforme l'expression en une somme d'expressions simples :  $$\cos^3(x) = \left(\frac{e^{ix} + e^{-ix}}{2}\right)^3 = \frac{1}{8}(e^{3ix} + 3e^{ix} + 3e^{-ix} + e^{-3ix})$$  En regroupant les termes exponentiels, on obtient :  $$\cos^3(x) = \frac{1}{4}\cos(3x) + \frac{3}{4}\cos(x)$$  Une primitive  $F$  de  $f$  est alors immédiatement déduite par linéarité :  $$F(x) = \frac{1}{12}\sin(3x) + \frac{3}{4}\sin(x) + C, \quad C \in \mathbb{R}$$
+2. Tableaux des Primitives Usuelles et Composées
+Les tableaux ci-dessous recensent les formes fondamentales. Dans chaque cas,  $C$  désigne une constante réelle arbitraire.
+Tableau 1 : Primitives des fonctions usuelles
+Fonction  $f(x)$,Primitive  $F(x)$,Conditions / Intervalle
+$a$  (constante),$ax + C$,$\mathbb{R}$
+$x^n$,$\frac{x^{n+1}}{n+1} + C$,$n \in \mathbb{Z} \setminus \{-1\}$  ;  $x \in ]0; +\infty[$  si  $n < -1$
+$\cos(x)$,$\sin(x) + C$,$\mathbb{R}$
+$\sin(x)$,$-\cos(x) + C$,$\mathbb{R}$
+$e^{ax+b}$,$\frac{1}{a}e^{ax+b} + C$,$a \neq 0$  ;  $\mathbb{R}$
+Tableau 2 : Primitives des fonctions composées
+Ces formes généralisent les règles de dérivation des fonctions composées, notamment pour les fonctions circulaires de type  $\cos(ax+b)$  dont la dérivée est  $-a\sin(ax+b)$ .| Forme de la fonction  $f$ | Primitive  $F$ | Conditions || ------ | ------ | ------ || $u'u^n$ | $\frac{u^{n+1}}{n+1} + C$ | $n \in \mathbb{Z} \setminus \{-1\}$ || $\frac{u'}{u}$ | $\ln | u || $u'e^u$ | $e^u + C$ | $u$  dérivable || $u' \cos(u)$ | $\sin(u) + C$ | $u$  dérivable || $u' \sin(u)$ | $-\cos(u) + C$ | $u$  dérivable |
+3. Intégrale de Riemann et Notion d'Aire
+3.1. Approche géométrique
+Pour une fonction  $f$  continue et positive sur  $a; b$ , l'intégrale  $\int_{a}^{b} f(x) dx$  est définie comme l'aire du domaine délimité par la courbe  $\mathcal{C}_f$ , l'axe des abscisses et les droites  $x=a$  et  $x=b$ .
+3.2. Construction par les sommes de Riemann
+L'intégrale repose sur l'encadrement de  $f$  par des  fonctions en escalier . Pour une subdivision de  $a, b$ , on définit des sommes de rectangles (Sommes de Riemann). L'intégrale est la  limite  unique de ces sommes lorsque le pas de la subdivision tend vers zéro.
+3.3. Lien avec les probabilités (Lois à densité)
+Pour une variable aléatoire continue  $X$  de densité  $f$  sur un intervalle  $I$ , la probabilité que  $X$  appartienne à  $a; b$  est :  $$P(a \leq X \leq b) = \int_{a}^{b} f(x) dx$$  Cette aire sous la courbe de densité représente la proportion de chances que l'événement se réalise.
+4. Le Théorème Fondamental de l'Analyse
+Ce théorème établit le pont entre le calcul intégral (aire) et le calcul différentiel (primitives).Théorème Fondamental :  Soit  $f$  une fonction continue sur  $a; b$ . Si  $F$  est une primitive de  $f$  sur  $a; b$ , alors :  $$\int_{a}^{b} f(x) dx = F(x)_{a}^{b} = F(b) - F(a)$$Exemple d'application (Loi à densité du plâtre) :  Une entreprise produit des dalles de plâtre selon une densité  $f(x) = 0,015x - 0,00075x^2$  sur  $0; 20$ . Vérifions que l'intégrale totale est égale à 1 :
+1. Recherche d'une primitive :  $F(x) = \frac{0,015}{2}x^2 - \frac{0,00075}{3}x^3 = 0,0075x^2 - 0,00025x^3$ .
+2. Calcul de l'intégrale sur  $0; 20$  :  $$\int_{0}^{20} f(x) dx = F(20) - F(0) = (0,0075 \times 20^2 - 0,00025 \times 20^3) - 0$$   $$\int_{0}^{20} f(x) dx = (3 - 2) = 1$$  La condition de normalisation de la densité est bien vérifiée.
+5. Propriétés Algébriques de l'Intégrale
+* Relation de Chasles :  Pour tout  $c \in a; b$ ,  $\int_{a}^{b} f(x) dx = \int_{a}^{c} f(x) dx + \int_{c}^{b} f(x) dx$ .
+* Linéarité :   $\int_{a}^{b} (\alpha f(x) + \beta g(x)) dx = \alpha \int_{a}^{b} f(x) dx + \beta \int_{a}^{b} g(x) dx$ .
+* Signe et Aires :  Contrairement à une aire qui est toujours positive, une intégrale peut être négative. Si  $f$  change de signe sur  $a, b$ , on utilise la relation de Chasles aux racines de  $f$  pour calculer l'aire géométrique totale :  $\text{Aire} = \int_{a}^{c} f(x) dx + \int_{c}^{b} -f(x) dx$  (si  $f$  est négative sur  $c, b$ ).
+6. Intégration par Parties (IPP)
+Cette technique est la transposition de la dérivation d'un produit.Théorème d'intégration par parties :  Soient  $u$  et  $v$  deux fonctions de classe  $C^1$  (dérivables et à dérivée continue) sur l'intervalle  $a; b$ . On a :  $$\int_{a}^{b} u(x)v'(x) dx = u(x)v(x){a}^{b} - \int{a}^{b} u'(x)v(x) dx$$
+7. Propriétés de Comparaison et Valeur Moyenne
+7.1. Comparaison et Inégalités
+* Positivité :  Si  $f \geq 0$  sur  $a; b$ , alors  $\int_{a}^{b} f(x) dx \geq 0$ .
+* Inégalité de la moyenne :  Si  $m \leq f(x) \leq M$  sur  $a; b$ , alors  $m(b-a) \leq \int_{a}^{b} f(x) dx \leq M(b-a)$ .
+7.2. Valeur Moyenne et Espérance
+Définition :  La valeur moyenne  $M$  d'une fonction continue  $f$  sur  $a; b$  est donnée par :  $$M = \frac{1}{b-a} \int_{a}^{b} f(x) dx$$Cette notion de "hauteur moyenne" est à distinguer de l' espérance mathématique   $E(X)$  d'une variable aléatoire, définie par  $E(X) = \int_{a}^{b} x f(x) dx$ . Alors que  $M$  est la moyenne des valeurs de la fonction  $f$ ,  $E(X)$  est la  moyenne pondérée  des valeurs  $x$  par leur densité de probabilité  $f(x)$ .
+8. Applications et Exercices d'Illustration
+Exercice 1 : Loi Uniforme et probabilités
+On considère une loi uniforme sur  $0; 60$ . La densité est  $f(x) = \frac{1}{60}$ . Calculer  $P(15 \leq X \leq 40)$  :  $$P(15 \leq X \leq 40) = \int_{15}^{40} \frac{1}{60} dx = \left\frac{x}{60} \right_{15}^{40} = \frac{40 - 15}{60} = \frac{25}{60} = \frac{5}{12}$$  L'espérance est  $E(X) = \frac{0+60}{2} = 30$ , ce qui correspond au centre de l'intervalle.
+Exercice 2 : Reconstruction du coût total (Convexité)
+Une entreprise produit  $x$  milliers de clés USB. Le coût marginal est  $C'(x) = 0,15x^2 - 2,1x + 8$ . Les coûts fixes s'élèvent à  $C(0) = 4$  milliers d'euros. Par intégration, on retrouve la fonction de coût total  $C(x)$  :  $$C(x) = \int C'(x) dx = 0,05x^3 - 1,05x^2 + 8x + K$$  En utilisant la condition initiale  $C(0) = 4$ , on obtient  $K = 4$ . D'où :  $C(x) = 0,05x^3 - 1,05x^2 + 8x + 4$ . L'intégration permet ici de passer d'une grandeur marginale à une grandeur globale.

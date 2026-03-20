@@ -1,0 +1,65 @@
+﻿Chapitre 1 : Vocabulaire de la Logique et Révisions Algébriques
+Ce chapitre pose les jalons du raisonnement mathématique rigoureux nécessaire au cycle terminal. Il s'agit de s'approprier le langage de la logique, les structures de démonstration, ainsi que les propriétés fondamentales des polynômes du second degré.
+1. Introduction à la Logique Mathématique
+1.1. Définition d'une proposition
+Une  proposition  est un énoncé mathématique auquel on peut attribuer une valeur de vérité unique : il est soit  vrai , soit  faux .
+* Exemple :  Considérons un quadrilatère  $ABCD$  dans le plan.
+* $P$  : «  $ABCD$  est un carré ».
+* $Q$  : «  $ABCD$  est un parallélogramme ». Selon la nature géométrique de  $ABCD$ , ces propositions possèderont une valeur de vérité (V ou F).
+1.2. La Négation d'une proposition
+La négation d'une proposition  $P$  est notée  $\bar{P}$  (ou « non  $P$  »). Par définition, elle est fausse quand  $P$  est vraie, et vraie quand  $P$  est fausse.
+* Propriété :  La négation de la négation est la proposition originale ( $P \equiv \bar{\bar{P}}$ ).
+* Exemples de négations :
+* Inégalités :  La négation de «  $x > 2$  » est «  $x \le 2$  ».
+* Quantificateurs :  La négation de « pour tout réel  $x : 0 \le x^2$  » est « il existe au moins un réel  $x$  tel que  $0 > x^2$  ».
+* Parité :  La négation de «  $n$  est pair » est «  $n$  est impair ».
+2. Connecteurs Logiques et Opérations sur les Ensembles
+2.1. Conjonction ("Et") et Intersection
+La proposition ( $P \wedge Q$ ) est vraie uniquement si  $P$  et  $Q$  sont simultanément vraies.
+* Lien avec les ensembles :  Si  $P$  représente l'appartenance à un ensemble  $I$  ( $x \in I$ ) et  $Q$  l'appartenance à  $J$  ( $x \in J$ ), alors ( $P \wedge Q$ ) équivaut à  $x \in I \cap J$ .
+2.2. Disjonction ("Ou") et Union
+En mathématiques, le « ou » est  inclusif . La proposition ( $P \vee Q$ ) est vraie si au moins l'une des deux propositions est vraie.
+* Lien avec les ensembles :  ( $P \vee Q$ ) équivaut à  $x \in I \cup J$ .
+2.3. Les Lois de Morgan
+Ces lois fondamentales permettent de distribuer la négation sur les connecteurs « et » et « ou » :$$\overline{P \vee Q} \equiv \bar{P} \wedge \bar{Q}$$   $$\overline{P \wedge Q} \equiv \bar{P} \vee \bar{Q}$$Pour les ensembles  $F$  et  $G$ , cela se traduit par :  $\overline{F \cup G} = \bar{F} \cap \bar{G}$  et  $\overline{F \cap G} = \bar{F} \cup \bar{G}$ .
+2.4. Propriétés des opérations
+Il existe une équivalence parfaite entre les structures des ensembles et celles des propositions logiques.| Propriété | Ensembles ( $F, G, H \subset \Omega$ ) | Propositions ( $P, Q, R$ ) || ------ | ------ | ------ || Commutativité | $F \cap G = G \cap F$ | $(P \wedge Q) \equiv (Q \wedge P)$ ||  | $F \cup G = G \cup F$ | $(P \vee Q) \equiv (Q \vee P)$ || Associativité | $F \cap (G \cap H) = (F \cap G) \cap H$ | $P \wedge (Q \wedge R) \equiv (P \wedge Q) \wedge R$ ||  | $F \cup (G \cup H) = (F \cup G) \cup H$ | $P \vee (Q \vee R) \equiv (P \vee Q) \vee R$ || Distributivité | $F \cap (G \cup H) = (F \cap G) \cup (F \cap H)$ | $P \wedge (Q \vee R) \equiv (P \wedge Q) \vee (P \wedge R)$ ||  | $F \cup (G \cap H) = (F \cup G) \cap (F \cup H)$ | $P \vee (Q \wedge R) \equiv (P \vee Q) \wedge (P \vee R)$ || Élément neutre | $F \cap \Omega = F$  ;  $F \cup \emptyset = F$ | $P \wedge \text{Vrai} \equiv P$  ;  $P \vee \text{Faux} \equiv P$ |
+3. Implications et Équivalences
+3.1. L'implication ( $P \Rightarrow Q$ )
+L'implication correspond à la structure « si  $P$ , alors  $Q$  ». Elle est définie logiquement par la proposition  $(Q \vee \bar{P})$ .
+* Condition suffisante :   $P$  est une condition suffisante pour  $Q$ .
+* Condition nécessaire :   $Q$  est une condition nécessaire pour  $P$ .
+* Application :  Soit  $P$  : «  $ABCD$  est un carré » et  $Q$  : «  $ABCD$  est un parallélogramme ». On a  $P \Rightarrow Q$ . Être un carré est donc  suffisant  pour être un parallélogramme. À l'inverse, être un parallélogramme est  nécessaire  pour être un carré (mais non suffisant).Remarque Pédagogique : Structures de preuve
+* Modus Ponens :  Si l'on sait que  $P$  est vraie et que  $P \Rightarrow Q$  est vraie, alors  $Q$  est vraie. (Structure : «  $P$  donc  $Q$  »).
+* Modus Tollens :  Si l'on sait que  $Q$  est fausse et que  $P \Rightarrow Q$  est vraie, alors  $P$  est fausse. C'est le fondement du raisonnement par l'absurde.
+3.2. Réciproque et Contraposée
+Soit l'implication  $P \Rightarrow Q$  :
+* Réciproque :   $Q \Rightarrow P$ . Elle n'est pas nécessairement vraie.
+* Contraposée :   $\bar{Q} \Rightarrow \bar{P}$ . Elle est rigoureusement équivalente à l'implication initiale.Démonstration formelle :
+1. $P \Rightarrow Q \equiv (\bar{P} \vee Q)$
+2. $\bar{Q} \Rightarrow \bar{P} \equiv (\text{non } \bar{Q} \vee \bar{P}) \equiv (Q \vee \bar{P})$  Par commutativité du « ou », les deux expressions sont identiques.Exemple d'application (Arithmétique) :  Démontrer que « si  $n^2$  est impair, alors  $n$  est impair ». Par contraposition, nous démontrons : « si  $n$  est pair, alors  $n^2$  est pair ». Si  $n$  est pair,  $n=2k$ , d'où  $n^2 = (2k)^2 = 2(2k^2)$ , ce qui est pair. La contraposée étant vraie, l'implication initiale l'est aussi.
+3.3. L'équivalence ( $P \Leftrightarrow Q$ )
+L'équivalence (ou « si et seulement si ») est vraie lorsque l'implication et sa réciproque sont toutes deux vraies.
+4. Méthodologie du Raisonnement par Récurrence
+4.1. Principe et Axiome
+Le raisonnement par récurrence est un pilier de l'arithmétique. Fondé sur les  axiomes de Peano , il stipule que si une propriété se transmet d'un rang au suivant et est vérifiée initialement, elle appartient à tout l'ensemble  $\mathbb{N}$ . On utilise souvent l'analogie d'une chaîne de dominos : faire tomber le premier ( $n_0$ ) garantit la chute de tous les suivants si chaque domino fait tomber son successeur.
+4.2. Étapes de la démonstration
+1. Initialisation :  Vérifier que  $P_{n_0}$  est vraie.
+2. Hérédité :  Supposer que  $P_k$  est vraie pour un entier  $k \ge n_0$ . Démontrer alors que  $P_{k+1}$  est vraie.Exemple : Somme des cubes  Montrons que  $\forall n \in \mathbb{N}^* : 1^3 + 2^3 + \dots + n^3 = (1+2+\dots+n)^2$ .
+* Initialisation :  Pour  $n=1$ ,  $1^3 = 1$  et  $1^2 = 1$ .  $P_1$  est vraie.
+* Hérédité :  Supposons  $P_k$  vraie. On sait que  $1+2+\dots+k = \frac{k(k+1)}{2}$ .  $$\sum_{i=1}^{k+1} i^3 = \left\frac{k(k+1)}{2}\right^2 + (k+1)^3 = (k+1)^2 \left\frac{k^2}{4} + (k+1) \right$$   $$= (k+1)^2 \left\frac{k^2+4k+4}{4} \right = \frac{(k+1)^2(k+2)^2}{4} = \left\frac{(k+1)(k+2)}{2}\right^2$$  L'expression obtenue est bien  $(1+2+\dots+(k+1))^2$ . La propriété est héréditaire.
+5. Révisions : Polynômes du Second Degré
+5.1. Forme Canonique et Discriminant
+Tout trinôme  $f(x) = ax^2 + bx + c$  ( $a \neq 0$ ) peut s'écrire sous sa forme canonique :  $$f(x) = a \left\left(x + \frac{b}{2a}\right)^2 - \frac{\Delta}{4a^2} \right$$  Où le  discriminant  est défini par :  $$\Delta = b^2 - 4ac$$
+5.2. Résolution et Factorisation
+Signe de  $\Delta$,Racines de  $f(x)=0$,Forme factorisée
+$\Delta > 0$,"Deux racines :  $x_{1,2} = \frac{-b \pm \sqrt{\Delta}}{2a}$",$a(x-x_1)(x-x_2)$
+$\Delta = 0$,Une racine double :  $x_0 = -\frac{b}{2a}$,$a(x-x_0)^2$
+$\Delta < 0$,Aucune racine réelle,Pas de factorisation réelle
+5.3. Étude du Signe et Variations
+* Signe :   Si  $\Delta > 0$ , le trinôme est du signe de  $a$  à l'extérieur des racines et du signe de  $-a$  entre les racines. Si  $\Delta \le 0$ , le trinôme est toujours du signe de  $a$  (ou nul en  $x_0$ ).
+* Variations :  La courbe est une parabole de sommet  $S\left(-\frac{b}{2a} ; f\left(-\frac{b}{2a}\right)\right)$ .
+* Si  $a > 0$  :  La fonction est décroissante sur  $]-\infty ; -\frac{b}{2a}]$ , puis croissante (parabole tournée vers le haut).
+* Si  $a < 0$  :  La fonction est croissante sur  $]-\infty ; -\frac{b}{2a}]$ , puis décroissante (parabole tournée vers le bas).
+5.4. Relations entre racines
+Pour un trinôme possédant deux racines  $x_1$  et  $x_2$  :  $$S = x_1 + x_2 = -\frac{b}{a} \quad \text{et} \quad P = x_1x_2 = \frac{c}{a}$$  Deux nombres de somme  $S$  et de produit  $P$  sont les solutions de l'équation :  $$x^2 - Sx + P = 0$$

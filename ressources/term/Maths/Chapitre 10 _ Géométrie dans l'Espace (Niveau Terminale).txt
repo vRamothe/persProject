@@ -1,0 +1,54 @@
+﻿Chapitre 10 : Géométrie dans l'Espace (Niveau Terminale)
+Ce cours structure les concepts fondamentaux de la géométrie spatiale à l'aide des outils du calcul vectoriel, de la trigonométrie et de l'algèbre matricielle. L'ensemble des démonstrations et des raisonnements s'appuie sur le vocabulaire de la logique formelle (Chapitre I).
+1. Fondements Vectoriels et Combinaisons Linéaires
+Définition 10.1 : Vecteurs et Coordonnées
+Conformément à l'extension des principes de la section VII.2.1, à tout triplet de réels  $(x, y, z)$  correspond un unique  vecteur image   $\vec{u}$  dans l'espace. Un vecteur est défini par sa direction, son sens et sa norme. Pour deux points  $A(x_A, y_A, z_A)$  et  $B(x_B, y_B, z_B)$ , le vecteur  $\vec{AB}$  a pour coordonnées  $(x_B - x_A, y_B - y_A, z_B - z_A)$ .
+Propriété 10.1 : Analogie entre Arithmétique et Géométrie
+Il existe une structure logique commune entre la divisibilité (arithmétique) et la génération vectorielle (géométrie).
+* En Arithmétique :  Soit la proposition  $P : c|a \land c|b$ . On démontre (Source Arithmétique) que  $P \implies c|(ma+nb)$ , où  $m, n \in \mathbb{Z}$ .
+* En Géométrie :  Un vecteur  $\vec{w}$  est dit combinaison linéaire de  $\{\vec{u}, \vec{v}\}$  s'il existe deux scalaires  $m, n \in \mathbb{R}$  tels que  $\vec{w} = m\vec{u} + n\vec{v}$ .Synthèse :  Tandis que l'arithmétique opère sur un ensemble discret ( $\mathbb{Z}$ ), la géométrie vectorielle travaille sur le corps continu  $\mathbb{R}$ . La notion de "combinaison" reste identique : un élément est engendré par une structure parente.
+Définition 10.2 : Colinéarité et Coplanarité (Logique de l'Existence)
+1. Colinéarité :  Deux vecteurs  $\vec{u}$  et  $\vec{v}$  sont colinéaires  $\iff \exists k \in \mathbb{R}$  tel que  $\vec{v} = k\vec{u}$  (ou  $\vec{u} = \vec{0}$ ).
+2. Coplanarité :  Trois vecteurs  $\vec{u}, \vec{v}, \vec{w}$  sont coplanaires  $\iff$  l'un d'eux est une combinaison linéaire des deux autres. Par exemple :  $\exists (m, n) \in \mathbb{R}^2, \vec{w} = m\vec{u} + n\vec{v}$ .
+2. Orthogonalité et Produit Scalaire
+Définition 10.3 : Produit Scalaire
+Le produit scalaire de deux vecteurs  $\vec{u}$  et  $\vec{v}$  est le nombre réel défini par :  $$\vec{u} \cdot \vec{v} = \|\vec{u}\| \times \|\vec{v}\| \times \cos(\theta)$$  où  $\theta = (\vec{u}, \vec{v})$ . Cette définition s'appuie sur les valeurs remarquables du cosinus (Section II.3.1), telles que  $\cos(\pi/6) = \frac{\sqrt{3}}{2}$ .
+Démonstration : Lien avec les formules d'addition
+La cohérence de cette définition repose sur la formule d'addition démontrée en section II.16 :  $\cos(a-b) = \cos a \cos b + \sin a \sin b$ . En considérant deux vecteurs de norme 1 dans un plan, le produit scalaire analytique ( $x x' + y y'$ ) coïncide avec la projection géométrique  $\cos(a-b)$ , validant ainsi l'équivalence des deux formes du produit scalaire.
+Propriété 10.2 : Propriétés Algébriques (Analogie avec les Ensembles)
+Le produit scalaire suit des règles analogues à l'intersection et l'union d'ensembles (Théorème I.7.1) :
+* Commutativité :   $\vec{u} \cdot \vec{v} = \vec{v} \cdot \vec{u}$  (Analogue à  $F \cap G = G \cap F$ ).
+* Distributivité :   $\vec{u} \cdot (\vec{v} + \vec{w}) = \vec{u} \cdot \vec{v} + \vec{u} \cdot \vec{w}$  (Analogue à la distributivité de  $\cap$  sur  $\cup$ ).
+Théorème 10.1 (Al Kashi - Extension Logique)
+Dans un triangle  $ABC$ , on a :  $a^2 = b^2 + c^2 - 2bc \cos(\hat{A})$ .  Analyse Logique (Section I.8) :  Le théorème de Pythagore est une implication restreinte :  Si  $\hat{A} = \pi/2$  , alors  $a^2 = b^2 + c^2$ . Al Kashi fournit la proposition générale où la condition nécessaire  $\hat{A} = \pi/2$  n'est pas requise ; le terme  $-2bc \cos(\hat{A})$  agit comme le correcteur de l'écart à l'orthogonalité.
+3. Représentations Paramétriques de Droites
+Théorème 10.2 : Détermination d'une droite
+Soit  $A(x_A, y_A, z_A)$  un point et  $\vec{u}(a, b, c)$  un vecteur directeur non nul. Un point  $M(x, y, z)$  appartient à la droite  $(d) \iff \vec{AM}$  et  $\vec{u}$  sont colinéaires. Par implication, il existe un paramètre  $t \in \mathbb{R}$  tel que  $\vec{AM} = t\vec{u}$ .Le système d'équations paramétriques se note :
+{ x = x_A + ta
+{ y = y_A + tb
+{ z = z_A + tc
+(avec t appartenant à R)
+
+
+4. Équations Cartésiennes de Plans
+Définition 10.4 : Vecteur Normal
+Un vecteur non nul  $\vec{n}$  est dit normal à un plan  $P$  s'il est orthogonal à tout vecteur directeur du plan  $P$ .
+Théorème 10.3 : Équation du plan
+Soit  $P$  le plan passant par  $A(x_A, y_A, z_A)$  de vecteur normal  $\vec{n}(a, b, c)$ . La condition d'appartenance d'un point  $M(x, y, z)$  au plan est la proposition :  $$M \in P \iff \vec{AM} \cdot \vec{n} = 0$$  En développant  $a(x - x_A) + b(y - y_A) + c(z - z_A) = 0$ , on obtient la forme cartésienne :  $$ax + by + cz + d = 0 \text{ où } d = -(ax_A + by_A + cz_A)$$
+5. Intersections et Systèmes Linéaires
+Méthode 10.1 : Résolution Matricielle
+L'intersection de trois plans conduit à un système linéaire qui peut s'écrire sous la forme (voir cours sur les Matrices) :  $$A \times X = B$$  Où  $A$  est la matrice des coefficients des plans.Logique de résolution (Modus Ponens I.8.2) :  Si la proposition " $\det(A) \neq 0$ " est vraie (matrice inversible), alors on peut déduire la proposition unique  $X = A^{-1}B$ . L'intersection est alors un point unique.
+Synthèse des types d'intersections
+Nature du Système,Inversibilité de  $A$,Type d'intersection
+Solution unique,Inversible ( $\det \neq 0$ ),Point
+Infinité de solutions,Non inversible,Droite ou Plan
+Aucune solution,Non inversible,Vide (Plans parallèles)
+6. Exercices d'Application Corrigés
+Exercice 1 : Calcul d'angle et Négation Logique
+Énoncé :  Soient  $\vec{u}(1, 1, 0)$  et  $\vec{v}(0, \sqrt{3}, \sqrt{3})$ .
+1. Calculer l'angle  $\theta$  entre ces vecteurs.
+2. En utilisant la  Négation (Définition I.2.1) , démontrer que ces vecteurs ne sont pas orthogonaux.Correction :
+3. $\|\vec{u}\| = \sqrt{1^2+1^2} = \sqrt{2}$  et  $\|\vec{v}\| = \sqrt{3+3} = \sqrt{6}$ .  $\vec{u} \cdot \vec{v} = (1 \times 0) + (1 \times \sqrt{3}) + (0 \times \sqrt{3}) = \sqrt{3}$ . D'après la définition :  $\cos \theta = \frac{\vec{u} \cdot \vec{v}}{\|\vec{u}\|\|\vec{v}\|} = \frac{\sqrt{3}}{\sqrt{2}\sqrt{6}} = \frac{\sqrt{3}}{\sqrt{12}} = \frac{\sqrt{3}}{2\sqrt{3}} = \frac{1}{2}$ . D'après les valeurs remarquables,  $\theta = \pi/3$ .
+4. Soit  $P$  la proposition " $\vec{u} \cdot \vec{v} = 0$ ". Nous avons trouvé  $\vec{u} \cdot \vec{v} = \sqrt{3} \neq 0$ . La négation  $\neg P$  est donc vraie : les vecteurs sont non-orthogonaux.
+Exercice 2 : Intersection par Équation Matricielle
+Énoncé :  Soit le plan  $P : 2x + y + z = 5$  et les plans  $P' : x + y = 3$  et  $P'' : y + z = 2$ . Déterminer leur point d'intersection  $M(x, y, z)$  par méthode matricielle.Correction :  Le système s'écrit  $A \times X = B$  avec :  $A = \begin{pmatrix} 2 & 1 & 1 \\ 1 & 1 & 0 \\ 0 & 1 & 1 \end{pmatrix}, X = \begin{pmatrix} x \\ y \\ z \end{pmatrix}, B = \begin{pmatrix} 5 \\ 3 \\ 2 \end{pmatrix}$  Par calcul (ou calculatrice),  $\det(A) = 2(1) - 1(1) + 1(1) = 2 \neq 0$ . La matrice est inversible. En résolvant  $X = A^{-1}B$ , on trouve :  $x = 1.5, y = 1.5, z = 0.5$ . Le point d'intersection est  $M(1.5 ; 1.5 ; 0.5)$ .

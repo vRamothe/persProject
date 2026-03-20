@@ -1,0 +1,71 @@
+﻿Chapitre 4 : Dérivabilité et Convexité
+Ce chapitre est consacré à l'étude approfondie des propriétés locales et globales des fonctions numériques. Nous étendrons les outils de la dérivation au calcul de dérivées de fonctions composées, à l'analyse des dérivées successives, et enfin à l'étude de la convexité, notion fondamentale tant en analyse pure qu'en optimisation appliquée.
+1. Fondements de la Dérivabilité
+Nombre dérivé et fonction dérivée
+Soit  $f$  une fonction numérique définie sur un intervalle  $I$  et soit  $a$  un point de  $I$ . Nous disons que  $f$  est dérivable en  $a$  si le taux d'accroissement de  $f$  en  $a$  admet une limite finie lorsque  $h$  tend vers 0.Le  nombre dérivé  de  $f$  en  $a$  est défini par la notation formelle suivante :  $$f'(a) = \lim_{h \to 0} \frac{f(a+h) - f(a)}{h}$$Si cette limite existe pour tout  $x \in I$ , la fonction est dite dérivable sur  $I$ . On appelle alors  fonction dérivée  de  $f$  sur  $I$  la fonction  $f' : x \mapsto f'(x)$ .
+Dérivabilité des fonctions usuelles
+Le tableau suivant synthétise les dérivées des fonctions de référence. Il convient de distinguer avec rigueur l'ensemble de définition de la fonction de son ensemble de dérivabilité.| Fonction  $f(x)$ | Ensemble de définition | Fonction dérivée  $f'(x)$ || ------ | ------ | ------ || $k$  (constante) | $\mathbb{R}$ | $0$ || $x^n$  ( $n \in \mathbb{N}^$ ) | $\mathbb{R}$ | $nx^{n-1}$ || $\frac{1}{x}$ | $\mathbb{R}^$ | $-\frac{1}{x^2}$ || $\sqrt{x}$ | $[0 ; +\infty$ | $\frac{1}{2\sqrt{x}}$  (sur  $0 ; +\infty[$ ) || $\cos(x)$ | $\mathbb{R}$ | $-\sin(x)$ || $\sin(x)$ | $\mathbb{R}$ | $\cos(x)$ |
+2. Opérations et Dérivation de Fonctions Composées
+L'analyse de fonctions complexes nécessite la maîtrise du théorème de composition, qui permet de dériver des structures imbriquées.Théorème : Dérivation d'une fonction composée  Soit  $u$  une fonction dérivable sur un intervalle  $I$  et  $g$  une fonction dérivable sur un intervalle  $J$  tel que  $u(I) \subset J$ . La fonction composée  $g \circ u$ , définie par  $(g \circ u)(x) = g(u(x))$ , est dérivable sur  $I$  et sa dérivée est donnée par :  $$(g \circ u)' = u' \times (g' \circ u)$$
+Formules usuelles de composition
+En application directe du théorème précédent, nous établissons les règles suivantes pour toute fonction  $u$  dérivable sur un intervalle  $I$  :
+* Puissance entière :  Pour tout  $n \in \mathbb{Z}$ ,  $(u^n)' = n u' u^{n-1}$  (sur tout intervalle où  $u^n$  et  $u^{n-1}$  sont définies).
+* Racine carrée :   $(\sqrt{u})' = \frac{u'}{2\sqrt{u}}$  (pour tout  $x$  tel que  $u(x) > 0$ ).
+* Fonctions trigonométriques :  Pour tout réels  $a$  et  $b$  :
+* $\cos(ax+b)' = -a\sin(ax+b)$
+* $\sin(ax+b)' = a\cos(ax+b)$
+3. Dérivées Successives
+Lorsqu'une fonction  $f$  est dérivable sur un intervalle  $I$  et que sa fonction dérivée  $f'$  est elle-même dérivable sur  $I$ , nous disons que  $f$  est  deux fois dérivable  sur  $I$ .
+* Définition :  On appelle  fonction dérivée seconde  de  $f$  sur  $I$ , notée  $f''$ , la fonction dérivée de la fonction  $f'$ . On a ainsi  $f''(x) = (f')'(x)$ .
+Exemple de calcul progressif
+Considérons la fonction  $g$  définie sur  $\mathbb{R}$  par  $g(x) = xe^x$ .
+1. Dérivée première  $g'(x)$  :  En appliquant la règle du produit  $(uv)' = u'v + uv'$  avec  $u(x)=x$  et  $v(x)=e^x$ , nous obtenons :  $g'(x) = 1 \cdot e^x + x \cdot e^x = e^x(1+x)$ .
+2. Dérivée seconde  $g''(x)$  :  En dérivant à nouveau  $g'(x)$  selon la même règle :  $g''(x) = e^x \cdot (1) + (1+x) \cdot e^x = e^x(1 + 1 + x) = e^x(2+x)$ .
+4. Étude des Variations et Extremums
+La détermination du sens de variation d'une fonction repose sur l'étude du signe de sa dérivée première.
+Monotonie de la fonction
+Soit  $f$  une fonction dérivable sur un intervalle  $I$  :
+* Si  $f'(x) \geq 0$  pour tout  $x \in I$ , alors  $f$  est croissante sur  $I$ .
+* Si  $f'(x) \leq 0$  pour tout  $x \in I$ , alors  $f$  est décroissante sur  $I$ .
+Extremum local
+Une fonction  $f$  admet un  extremum local  en  $x_0$  si  $f'(x_0) = 0$  et si la dérivée  $f'$  change de signe en  $x_0$ .
+Illustration : Étude de la fonction  $f(x) = xe^{-x^2}$
+Soit  $f(x) = xe^{-x^2}$  définie sur  $\mathbb{R}$ . Sa dérivée est  $f'(x) = (1-2x^2)e^{-x^2}$ . L'exponentielle étant strictement positive,  $f'(x)$  est du signe du trinôme  $1-2x^2$ , dont les racines sont  $-\frac{1}{\sqrt{2}}$  et  $\frac{1}{\sqrt{2}}$ .| $x$ | $-\infty$ | $-\frac{1}{\sqrt{2}}$ | $\frac{1}{\sqrt{2}}$ | $+\infty$ || ------ | ------ | ------ | ------ | ------ || $f'(x)$ | $-$ | $0$ | $+$ | $0$ || $f(x)$ | $\searrow$ | $f(-\frac{1}{\sqrt{2}})$ | $\nearrow$ | $f(\frac{1}{\sqrt{2}})$ |
+5. Étude de la Convexité
+La convexité d'une fonction traduit la géométrie de sa courbe représentative par rapport à ses éléments linéaires (cordes et tangentes).
+Définitions géométriques
+* Par les cordes :   $f$  est dite  convexe  sur  $I$  si, pour tous points  $A$  et  $B$  de sa courbe, le segment  $AB$  est situé au-dessus de la courbe. Elle est  concave  si le segment est situé en dessous.
+* Par les tangentes :   $f$  est  convexe  sur  $I$  si sa courbe est située au-dessus de chacune de ses tangentes. Elle est  concave  si elle se situe en dessous.
+Propriété fondamentale
+La convexité est intrinsèquement liée à la monotonie de la dérivée première, et donc au signe de la dérivée seconde.Propriété de la dérivée seconde  Soit  $f$  une fonction deux fois dérivable sur un intervalle  $I$ .
+* $f$  est  convexe  sur  $I \iff f'$  est croissante sur  $I \iff f''(x) \geq 0$ .
+* $f$  est  concave  sur  $I \iff f'$  est décroissante sur  $I \iff f''(x) \leq 0$ .
+Convexité des fonctions usuelles
+* Fonction carré (  $x^2$  ) :  Convexe sur  $\mathbb{R}$ .
+* Fonction cube (  $x^3$  ) :  Concave sur  $]-\infty ; 0]$  et convexe sur  $[0 ; +\infty[$ .
+* Fonction inverse (  $1/x$  ) :  Concave sur  $]-\infty ; 0$  et convexe sur  $0 ; +\infty[$ .
+* Fonction racine carrée (  $\sqrt{x}$  ) :  Concave sur  $[0 ; +\infty[$ .
+6. Points d'Inflexion
+Un  point d'inflexion  marque une transition dans la structure de la courbe, là où la fonction change de convexité.
+* Définition :  C'est un point de la courbe où celle-ci traverse sa tangente.
+* Propriété algébrique :  Pour une fonction  $f$  deux fois dérivable sur  $I$ , la courbe de  $f$  admet un point d'inflexion au point d'abscisse  $x_0$  si et seulement si  $f''(x_0) = 0$  et si  $f''$   change de signe  en  $x_0$ .
+7. Optimisation et Résolution de Problèmes
+L'analyse de la convexité permet de situer des seuils de rendement ou d'accélération dans des contextes économiques ou industriels.
+Problème guide : Analyse d'un coût de fabrication
+Une entreprise produit  $x$  milliers de clés USB (avec  $x \in 0 ; 10$ ). Le coût de fabrication est modélisé par  $C(x) = 0,05x^3 - 1,05x^2 + 8x + 4$ .
+* Calcul des dérivées :
+* $C'(x) = 0,15x^2 - 2,1x + 8$
+* $C''(x) = 0,3x - 2,1$
+* Recherche du point d'inflexion :   $C''(x) = 0 \iff 0,3x = 2,1 \iff x = 7$ . Sur  $0 ; 7$ ,  $C''(x) \leq 0$  (fonction concave). Sur  $7 ; 10$ ,  $C''(x) \geq 0$  (fonction convexe).
+* Calcul de la valeur :   $C(7) = 25,7$ . Le point  $(7 ; 25,7)$  est un point d'inflexion.
+* Interprétation économique :  Avant 7 000 clés ( $x=7$ ), la croissance du coût ralentit. À partir de ce seuil, la croissance du coût de fabrication  s'accélère .
+8. Synthèse des Méthodes de Résolution
+Étapes pour étudier la convexité d'une fonction
+* Déterminer  l'ensemble de définition et de dérivabilité de la fonction  $f$ .
+* Calculer la dérivée première   $f'(x)$ .
+* Calculer la dérivée seconde   $f''(x)$  en dérivant l'expression obtenue à l'étape précédente.
+* Étudier le signe de  $f''(x)$  (généralement via la résolution d'une équation ou l'étude d'un trinôme).
+* Dresser un tableau de convexité  mentionnant :
+* Le signe de  $f''(x)$ .
+* La nature de la convexité (convexe/concave).
+* La position des éventuels points d'inflexion.Point de vigilance :  L'annulation de la dérivée seconde est une condition nécessaire mais  non suffisante  pour l'existence d'un point d'inflexion. Il est indispensable de vérifier que  $f''$  change effectivement de signe (passant de positive à négative ou inversement) pour confirmer un basculement de convexité.

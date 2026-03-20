@@ -1,0 +1,57 @@
+﻿Chapitre 6 : La Fonction Exponentielle et les Équations Différentielles
+1. Introduction et Définition de la Fonction Exponentielle
+Conformément à l’étude des problèmes de Cauchy et à la Section V.1.1 du document  MathTerminale , la fonction exponentielle est introduite par une approche analytique rigoureuse liée aux équations différentielles.Définition fondamentale :  On appelle fonction exponentielle de base  $e$ , notée  $\exp$  ou  $x \mapsto e^x$ , l' unique  fonction  $f$  dérivable sur  $\mathbb{R}$  qui est solution de l'équation différentielle :  $$f' = f$$  avec la condition initiale :  $$f(0) = 1$$Cette définition garantit l'existence et l'unicité de la fonction. Une propriété immédiate découlant de cette définition est que pour tout réel  $x$ ,  $e^x \neq 0$ .
+2. Propriétés Algébriques Fondamentales
+La fonction exponentielle possède des propriétés de calcul remarquables qui transforment les sommes en produits (Section V.1.3). Ces propriétés sont analogues à celles des puissances :
+* Relation produit (Équation fonctionnelle) :  Pour tous réels  $a$  et  $b$ ,  $e^{a+b} = e^a \times e^b$ .
+* Relation inverse :  Pour tout réel  $a$ ,  $e^{-a} = \frac{1}{e^a}$ .
+* Relation quotient :  Pour tous réels  $a$  et  $b$ ,  $e^{a-b} = \frac{e^a}{e^b}$ .
+* Relation puissance :  Pour tout réel  $a$  et pour tout entier relatif  $n$ ,  $(e^a)^n = e^{na}$ .Lien avec les nombres complexes (Source NC3) :  La notation exponentielle des nombres complexes,  $e^{i\theta} = \cos \theta + i \sin \theta$ , n'est pas arbitraire. Le document "NC3" établit que si l'on pose  $f(\theta) = \cos \theta + i \sin \theta$ , on observe que  $f(\theta)f(\theta') = f(\theta+\theta')$ . Puisque cette fonction de la variable  $\theta$  satisfait la même équation fonctionnelle que la fonction exponentielle réelle, l'analogie de notation  $e^{i\theta}$  est adoptée pour simplifier les calculs trigonométriques et algébriques (ex:  $e^{i\pi} = -1$ ).
+3. Étude Analytique de la Fonction Exponentielle
+3.1 Dérivée et dérivation composée
+Par définition, la dérivée de  $f(x) = e^x$  est  $f'(x) = e^x$ . Pour une fonction composée, la règle de dérivation s'énonce ainsi : si  $u$  est une fonction dérivable, alors la dérivée de  $e^{u(x)}$  est  $u'(x)e^{u(x)}$ .
+* Exemple :  Pour  $g(x) = xe^x$ , la dérivée est  $g'(x) = 1 \cdot e^x + x \cdot e^x = e^x(1+x)$ .
+* Dérivée seconde (Source Convexité) :  Pour  $g(x) = xe^x$ ,  $g''(x) = e^x(1+x) + e^x = e^x(2+x)$ .
+3.2 Sens de variation
+La fonction exponentielle est strictement positive sur  $\mathbb{R}$  ( $e^x > 0$ ). Sa dérivée  $f'(x)$  étant elle-même égale à  $e^x$ , elle est strictement positive. Par conséquent, la fonction exponentielle est  strictement croissante  sur  $\mathbb{R}$  (Section V.1.2).
+3.3 Limites et Asymptotes (Section V.1.4)
+L'étude aux bornes de l'ensemble de définition révèle les comportements suivants :
+* $\lim_{x \to +\infty} e^x = +\infty$ .
+* $\lim_{x \to -\infty} e^x = 0$ . La limite nulle en  $-\infty$  prouve l'existence d'une  asymptote horizontale  d'équation  $y = 0$  (l'axe des abscisses). Par ailleurs, les principes de  croissance comparée  indiquent que l'exponentielle l'emporte sur les fonctions puissances à l'infini :  $\lim_{x \to +\infty} \frac{e^x}{x} = +\infty$ .
+3.4 Convexité
+D'après le document "Convexité" (Partie 2), une fonction est convexe si sa courbe est située au-dessus de ses tangentes. L'étude de la convexité se fait par le signe de la dérivée seconde :
+* Pour  $f(x) = e^x$ , on a  $f''(x) = e^x$ .
+* Comme  $f''(x) > 0$  pour tout réel  $x$ , la dérivée première  $f'$  est strictement croissante.
+* Conclusion :  La fonction exponentielle est  convexe  sur  $\mathbb{R}$ .
+4. Équations Différentielles du Type  $y' = ay$
+Ces équations modélisent des phénomènes où la variation d'une grandeur est proportionnelle à sa valeur (Section V.4.2).
+1. Théorème :  Les solutions de l'équation différentielle  $y' = ay$  sont les fonctions définies sur  $\mathbb{R}$  par  $f(x) = Ce^{ax}$ , où  $C$  est une constante réelle.
+2. Méthode de résolution :
+3. Identifier la valeur de  $a$ .
+4. Écrire la solution générale  $f(x) = Ce^{ax}$ .
+5. Déterminer  $C$  grâce à la condition initiale  $f(x_0) = y_0$ . En substituant, on obtient  $Ce^{ax_0} = y_0$ , d'où  $C = y_0 e^{-ax_0}$ .
+5. Équations Différentielles du Type  $y' = ay + b$
+Lorsque l'équation comporte un second membre constant  $b$ , la solution intègre une solution particulière constante (Section V.4.3).| Type d'équation | Solution Générale | Détermination de la constante  $C$ || ------ | ------ | ------ || $y' = ay$ | $f(x) = Ce^{ax}$ | $C = f(x_0) / e^{ax_0}$ || $y' = ay + b$ | $f(x) = Ce^{ax} - \frac{b}{a}$ | $C = (f(x_0) + \frac{b}{a}) / e^{ax_0}$ |
+La solution particulière constante est obtenue en posant  $f(x) = k$  (donc  $f'(x) = 0$ ), ce qui mène à  $0 = ak + b$ , soit  $k = -b/a$ .
+6. Applications : La Loi Exponentielle (Probabilités)
+La loi exponentielle de paramètre  $\lambda$  ( $\lambda > 0$ ) est une loi à densité utilisée pour modéliser des durées de vie sans vieillissement.
+* Densité de probabilité :  Pour  $x \ge 0$ ,  $f(x) = \lambda e^{-\lambda x}$ . L'intégrale de  $f$  sur  $[0 ; +\infty[$  est égale à  $1$ .
+* Fonction de répartition :   $P(X \le x) = \int_{0}^{x} \lambda e^{-\lambda t} dt = 1 - e^{-\lambda x}$ .
+* Espérance mathématique :  Elle est définie par l'intégrale  $E(X) = \int_{0}^{+\infty} t \lambda e^{-\lambda t} dt$ . Le calcul (issu de la source "Lois à densité") donne  $E(X) = 1/\lambda$ .
+* Absence de mémoire :  Cette propriété fondamentale stipule que le temps déjà écoulé n'influence pas la probabilité future :  $P_{X \ge t}(X \ge t+h) = P(X \ge h)$ .
+7. Méthodologie et Exercices Types
+Bloc Méthode 1 : Étude de convexité complexe
+Énoncé :  Étudier la convexité de  $g(x) = xe^{-x^2}$ .
+1. Dérivée première :   $g'(x) = (1-2x^2)e^{-x^2}$ .
+2. Dérivée seconde :  Selon les résultats fournis dans la source "20ConvexiteTC.docx" (page 7, question e), la dérivée seconde est  $g''(x) = (x^4 - 1)e^{-x^2}$ .
+3. Analyse :  Comme  $e^{-x^2} > 0$ ,  $g''(x)$  est du signe de  $x^4-1$ . La source indique que  $g''(x) \ge 0$  pour  $x \ge 4$  (donnant un point d'inflexion d'abscisse  4 ). La fonction est convexe sur cet intervalle.
+Bloc Méthode 2 : Résolution différentielle avec condition initiale
+Énoncé :  Résoudre  $y' = -3y + 6$  avec  $f(0) = 4$ .
+1. Identifier :   $a = -3$  et  $b = 6$ .
+2. Solution générale :   $f(x) = Ce^{-3x} - \frac{6}{-3} = Ce^{-3x} + 2$ .
+3. Condition initiale :   $f(0) = 4 \implies Ce^0 + 2 = 4 \implies C + 2 = 4 \implies C = 2$ .
+4. Conclusion :   $f(x) = 2e^{-3x} + 2$ .
+Bloc Méthode 3 : Équations exponentielles
+Énoncé :  Résoudre  $e^{2x+1} = e^3$ .
+1. Propriété :  Par stricte croissance de l'exponentielle,  $e^a = e^b \iff a = b$ .
+2. Résolution :   $2x + 1 = 3 \implies 2x = 2 \implies x = 1$ .

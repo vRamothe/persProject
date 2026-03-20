@@ -1,0 +1,36 @@
+﻿Chapitre : Le Barycentre dans le Plan et l'Espace (Niveau Terminale)
+Ce support de cours détaille la théorie du barycentre, outil majeur de la géométrie vectorielle en classe de Terminale. Il permet de réduire des sommes vectorielles et de caractériser des ensembles de points ou des positions d'équilibre dans le plan comme dans l'espace.
+1. Introduction aux Systèmes de Points Pondérés
+1.1 Définitions
+En s'appuyant sur les fondements de la géométrie (Section XI.1.1), nous définissons :
+* Point pondéré :  On appelle point pondéré tout couple  $(A, \alpha)$  où  $A$  est un point du plan ou de l'espace et  $\alpha$  un nombre réel, appelé coefficient ou masse.
+* Système de points pondérés :  Soit un ensemble de  $n$  points  $\{A_1, A_2, \dots, A_n\}$  associés à des réels  $\{\alpha_1, \alpha_2, \dots, \alpha_n\}$ . On note ce système :  $$S = \{(A_i, \alpha_i)\}_{1 \le i \le n}$$
+1.2 Condition d'existence
+Le barycentre d'un système  $S$  n'existe et n'est unique que si la somme des coefficients du système est non nulle.  Condition impérative :   $$\sum_{i=1}^{n} \alpha_i \neq 0$$Remarque :  Si  $\sum \alpha_i = 0$ , le vecteur  $\sum \alpha_i \vec{MA_i}$  est constant et indépendant du choix du point  $M$ . Dans ce cas, le système n'admet pas de point d'équilibre unique.
+2. Définition Vectorielle du Barycentre
+2.1 Définition fondamentale
+Le barycentre  $G$  d'un système  $\{(A_1, \alpha_1), \dots, (A_n, \alpha_n)\}$  est l'unique point vérifiant la relation :  $$\sum_{i=1}^{n} \alpha_i \vec{GA_i} = \vec{0}$$Pour un système de deux points  $\{(A, \alpha), (B, \beta)\}$ , le point  $G$  est tel que :  $$\alpha \vec{GA} + \beta \vec{GB} = \vec{0}$$
+2.2 Formule de réduction vectorielle
+Pour tout point  $M$  de l'espace, la somme vectorielle pondérée peut être réduite par la relation suivante :  $$\sum_{i=1}^{n} \alpha_i \vec{MA_i} = \left( \sum_{i=1}^{n} \alpha_i \right) \vec{MG}$$Démonstration (par la relation de Chasles) :   $$\sum \alpha_i \vec{MA_i} = \sum \alpha_i (\vec{MG} + \vec{GA_i}) = \left(\sum \alpha_i\right) \vec{MG} + \sum \alpha_i \vec{GA_i}$$  Or, par définition de  $G$ ,  $\sum \alpha_i \vec{GA_i} = \vec{0}$ , d'où le résultat.Note sur l'espace :  Bien que souvent manipulées dans le plan, ces définitions sont rigoureusement identiques dans l'espace  $\mathbb{R}^3$ .
+3. Propriétés Fondamentales
+* Homogénéité :  Le barycentre d'un système reste inchangé si l'on multiplie tous les coefficients par un même réel  $k \in \mathbb{R}^*$ .  $$\text{bar} \{(A, \alpha), (B, \beta)\} = \text{bar} \{(A, k\alpha), (B, k\beta)\}$$
+* Associativité (Barycentre partiel) :  On peut remplacer un sous-système de points par son barycentre partiel affecté de la somme de leurs coefficients. Si  $G = \text{bar} \{(A, \alpha), (B, \beta), (C, \gamma)\}$  et si  $\alpha + \beta \neq 0$ , alors en posant  $G_1 = \text{bar} \{(A, \alpha), (B, \beta)\}$ , on a :  $$G = \text{bar} \{(G_1, \alpha + \beta), (C, \gamma)\}$$
+* Symétrie (Isobarycentre) :  Si tous les coefficients  $\alpha_i$  sont égaux et non nuls, le barycentre  $G$  est appelé  isobarycentre  du système. Pour un triangle, il s'agit du centre de gravité.
+4. Affixe du Barycentre (Lien avec les Nombres Complexes)
+Conformément à la Section VII.7.3 du programme, l'usage des nombres complexes simplifie la détermination analytique du barycentre dans le plan.| Formule de l'affixe du barycentre || ------ || Pour un système  $\{(A, \alpha), (B, \beta), (C, \gamma)\}$ , l'affixe  $z_G$  du point  $G$  est : || $$\mathbf{z_G = \frac{\alpha z_A + \beta z_B + \gamma z_C}{\alpha + \beta + \gamma}}$$ |
+5. Applications Géométriques
+5.1 Caractérisation des centres d'inertie
+Le barycentre permet de définir les points remarquables des figures usuelles :
+* Milieu :  L'isobarycentre de  $\{(A, 1), (B, 1)\}$  est le milieu du segment  $AB$ .
+* Centre de gravité :  L'isobarycentre de  $\{(A, 1), (B, 1), (C, 1)\}$  est le centre de gravité  $G$  du triangle  $ABC$ , vérifiant  $\vec{GA} + \vec{GB} + \vec{GC} = \vec{0}$ .
+5.2 Théorème de la médiane (Section II.4.4)
+Soit  $ABC$  un triangle et  $A'$  le milieu de  $BC$ . En considérant  $A'$  comme l'isobarycentre de  $\{(B, 1), (C, 1)\}$ , on établit la relation métrique suivante :  $$2AA'^2 = AB^2 + AC^2 - \frac{1}{2}BC^2$$   Preuve vectorielle :  On utilise  $2\vec{AA'} = \vec{AB} + \vec{AC}$ . En élevant au carré scalaire, on retrouve la formule d'Al-Kashi appliquée aux triangles  $ABA'$  et  $ACA'$ .
+6. Méthodes et Exercices Types
+6.1 Méthodologie (Référence XI.1.5)
+Pour résoudre un problème de barycentre au Baccalauréat :
+1. Vérification de la somme :  S'assurer que  $\sum \alpha_i \neq 0$ .
+2. Réduction vectorielle :  Utiliser la formule de la section 2.2 pour simplifier les expressions normées (recherche de lieux géométriques).
+3. Associativité :  Construire le point  $G$  par étapes géométriques en utilisant des barycentres partiels.
+4. Coordonnées/Affixes :  Passer au calcul algébrique pour confirmer une position ou une colinéarité.
+6.2 Exemple : Calcul de coordonnées dans un repère
+Soient  $A(1; 2)$ ,  $B(-1; 4)$  et  $C(0; -2)$  dans un repère orthonormal. Calculons les coordonnées de  $G$ , barycentre de  $\{(A, 2), (B, 1), (C, 1)\}$ . La somme des coefficients est  $2 + 1 + 1 = 4$ .Les coordonnées sont données par :  $$\begin{cases} x_G = \frac{2x_A + 1x_B + 1x_C}{4} = \frac{2(1) - 1 + 0}{4} = \frac{1}{4} \\ y_G = \frac{2y_A + 1y_B + 1y_C}{4} = \frac{2(2) + 4 - 2}{4} = \frac{6}{4} = \frac{3}{2} \end{cases}$$  On obtient ainsi le point  $G\left(\frac{1}{4} ; \frac{3}{2}\right)$ .

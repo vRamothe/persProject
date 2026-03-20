@@ -1,0 +1,67 @@
+﻿Cours Complet : Limites et Continuité des Fonctions (Niveau Terminale)
+Ce cours structuré a pour vocation d'établir les bases rigoureuses de l'analyse en classe de Terminale. En tant que futur bachelier, il convient de maîtriser non seulement les techniques de calcul, mais également les fondements logiques et les théorèmes de structure qui régissent l'étude des fonctions.
+1. Introduction à la Logique et aux Ensembles
+Le raisonnement mathématique s'appuie sur des structures formelles issues du  Chapitre I : Vocabulaire de la logique . La précision du langage est la condition sine qua non de la rigueur analytique.
+1.1. Définitions fondamentales
+* Proposition (Déf. I.1.1) :  Un énoncé mathématique qui est soit vrai, soit faux.
+* Négation (Déf. I.2.1) :  La négation d'une proposition  $P$ , notée  $\bar{P}$  ou  $\neg P$ , est fausse lorsque  $P$  est vraie, et vraie lorsque  $P$  est fausse.
+* Équivalence (Section I.9) :  La double implication  $P \iff Q$  signifie que  $P \implies Q$  et  $Q \implies P$  sont simultanément vraies. On utilise l'expression « si et seulement si ».
+1.2. Lois de Morgan (Section I.6)
+Pour manipuler les connecteurs logiques « et » ( $\wedge$ ) et « ou » ( $\vee$ ), nous appliquons les règles de dualité suivantes :
+* $\neg(P \vee Q) \iff (\neg P \wedge \neg Q)$  : La négation d'une réunion est l'intersection des négations.
+* $\neg(P \wedge Q) \iff (\neg P \vee \neg Q)$  : La négation d'une intersection est la réunion des négations.
+1.3. Raisonnement par récurrence (Section I.11)
+Outil indispensable pour démontrer des propriétés sur  $\mathbb{N}$ , il repose sur deux piliers :
+1. Initialisation :  Vérification de la véracité de  $P_{n_0}$ .
+2. Hérédité :  Démonstration que pour tout entier  $k \ge n_0$ ,  $P_k \implies P_{k+1}$ .  Note : Sans l'étape d'initialisation, le mécanisme de transmission de la vérité ne peut démarrer, rendant toute conclusion caduque.
+2. Limites de Fonctions : Fondements et Définitions
+L'analyse d'une fonction au voisinage d'un point  $a$  ou de l'infini constitue le cœur de l'étude du comportement asymptotique.
+2.1. Concepts de convergence
+* Limite en  $+\infty$  (Référence IV.1.1) :  On dit que  $f(x)$  a pour limite  $L$  en  $+\infty$  si, pour tout intervalle ouvert contenant  $L$ , toutes les valeurs de  $f(x)$  finissent par appartenir à cet intervalle pour  $x$  suffisamment grand.
+* Limite en un réel  $a$  (Référence IV.1.2) :  On dit que  $\lim_{x \to a} f(x) = L$  si  $f(x)$  devient arbitrairement proche de  $L$  lorsque  $x$  tend vers  $a$ .
+2.2. Convergence multidimensionnelle (Matrices)
+D'après la source  20mat2.docx , la convergence d'un objet complexe, tel qu'une suite de matrices colonnes  $U_n$ , est une  convergence composante par composante . Soit  $U_n = \begin{pmatrix} u_n \\ v_n \end{pmatrix}$ , alors :  $$\lim_{n \to +\infty} U_n = \begin{pmatrix} L_1 \\ L_2 \end{pmatrix} \iff \lim_{n \to +\infty} u_n = L_1 \text{ et } \lim_{n \to +\infty} v_n = L_2$$   Exemple d'application :  Si  $U_n = \begin{pmatrix} 1/n \\ (n^2+2)/(n^2+1) \end{pmatrix}$ , alors  $\lim_{n \to +\infty} U_n = \begin{pmatrix} 0 \\ 1 \end{pmatrix}$ .
+2.3. Synthèse des comportements
+Type de Limite,Notation,Conséquence Graphique
+Finie à l'infini,$\lim_{x \to \pm\infty} f(x) = L$,Asymptote Horizontale  $y = L$
+Infinie à l'infini,$\lim_{x \to \pm\infty} f(x) = \pm\infty$,Branche infinie (pas d'asymptote simple)
+Infinie en un point,$\lim_{x \to a} f(x) = \pm\infty$,Asymptote Verticale  $x = a$
+3. Opérations et Levée d'Indétermination
+3.1. Formes Indéterminées (FI)
+Les opérations algébriques sur les limites (somme, produit, quotient) rencontrent des obstacles dits « indéterminés » où le calcul direct est impossible :  $\infty - \infty$ ,  $0 \times \infty$ ,  $\frac{0}{0}$ , et  $\frac{\infty}{\infty}$ .
+3.2. Rigueur Algébrique et Polynômes (Lien Section II.5)
+Pour lever une indétermination à l'infini sur un polynôme de type  $P(x) = ax^2 + bx + c$ , la méthode directive consiste à factoriser le terme de plus haut degré :  $$ax^2 + bx + c = x^2 \left( a + \frac{b}{x} + \frac{c}{x^2} \right)$$  Puisque  $\lim_{x \to \pm\infty} \frac{b}{x} = 0$  et  $\lim_{x \to \pm\infty} \frac{c}{x^2} = 0$ , on démontre par produit que :  $$\lim_{x \to \pm\infty} (ax^2 + bx + c) = \lim_{x \to \pm\infty} ax^2$$  Cette propriété se généralise à tout polynôme : la limite à l'infini est celle de son monôme de plus haut degré.
+4. Théorèmes de Comparaison et d'Encadrement
+4.1. Théorème des Gendarmes
+Si au voisinage de  $a$ ,  $g(x) \le f(x) \le h(x)$  et si  $\lim_{x \to a} g(x) = \lim_{x \to a} h(x) = L$ , alors  $\lim_{x \to a} f(x) = L$ .
+4.2. Bornage des fonctions trigonométriques (Section II.3.1)
+L'usage de ces théorèmes est systématique pour les fonctions oscillantes. Il convient de rappeler les propriétés de bornage fondamentales :  $$\forall x \in \mathbb{R}, \quad -1 \le \sin(x) \le 1 \quad \text{et} \quad -1 \le \cos(x) \le 1$$  Ces inégalités permettent d'encadrer des expressions complexes (ex:  $x \sin(x)$ ) pour en déduire la convergence.
+5. Étude du Comportement Asymptotique
+L'interprétation graphique des limites est un axe majeur de l'analyse :
+* Asymptote Verticale :  Si  $\lim_{x \to a} f(x) = \pm\infty$ , la droite d'équation  $x = a$  est asymptote à la courbe  $C_f$ .
+* Asymptote Horizontale :  Si  $\lim_{x \to \pm\infty} f(x) = L$ , la droite d'équation  $y = L$  est asymptote à  $C_f$  au voisinage de l'infini.
+* Symétries (Section II.2) :  Une fonction paire ( $f(-x) = f(x)$ ) présente une symétrie par rapport à l'axe des ordonnées. Une fonction impaire ( $f(-x) = -f(x)$ ) présente une symétrie par rapport à l'origine. L'étude de ces propriétés permet de réduire l'intervalle d'étude et d'en déduire les limites par symétrie.
+6. Notion de Continuité
+6.1. Définition formelle (Référence IV.2)
+Une fonction  $f$  est dite  continue en un point  $a$  si :  $$\lim_{x \to a} f(x) = f(a)$$  Intuitivement, une fonction est continue sur un intervalle  $I$  si sa courbe peut être tracée « sans lever le crayon ». Dans le cadre des  Lois à densité  (Partie 1), une fonction de densité  $f$  doit impérativement être continue sur  $I$  pour que l'intégrale  $\int_a^b f(t) dt$  définisse une probabilité.
+6.2. Continuité et Dérivabilité
+Toute fonction dérivable sur  $I$  est continue sur  $I$ . Cependant, la réciproque est fausse (ex: la fonction valeur absolue en 0).  Rigueur de la dérivée seconde (Source 20ConvexiteTC.docx) :  L'existence de la dérivée seconde  $f'' = (f')'$  impose que la fonction dérivée  $f'$  soit elle-même dérivable, et donc nécessairement continue.
+6.3. Continuité des fonctions de référence
+* Polynômes :  Continus sur  $\mathbb{R}$  car construits par sommes et produits de fonctions continues ( $x \mapsto x$  et  $x \mapsto k$ ).
+* Trigonométrie :   $\sin$  et  $\cos$  sont continues sur  $\mathbb{R}$ .
+7. Théorème des Valeurs Intermédiaires (TVI) et Bijection
+7.1. Théorème des Valeurs Intermédiaires
+Si  $f$  est continue sur  $a;b$ , alors pour tout réel  $k$  compris entre  $f(a)$  et  $f(b)$ , il existe au moins un réel  $c \in a;b$  tel que  $f(c) = k$ .
+7.2. Corollaire de la Bijection (Section IV.3.1)
+Il s'agit d'un cas particulier fondamental : si  $f$  est  continue  et  strictement monotone  sur  $a;b$ , alors pour tout réel  $k$  compris entre  $f(a)$  et  $f(b)$ , l'équation  $f(x) = k$  admet une  unique solution  dans  $a;b$ .
+7.3. Protocole de démonstration d'unicité
+Pour démontrer qu'une équation  $f(x)=k$  possède une unique solution  $\alpha$  sur  $I$  :
+1. Justifier la  continuité  de  $f$  sur  $I$ .
+2. Établir la  stricte monotonie  par l'étude du signe de  $f'(x)$ .
+3. Calculer les images des bornes (ou les limites) pour vérifier que  $k \in f(I)$ .
+4. Conclure en citant le corollaire du TVI.
+8. Synthèse Graphique et Convexité
+La structure globale d'une courbe s'appuie sur la synthèse des variations, des limites et de la convexité.
+* Lien Dérivée/Variations :  Le signe de  $f'(x)$  détermine le sens de variation.
+* Convexité (Source 20ConvexiteTC.docx) :   $f$  est convexe sur  $I$  si  $f'(x)$  est croissante, soit  $f''(x) \ge 0$ .  $f$  est concave si  $f''(x) \le 0$ .
+* Point d'inflexion :  Il s'agit du point où la courbe traverse sa tangente. Mathématiquement,  $A(a; f(a))$  est un point d'inflexion si et seulement si la dérivée seconde  $f''$  s'annule et change de signe en  $a$ . Ce point marque un changement de convexité sans rupture de la continuité, offrant une précision cruciale pour le tracé de la courbe représentative.

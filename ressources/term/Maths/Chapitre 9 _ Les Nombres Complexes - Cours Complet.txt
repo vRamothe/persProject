@@ -1,0 +1,72 @@
+﻿Chapitre 9 : Les Nombres Complexes - Cours Complet
+1. Introduction et Fondements de l'Ensemble  $\mathbb{C}$
+L'ensemble des nombres complexes, noté  $\mathbb{C}$ , a été conçu pour pallier l'impossibilité de résoudre certaines équations polynomiales dans l'ensemble des réels  $\mathbb{R}$  (telles que  $x^2 + 1 = 0$ ). Il constitue une extension de  $\mathbb{R}$  dont il hérite des propriétés de structure de corps commutatif.
+* Définition et Unité Imaginaire  : L'ensemble  $\mathbb{C}$  contient l'ensemble  $\mathbb{R}$  et possède un élément spécifique noté  $i$  tel que  $i^2 = -1$ .
+* Forme Algébrique  : Tout nombre complexe  $z$  s'écrit de manière unique sous la forme  $z = a + ib$ , où  $(a; b) \in \mathbb{R}^2$ .
+* $a$  est la  partie réelle  de  $z$ , notée  $Re(z)$ .
+* $b$  est la  partie imaginaire  de  $z$ , notée  $Im(z)$ .
+* Condition d'Égalité  : Deux nombres complexes sont égaux si et seulement si ils ont la même partie réelle et la même partie imaginaire.
+* Propriétés des Opérations  : Les règles de calcul (addition, soustraction, multiplication) dans  $\mathbb{C}$  sont identiques à celles de  $\mathbb{R}$ , en tenant compte de la convention  $i^2 = -1$ .Opérations Fondamentales
+* Addition  :  $(a + ib) + (a' + ib') = (a + a') + i(b + b')$
+* Multiplication  :  $(a + ib)(a' + ib') = (aa' - bb') + i(ab' + ba')$
+2. Conjugué et Propriétés Algébriques
+Soit un nombre complexe  $z = a + ib$ . On appelle  conjugué  de  $z$  le nombre complexe noté  $\bar{z}$  défini par  $\bar{z} = a - ib$ . Géométriquement, le point d'affixe  $\bar{z}$  est le symétrique du point d'affixe  $z$  par rapport à l'axe des réels.Les propriétés suivantes sont essentielles pour la manipulation des expressions complexes :
+* Linéarité  :  $\overline{z + z'} = \bar{z} + \bar{z}'$
+* Produit  :  $\overline{z \times z'} = \bar{z} \times \bar{z}'$
+* Puissance  :  $\overline{z^n} = (\bar{z})^n$  pour tout  $n \in \mathbb{N}$
+* Quotient  :  $\overline{\left(\frac{z}{z'}\right)} = \frac{\bar{z}}{\bar{z}'}$  (pour  $z' \neq 0$ )
+* Caractérisation des Réels et Imaginaires Purs  :
+* $z$  est réel  $\iff z = \bar{z}$
+* $z$  est imaginaire pur  $\iff z = -\bar{z}$
+* Relation avec le Module  : Démontrons que le produit  $z\bar{z}$  est un réel positif :  $$z\bar{z} = (a + ib)(a - ib) = a^2 - (ib)^2 = a^2 - i^2b^2 = a^2 + b^2$$  Il convient de noter que ce résultat correspond au carré du module de  $z$ .
+3. Interprétations Géométriques : Affixe, Module et Argument
+Le plan est muni d'un repère orthonormé direct  $(O; \vec{u}, \vec{v})$ . À tout nombre complexe  $z = a + ib$ , on associe un point unique  $M(a; b)$  et inversement.
+* Affixe  :  $z$  est l'affixe du point  $M$ , noté  $M(z)$ . Pour un vecteur  $\vec{w}(x; y)$ , son affixe est  $z_{\vec{w}} = x + iy$ .
+* Module  : Le module de  $z$ , noté  $|z|$ , est le réel positif  $|z| = \sqrt{a^2 + b^2} = \sqrt{z\bar{z}}$ . Il représente la distance  $OM$ .
+* Argument  : Pour  $z \neq 0$ , l'argument de  $z$ , noté  $arg(z)$ , est une mesure en radians de l'angle orienté  $(\vec{u}, \overrightarrow{OM})$ , défini modulo  $2\pi$ .| Approche Algébrique | Approche Géométrique || ------ | ------ || Nombre complexe  $z = a + ib$ | Point  $M(a; b)$  ou vecteur  $\overrightarrow{OM}$ || Module $ | z || Argument  $\theta$ | Angle orienté  $(\vec{u}, \overrightarrow{OM})$ || Coordonnées rectangulaires  $(a, b)$ | Coordonnées polaires  $(r, \theta)$  avec $r = |
+4. Rappels et Outils de Trigonométrie
+La détermination de la forme trigonométrique ou exponentielle nécessite une parfaite maîtrise des valeurs remarquables et des formules circulaires issues de 20TrigoT.docx et MathTerminale.pdf.Valeurs remarquables du Cosinus, Sinus et Tangente  |  $x$  |  $0$  |  $\frac{\pi}{6}$  |  $\frac{\pi}{4}$  |  $\frac{\pi}{3}$  |  $\frac{\pi}{2}$  |  $\pi$  | | :--- | :---: | :---: | :---: | :---: | :---: | :---: | |  $\cos(x)$  |  $1$  |  $\frac{\sqrt{3}}{2}$  |  $\frac{\sqrt{2}}{2}$  |  $\frac{1}{2}$  |  $0$  |  $-1$  | |  $\sin(x)$  |  $0$  |  $\frac{1}{2}$  |  $\frac{\sqrt{2}}{2}$  |  $\frac{\sqrt{3}}{2}$  |  $1$  |  $0$  | |  $\tan(x)$  |  $0$  |  $\frac{\sqrt{3}}{3}$  |  $1$  |  $\sqrt{3}$  |  nd  |  $0$  |Formules d'Addition
+* $\cos(a \pm b) = \cos a \cos b \mp \sin a \sin b$
+* $\sin(a \pm b) = \sin a \cos b \pm \cos a \sin b$Formules de Duplication
+* $\cos(2a) = \cos^2 a - \sin^2 a = 2\cos^2 a - 1 = 1 - 2\sin^2 a$
+* $\sin(2a) = 2 \sin a \cos a$
+5. Forme Trigonométrique et Notation Exponentielle
+Tout nombre complexe non nul  $z$  de module  $r$  et d'argument  $\theta$  admet une écriture dite trigonométrique :  $z = r(\cos \theta + i \sin \theta)$ . Par analogie avec les propriétés de la fonction exponentielle réelle, on pose la définition suivante :
+* Définition  : Pour tout réel  $\theta$ ,  $e^{i\theta} = \cos \theta + i \sin \theta$ .
+* Forme Exponentielle  : Tout  $z \in \mathbb{C}^*$  s'écrit  $z = r e^{i\theta}$ .Méthode : Passage de la forme algébrique à la forme exponentielle  Soit  $z = 3 - 3i$ .
+1. Calcul du module :  $r = |z| = \sqrt{3^2 + (-3)^2} = \sqrt{18} = 3\sqrt{2}$ .
+2. Détermination de l'argument  $\theta$  :  $\cos \theta = \frac{3}{3\sqrt{2}} = \frac{1}{\sqrt{2}} = \frac{\sqrt{2}}{2}$  et  $\sin \theta = \frac{-3}{3\sqrt{2}} = -\frac{\sqrt{2}}{2}$ .
+3. Par lecture du cercle trigonométrique, on en déduit  $\theta \equiv -\frac{\pi}{4} 2\pi$ .
+4. Conclusion :  $z = 3\sqrt{2} e^{-i\frac{\pi}{4}}$ .Formule de Moivre  Pour tout  $n \in \mathbb{N}$  et tout  $\theta \in \mathbb{R}$  :  $$(e^{i\theta})^n = e^{in\theta} \iff (\cos \theta + i \sin \theta)^n = \cos(n\theta) + i \sin(n\theta)$$   Application :  Cette formule, combinée au binôme de Newton, permet d'exprimer  $\cos(nx)$  en fonction de  $\cos(x)$ . Par exemple,  $\cos(3x) = 4\cos^3(x) - 3\cos(x)$ .Formules d'Euler  Pour tout réel  $\theta$  :  $$\cos \theta = \frac{e^{i\theta} + e^{-i\theta}}{2} \quad \text{et} \quad \sin \theta = \frac{e^{i\theta} - e^{-i\theta}}{2i}$$   Application (Linéarisation) :  Pour linéariser  $\cos^3(x)$ , on utilise Euler :  $\cos^3(x) = \left(\frac{e^{ix} + e^{-ix}}{2}\right)^3 = \frac{1}{8}(e^{3ix} + 3e^{ix} + 3e^{-ix} + e^{-3ix}) = \frac{1}{4}\cos(3x) + \frac{3}{4}\cos(x)$ .Propriétés de l'exponentielle complexe  :
+* $e^{i\theta} \times e^{i\theta'} = e^{i(\theta + \theta')}$
+* $\frac{1}{e^{i\theta}} = e^{-i\theta} = \overline{e^{i\theta}}$
+* $\frac{e^{i\theta}}{e^{i\theta'}} = e^{i(\theta - \theta')}$
+* Relation d'Euler :  $e^{i\pi} = -1$ .
+6. Équations du Second Degré et Polynômes Complexes
+Résolution de  $az^2 + bz + c = 0$  ( $a, b, c \in \mathbb{R}$ ,  $a \neq 0$ )
+Théorème  : Soit l'équation  $az^2 + bz + c = 0$  de discriminant  $\Delta = b^2 - 4ac$ .
+* Si  $\Delta > 0$  : Deux racines réelles  $z_1 = \frac{-b-\sqrt{\Delta}}{2a}$  et  $z_2 = \frac{-b+\sqrt{\Delta}}{2a}$ .
+* Si  $\Delta = 0$  : Une racine réelle unique  $z_0 = -\frac{b}{2a}$ .
+* Si  $\Delta < 0$  : Deux racines complexes conjuguées  $z_1 = \frac{-b-i\sqrt{|\Delta|}}{2a}$  et  $z_2 = \frac{-b+i\sqrt{|\Delta|}}{2a}$ .Démonstration  : D'après la forme canonique établie dans MathTerminale.pdf (II.5.1), on a :  $az^2 + bz + c = a \left\left(z + \frac{b}{2a}\right)^2 - \frac{\Delta}{4a^2} \right$ . Si  $\Delta < 0$ , alors  $-\frac{\Delta}{4a^2} = \frac{|\Delta|}{4a^2}$ . Posons  $\delta^2 = \Delta$ . Comme  $\Delta = i^2|\Delta| = (i\sqrt{|\Delta|})^2$ , on peut écrire :  $a \left\left(z + \frac{b}{2a}\right)^2 - \left(\frac{i\sqrt{|\Delta|}}{2a}\right)^2 \right = a \left(z + \frac{b}{2a} - \frac{i\sqrt{|\Delta|}}{2a}\right) \left(z + \frac{b}{2a} + \frac{i\sqrt{|\Delta|}}{2a}\right)$ . L'annulation des facteurs donne les deux solutions complexes conjuguées.Exemple  : Résoudre  $z^2 + z + 1 = 0$ .  $\Delta = 1^2 - 4(1)(1) = -3$ . On a  $\Delta < 0$ , donc  $|\Delta| = 3$ . Les solutions sont  $z_1 = \frac{-1-i\sqrt{3}}{2}$  et  $z_2 = \frac{-1+i\sqrt{3}}{2}$ .
+Factorisation de polynômes
+* Théorème Fondamental de l'Algèbre  : Tout polynôme non constant de degré  $n$  admet au moins une racine dans  $\mathbb{C}$ . Il est scindé, c'est-à-dire qu'il admet exactement  $n$  racines (comptées avec leur multiplicité).
+* Propriété de Factorisation  : Si  $z_0$  est une racine de  $P(z)$ , alors il existe un polynôme  $Q(z)$  tel que  $P(z) = (z - z_0)Q(z)$  avec  $deg(Q) = deg(P) - 1$ .
+7. Racines n-ièmes de l'unité et d'un nombre complexe
+(Note : Bien que le détail textuel soit absent du Source Context MathTerminale.pdf tronqué, nous appliquons ici la rigueur didactique requise par le persona expert).
+Racines n-ièmes de l'unité
+Les racines n-ièmes de l'unité sont les solutions de l'équation  $z^n = 1$ .
+1. On pose  $z = e^{i\theta}$ . L'équation devient  $e^{in\theta} = 1 = e^{i2k\pi}$  pour  $k \in \mathbb{Z}$ .
+2. On en déduit  $n\theta = 2k\pi$ , soit  $\theta_k = \frac{2k\pi}{n}$ .
+3. Il existe  $n$  solutions distinctes pour  $k \in \{0, 1, \dots, n-1\}$ , notées  $\omega_k = e^{i\frac{2k\pi}{n}}$ .
+4. Interprétation Géométrique  : Les points dont les affixes sont les racines n-ièmes de l'unité sont les sommets d'un polygone régulier à  $n$  côtés inscrit dans le cercle unité, dont l'un des sommets est le point d'affixe  $1$ .
+Racines n-ièmes d'un nombre complexe  $Z = Re^{i\Phi}$
+Pour résoudre  $z^n = Z$  :
+1. Exprimer  $z$  sous forme  $re^{i\theta}$ .
+2. Identifier les modules :  $r^n = R \implies r = \sqrtn{R}$ .
+3. Identifier les arguments :  $n\theta \equiv \Phi 2\pi \implies \theta_k = \frac{\Phi}{n} + \frac{2k\pi}{n}$ .
+4. On obtient  $n$  racines distinctes pour  $k \in \{0, 1, \dots, n-1\}$ .
+8. Applications à la Géométrie du Plan
+L'outil complexe permet une traduction analytique efficace des configurations géométriques du plan.
+* Distance  :  $AB = |z_B - z_A|$ .
+* Angle de vecteurs  :  $(\overrightarrow{AB}, \overrightarrow{CD}) \equiv arg\left(\frac{z_D - z_C}{z_B - z_A}\right) 2\pi$ .
+* Barycentre  : Pour un système de points pondérés  $\{(A_i, \alpha_i)\}$ , l'affixe du barycentre  $G$  est  $z_G = \frac{\sum \alpha_i z_i}{\sum \alpha_i}$ .Écritures complexes des transformations usuelles  | Transformation | Définition Géométrique | Écriture Complexe | | :--- | :--- | :--- | |  Translation  | Vecteur  $\vec{u}$  d'affixe  $b$  |  $z' = z + b$  | |  Homothétie  | Centre  $\Omega(\omega)$ , rapport  $k \in \mathbb{R}^*$  |  $z' - \omega = k(z - \omega)$  | |  Rotation  | Centre  $\Omega(\omega)$ , angle  $\theta \in \mathbb{R}$  |  $z' - \omega = e^{i\theta}(z - \omega)$  |

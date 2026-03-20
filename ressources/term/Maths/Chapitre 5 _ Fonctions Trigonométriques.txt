@@ -1,0 +1,86 @@
+﻿Chapitre 5 : Fonctions Trigonométriques
+Ce cours propose une étude rigoureuse des fonctions circulaires, outils fondamentaux de l'analyse et de la géométrie, en s'appuyant sur les propriétés du cercle trigonométrique et les extensions offertes par les nombres complexes.
+1. Rappels : Le Cercle Trigonométrique et Définitions
+Le cercle trigonométrique est un cercle de centre  $O$  et de rayon  $1$ , orienté dans le sens direct (sens anti-horaire). À tout réel  $x$ , on associe un point  $M$  du cercle par enroulement de la droite numérique.
+Définitions du Cosinus et du Sinus
+Soit  $M$  le point du cercle trigonométrique associé au réel  $x$ .
+* Le  cosinus  de  $x$ , noté  $\cos(x)$ , est l’abscisse du point  $M$  dans le repère  $(O, \vec{i}, \vec{j})$ .
+* Le  sinus  de  $x$ , noté  $\sin(x)$ , est l’ordonnée du point  $M$  dans ce même repère.
+Propriétés Fondamentales
+Pour tout nombre réel  $x$ , la position du point  $M$  sur le cercle de rayon 1 impose les relations suivantes :
+* $-1 \leq \cos(x) \leq 1$  et  $-1 \leq \sin(x) \leq 1$ .
+* $\cos^2(x) + \sin^2(x) = 1$  (Relation pythagoricienne).
+Formules de Symétrie
+Les propriétés de symétrie du cercle permettent d'établir les relations suivantes pour tout réel  $x$  (et sous réserve de définition pour la tangente) :
+* Angles opposés :
+* $\cos(-x) = \cos(x)$
+* $\sin(-x) = -\sin(x)$
+* $\tan(-x) = -\tan(x)$
+* Angles supplémentaires (symétrie par rapport à l'axe des ordonnées) :
+* $\cos(\pi - x) = -\cos(x)$
+* $\sin(\pi - x) = \sin(x)$
+* $\tan(\pi - x) = -\tan(x)$
+* Angles différant de  $\pi$  (symétrie par rapport à l'origine) :
+* $\cos(\pi + x) = -\cos(x)$
+* $\sin(\pi + x) = -\sin(x)$
+* $\tan(\pi + x) = \tan(x)$
+* Angles complémentaires :
+* $\cos(\frac{\pi}{2} - x) = \sin(x)$
+* $\sin(\frac{\pi}{2} - x) = \cos(x)$
+* Déphasage de  $\pi/2$  :
+* $\cos(\frac{\pi}{2} + x) = -\sin(x)$
+* $\sin(\frac{\pi}{2} + x) = \cos(x)$
+2. Valeurs Remarquables des Fonctions Cosinus et Sinus
+La maîtrise des valeurs remarquables est indispensable pour la résolution de problèmes trigonométriques.| $x$ | $0$ | $\frac{\pi}{6}$ | $\frac{\pi}{4}$ | $\frac{\pi}{3}$ | $\frac{\pi}{2}$ | $\pi$ || ------ | ------ | ------ | ------ | ------ | ------ | ------ || $\cos(x)$ | $1$ | $\frac{\sqrt{3}}{2}$ | $\frac{\sqrt{2}}{2}$ | $\frac{1}{2}$ | $0$ | $-1$ || $\sin(x)$ | $0$ | $\frac{1}{2}$ | $\frac{\sqrt{2}}{2}$ | $\frac{\sqrt{3}}{2}$ | $1$ | $0$ || $\tan(x)$ | $0$ | $\frac{\sqrt{3}}{3}$ | $1$ | $\sqrt{3}$ | Non déf. | $0$ |
+Note explicative :  La lecture se fait sur les axes du repère : le cosinus sur l'axe des abscisses (horizontal) et le sinus sur l'axe des ordonnées (vertical). À titre d'exemple, pour  $x = \frac{\pi}{2}$ , le point  $M$  est situé en  $(0, 1)$ , justifiant  $\cos(\frac{\pi}{2}) = 0$  et  $\sin(\frac{\pi}{2}) = 1$ .
+3. Formulaire de Trigonométrie (Addition et Duplication)
+Formules d'Addition
+Ces formules constituent le pivot du calcul trigonométrique :$\cos(a - b) = \cos(a)\cos(b) + \sin(a)\sin(b)$   $\cos(a + b) = \cos(a)\cos(b) - \sin(a)\sin(b)$   $\sin(a - b) = \sin(a)\cos(b) - \cos(a)\sin(b)$   $\sin(a + b) = \sin(a)\cos(b) + \cos(a)\sin(b)$
+Formules de Duplication
+En posant  $a = b$  dans les relations précédentes, nous déduisons :
+* Cosinus :   $\cos(2a) = \cos^2(a) - \sin^2(a) = 2\cos^2(a) - 1 = 1 - 2\sin^2(a)$ .
+* Sinus :   $\sin(2a) = 2\sin(a)\cos(a)$ .
+Méthode : Calcul de valeurs exactes
+Pour calculer  $\cos(\frac{5\pi}{12})$ , on décompose l'angle en somme de valeurs remarquables :
+1. $\frac{5\pi}{12} = \frac{3\pi}{12} + \frac{2\pi}{12} = \frac{\pi}{4} + \frac{\pi}{6}$ .
+2. On applique la formule  $\cos(a+b)$  :  $\cos(\frac{\pi}{4} + \frac{\pi}{6}) = \cos(\frac{\pi}{4})\cos(\frac{\pi}{6}) - \sin(\frac{\pi}{4})\sin(\frac{\pi}{6})$ .
+3. Substitution :  $\frac{\sqrt{2}}{2} \times \frac{\sqrt{3}}{2} - \frac{\sqrt{2}}{2} \times \frac{1}{2} = \frac{\sqrt{6} - \sqrt{2}}{4}$ .
+4. Résolution d'Équations et d'Inéquations Trigonométriques
+Équations Fondamentales
+* $\cos(x) = \cos(\alpha)$   $\iff$   $x = \alpha + 2k\pi$  ou  $x = -\alpha + 2k\pi$  ( $k \in \mathbb{Z}$ ).
+* $\sin(x) = \sin(\alpha)$   $\iff$   $x = \alpha + 2k\pi$  ou  $x = \pi - \alpha + 2k\pi$  ( $k \in \mathbb{Z}$ ).
+* $\tan(x) = \tan(\alpha)$   $\iff$   $x = \alpha + k\pi$  ( $k \in \mathbb{Z}$ ), sous réserve que  $x \neq \frac{\pi}{2} + k\pi$ .
+Inéquations sur  $-\pi ; \pi$
+Exemple :  $\sin(x) \leq \frac{\sqrt{3}}{2}$ .
+1. Équation associée :   $\sin(x) = \frac{\sqrt{3}}{2}$  donne  $x = \frac{\pi}{3}$  ou  $x = \frac{2\pi}{3}$ .
+2. Cercle trigonométrique :  On repère l'arc de cercle situé sous la droite d'ordonnée  $y = \frac{\sqrt{3}}{2}$ .
+3. Ensemble solution :  En parcourant  $-\pi ; \pi$ , on obtient  $S = -\pi ; \frac{\pi}{3} \cup \frac{2\pi}{3} ; \pi$ .
+Équation du type  $a \cos(x) + b \sin(x) = c$
+Cette méthode utilise les coordonnées polaires pour  réduire l'expression à une équation de type cosinus fondamental . On pose  $r = \sqrt{a^2 + b^2}$ . L'équation devient :  $r \left( \frac{a}{r}\cos(x) + \frac{b}{r}\sin(x) \right) = c$ . En définissant un angle  $\theta$  tel que  $\cos(\theta) = \frac{a}{r}$  et  $\sin(\theta) = \frac{b}{r}$ , l'équation se simplifie en :  $\cos(x - \theta) = \frac{c}{r}$ .
+5. Étude Complète des Fonctions Sinus et Cosinus
+Définition et Périodicité
+Les fonctions  $\cos$  et  $\sin$  sont définies sur  $\mathbb{R}$ .  Démonstration de la  $2\pi$  -périodicité :  Aux points d'abscisses curvilignes  $x$  et  $x + 2k\pi$ , on fait correspondre le même point  $M$  sur le cercle trigonométrique. Ainsi,  $f(x+2\pi) = f(x)$ . Les fonctions sont  $2\pi$ -périodiques.
+Parité
+* Cosinus :   $\cos(-x) = \cos(x)$ . La fonction est  paire .
+* Sinus :   $\sin(-x) = -\sin(x)$ . La fonction est  impaire .  Preuve :  Les points associés à  $x$  et  $-x$  sont symétriques par rapport à l'axe des abscisses. Ils ont donc la même abscisse ( $\cos$ ) et des ordonnées opposées ( $\sin$ ).
+Dérivabilité et Variations
+Les fonctions sont dérivables sur  $\mathbb{R}$ .
+* $(\cos x)' = -\sin(x)$  et  $(\sin x)' = \cos(x)$ .
+* Composées (Règle de la chaîne) :   $(\cos(ax+b))' = -a\sin(ax+b)$  et  $(\sin(ax+b))' = a\cos(ax+b)$ .Tableau de variations de Cosinus sur  $0 ; \pi$  :| $x$ | $0$ |  | $\pi$ || ------ | ------ | ------ | ------ || $\cos'(x) = -\sin(x)$ | $0$ | $-$ | $0$ || $\cos(x)$ | $1$ | $\searrow$ | $-1$ |
+Tableau de variations de Sinus sur  $0 ; \pi$  :| $x$ | $0$ | $\frac{\pi}{2}$ | $\pi$ || ------ | ------ | ------ | ------ || $\sin'(x) = \cos(x)$ | $+$ | $0$ | $-$ || $\sin(x)$ | $0$ | $\nearrow 1$ | $\searrow 0$ |
+Représentations Graphiques
+Les courbes sont appelées  sinusoïdes .
+* La courbe du  sinus  passe par l'origine  $(0,0)$  et présente une symétrie centrale par rapport à celle-ci.
+* La courbe du  cosinus  débute à son maximum  $(0,1)$  et présente une symétrie axiale par rapport à l'axe des ordonnées. On complète le tracé sur  $\mathbb{R}$  par translations successives de vecteurs  $k2\pi \vec{i}$ .
+6. Applications Avancées (Formules d'Euler et Moivre)
+Lien avec les Complexes
+L'exponentielle complexe est définie par :  $e^{i\theta} = \cos\theta + i\sin\theta$ .Formule de Moivre :   $(\cos \theta + i \sin \theta)^n = \cos(n\theta) + i \sin(n\theta)$ .  Note :  La formule de Moivre est l'outil privilégié pour le  développement  (exprimer  $\cos(nx)$  en fonction de  $\cos(x)$ ).
+Formules d'Euler
+Elles permettent d'exprimer les fonctions réelles à l'aide de l'exponentielle complexe :
+* $\cos(\theta) = \frac{e^{i\theta} + e^{-i\theta}}{2}$
+* $\sin(\theta) = \frac{e^{i\theta} - e^{-i\theta}}{2i}$
+Technique de Linéarisation
+La linéarisation utilise Euler pour transformer une puissance ( $\cos^n x$ ) en une somme de termes de type  $\cos(ax)$ .  Exemple pour  $\cos^3(x)$  :
+1. $\cos^3(x) = \left( \frac{e^{ix} + e^{-ix}}{2} \right)^3 = \frac{1}{8} (e^{3ix} + 3e^{ix} + 3e^{-ix} + e^{-3ix})$ .
+2. En regroupant :  $\frac{1}{8} (e^{3ix} + e^{-3ix}) + 3(e^{ix} + e^{-ix})$ .
+3. En réappliquant Euler :  $\frac{1}{8} 2\cos(3x) + 6\cos(x) = \frac{1}{4}\cos(3x) + \frac{3}{4}\cos(x)$ .

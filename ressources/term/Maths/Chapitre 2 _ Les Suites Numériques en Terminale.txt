@@ -1,0 +1,76 @@
+﻿Cours Complet : Les Suites Numériques en Terminale
+Ce support de cours présente les concepts fondamentaux, les propriétés de convergence et les applications matricielles des suites numériques, conformément aux exigences de rigueur et de formalisme du programme de Terminale.
+1. Introduction et Modes de Génération
+Définitions et Vocabulaire
+Une  suite numérique  est une fonction définie sur l'ensemble des entiers naturels  $\mathbb{N}$  (ou une partie de celui-ci) à valeurs dans  $\mathbb{R}$ .
+* Notation :  On note  $(u_n)_{n \in \mathbb{N}}$  la suite, et  $u_n$  l'image de l'entier  $n$ , appelée  terme de rang  $n$ .
+* Logique :  En s'appuyant sur le vocabulaire de la logique, on distingue l'objet "suite"  $(u_n)$  du "terme"  $u_n$ .
+Modes de définition
+* Définition explicite :   $u_n$  est exprimé directement en fonction de  $n$  par une relation de type  $u_n = f(n)$ .
+* Exemple :   $u_n = \frac{n^2}{n+1}$  pour  $n \in \mathbb{N}$ .
+* Définition par récurrence :  Le terme  $u_{n+1}$  est défini en fonction du terme précédent  $u_n$  par une relation  $u_{n+1} = f(u_n)$ , avec la donnée d'un premier terme  $u_0$ .
+Le Raisonnement par Récurrence
+Pour démontrer qu'une proposition  $P_n$  est vraie pour tout  $n \geq n_0$ , on suit la structure suivante :
+1. Initialisation :  On vérifie que  $P_{n_0}$  est vraie.
+2. Hérédité :  On suppose que  $P_k$  est vraie pour un certain entier  $k \geq n_0$  ( hypothèse de récurrence ). On démontre alors que  $P_{k+1}$  est vraie.
+3. Conclusion :  La propriété est initialisée et héréditaire, elle est donc vraie pour tout  $n \geq n_0$ .Exemple 1 : Inégalité de Bernoulli  Pour tout réel  $\alpha \geq -1$  et pour tout  $n \in \mathbb{N}$ ,  $(1+\alpha)^n \geq 1+n\alpha$ .  Note : Lors de l'hérédité, la multiplication par  $(1+\alpha)$  préserve le sens de l'inégalité car  $1+\alpha \geq 0$  .Exemple 2 : Somme des cubes  Pour tout  $n \in \mathbb{N}^*$ ,  $\sum_{k=1}^n k^3 = 1^3 + 2^3 + \dots + n^3 = \left(\frac{n(n+1)}{2}\right)^2$ .
+2. Propriétés Globales des Suites
+Vocabulaire de l'ordre (Définitions formelles)
+Soit  $(u_n)$  une suite définie pour tout  $n \in \mathbb{N}$ .
+* Suite majorée :   $\exists M \in \mathbb{R}, \forall n \in \mathbb{N}, u_n \leq M$ .
+* Suite minorée :   $\exists m \in \mathbb{R}, \forall n \in \mathbb{N}, u_n \geq m$ .
+* Suite bornée :   $\exists (m, M) \in \mathbb{R}^2, \forall n \in \mathbb{N}, m \leq u_n \leq M$ .
+Sens de variation (Monotonie)
+L'étude de la monotonie d'une suite  $(u_n)$  s'effectue généralement par deux méthodes :
+* Étude du signe de la différence :  Si  $u_{n+1} - u_n \geq 0$  pour tout  $n$ , la suite est croissante.
+* Comparaison du quotient à 1 :  Pour une suite dont tous les termes sont  strictement positifs  ( $\forall n \in \mathbb{N}, u_n > 0$ ) :
+* Si  $\frac{u_{n+1}}{u_n} \geq 1$ , la suite est croissante.
+* Si  $\frac{u_{n+1}}{u_n} \leq 1$ , la suite est décroissante.
+Représentation graphique
+Pour une suite définie par récurrence  $u_{n+1} = f(u_n)$ , on utilise la courbe  $\mathcal{C}_f$  et la droite  $\Delta : y = x$  :
+1. Placer  $u_0$  sur l'axe des abscisses.
+2. Rejoindre verticalement  $\mathcal{C}_f$  pour obtenir  $u_1$  en ordonnée.
+3. Rejoindre horizontalement la droite  $\Delta$  pour reporter  $u_1$  sur l'axe des abscisses.
+4. Répéter l'opération pour construire les termes suivants (construction en "escalier" ou en "spirale").
+3. Suites Arithmétiques et Géométriques
+Type de suite,Relation de récurrence,Terme général,Somme des premiers termes,Convergence
+Arithmétique,$u_{n+1} = u_n + r$,$u_n = u_0 + nr$,$S_n = \frac{(n+1)(u_0 + u_n)}{2}$,Diverge vers  $\pm\infty$  si  $r \neq 0$
+Géométrique,$u_{n+1} = q \times u_n$,$u_n = u_0 \times q^n$,$S_n = u_0 \frac{1-q^{n+1}}{1-q}$  (si  $q \neq 1$ ),Converge vers  $0$  si  $\|q\| < 1$  ; constante si  $q=1$
+Note : La somme des premiers entiers est  $\sum_{k=1}^n k = \frac{n(n+1)}{2}$  .
+4. Limites et Théorèmes de Convergence
+Définition de la convergence
+Une suite  $(u_n)$  converge vers un réel  $l$  si tout intervalle ouvert contenant  $l$  contient tous les termes de la suite à partir d'un certain rang. On note :  $\lim_{n \to +\infty} u_n = l$ .
+Théorèmes de comparaison
+* Théorème des Gendarmes :  Si  $v_n \leq u_n \leq w_n$  à partir d'un certain rang et si  $\lim_{n \to +\infty} v_n = \lim_{n \to +\infty} w_n = l$ , alors  $\lim_{n \to +\infty} u_n = l$ .
+* Comparaison à l'infini :  Si  $u_n \geq v_n$  et  $\lim_{n \to +\infty} v_n = +\infty$ , alors  $\lim_{n \to +\infty} u_n = +\infty$ .
+Théorème de convergence monotone
+Toute suite croissante et majorée converge vers une limite finie  $l$ . Toute suite décroissante et minorée converge vers une limite finie  $l$ .
+Suites adjacentes
+Deux suites  $(u_n)$  et  $(v_n)$  sont adjacentes si  $(u_n)$  est croissante,  $(v_n)$  est décroissante et  $\lim_{n \to +\infty} (v_n - u_n) = 0$ .  Propriété :  Elles convergent vers une limite commune  $l$  telle que  $\forall n \in \mathbb{N}, u_n \leq l \leq v_n$ .
+5. Extensions : Suites de Matrices Colonnes
+Modèle  $U_{n+1} = AU_n + B$
+Soit  $(U_n)$  une suite de matrices colonnes.
+* Cas homogène (  $B=0$  ) :  La relation  $U_{n+1} = AU_n$  conduit au terme général  $U_n = A^n U_0$ .
+* Cas général (  $B \neq 0$  ) :
+* On cherche l' état stable  (ou point fixe)  $\Omega$  tel que  $\Omega = A\Omega + B$ .
+* Cela revient à résoudre le système  $(I - A)\Omega = B$ , où  $I$  est la matrice identité.
+* On pose alors  $V_n = U_n - \Omega$ , ce qui ramène à une suite géométrique de matrices :  $V_n = A^n V_0$ .
+* Le terme général est alors  $U_n = A^n(U_0 - \Omega) + \Omega$ .
+Suites couplées
+Le formalisme matriciel permet de résoudre des systèmes de suites. Si  $u_{n+1} = 3u_n - v_n$  et  $v_{n+1} = -2u_n + 2v_n$ , on définit :  $U_n = \begin{pmatrix} u_n \\ v_n \end{pmatrix}$  et  $A = \begin{pmatrix} 3 & -1 \\ -2 & 2 \end{pmatrix}$ , d'où  $U_n = A^n U_0$ .
+6. Exercices d'Application Typiques (Méthodes)
+Méthode 1 : Raisonnement par l'absurde
+Énoncé :  Démontrer que pour tout  $n \in \mathbb{N}$ ,  $6n+5$  n'est pas divisible par  $3$ .
+1. Supposition :  Supposons qu'il existe un entier  $n$  tel que  $3$  divise  $6n+5$ .
+2. Traduction :  Alors il existe  $k \in \mathbb{Z}$  tel que  $6n+5 = 3k$ .
+3. Contradiction :  On en déduit  $5 = 3k - 6n = 3(k-2n)$ . Cela impliquerait que  $3$  divise  $5$ , ce qui est faux (absurde).
+4. Conclusion :  L'hypothèse est fausse,  $6n+5$  n'est jamais divisible par  $3$ .
+Méthode 2 : Étude de parité et périodicité
+Soit  $f(x) = \cos(2x) - \frac{1}{2}$ .
+* Parité :   $f(-x) = \cos(-2x) - \frac{1}{2} = \cos(2x) - \frac{1}{2} = f(x)$ . La fonction est  paire , la courbe est symétrique par rapport à l'axe des ordonnées.
+* Périodicité :   $f(x+\pi) = \cos(2(x+\pi)) - \frac{1}{2} = \cos(2x+2\pi) - \frac{1}{2} = f(x)$ . La fonction est  $\pi$  -périodique .
+Méthode 3 : Résolution de systèmes linéaires par matrices
+Pour trouver l'état stable  $\Omega = \begin{pmatrix} x \\ y \end{pmatrix}$  d'un système  $U_{n+1} = AU_n + B$  :
+1. Poser l'équation  $(I-A)U = B$ .
+2. Si  $(I-A)$  est inversible, alors  $U = (I-A)^{-1}B$ .
+3. Cette limite  $U$  représente les valeurs vers lesquelles tendent les suites couplées si la suite converge.
