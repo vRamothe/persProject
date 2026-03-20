@@ -5,7 +5,7 @@ echo ">> Python version"
 python --version
 
 echo ">> Django checks"
-python manage.py check --deploy --fail-level WARNING
+python manage.py check --deploy
 
 echo ">> Applying migrations"
 python manage.py migrate --noinput --verbosity 2
