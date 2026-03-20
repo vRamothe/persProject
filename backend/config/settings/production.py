@@ -4,7 +4,10 @@ DEBUG = False
 
 # Ensure Heroku-assigned *.herokuapp.com hosts are always accepted.
 if ".herokuapp.com" not in ALLOWED_HOSTS:
-	ALLOWED_HOSTS.append(".herokuapp.com")
+    ALLOWED_HOSTS.append(".herokuapp.com")
+
+# Heroku terminates SSL at the router; trust forwarded proto to avoid redirect loops.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
