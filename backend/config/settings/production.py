@@ -2,6 +2,10 @@ from .base import *  # noqa
 
 DEBUG = False
 
+# Ensure Heroku-assigned *.herokuapp.com hosts are always accepted.
+if ".herokuapp.com" not in ALLOWED_HOSTS:
+	ALLOWED_HOSTS.append(".herokuapp.com")
+
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
