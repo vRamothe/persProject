@@ -11,7 +11,7 @@ from .models import Matiere, Chapitre, Lecon
 def matieres_view(request):
     """Liste toutes les matières avec les chapitres du niveau de l'élève."""
     user = request.user
-    matieres = Matiere.objects.prefetch_related("chapitres").all()
+    matieres = Matiere.objects.prefetch_related("chapitres__lecons").all()
 
     # Mode prévisualisation : l'admin simule la vue d'un élève d'un niveau donné
     preview_niveau = request.session.get("preview_niveau") if user.is_admin else None
@@ -21,9 +21,10 @@ def matieres_view(request):
     debloques_ids = set(
         ChapitreDebloque.objects.filter(user=user).values_list("chapitre_id", flat=True)
     )
-    terminated_lecon_ids = set(
-        UserProgression.objects.filter(user=user, statut=StatutLeconChoices.TERMINE).values_list("lecon_id", flat=True)
-    )
+    progressions_map = {
+        p.lecon_id: p.statut
+        for p in UserProgression.objects.filter(user=user).only("lecon_id", "statut")
+    }
 
     matieres_data = []
     for matiere in matieres:
@@ -35,14 +36,25 @@ def matieres_view(request):
 
         chapitres_data = []
         for chap in chapitres.order_by("ordre"):
-            lecon_ids = list(chap.lecons.values_list("id", flat=True))
-            nb_terminees = len([lid for lid in lecon_ids if lid in terminated_lecon_ids])
+            lecons = sorted(chap.lecons.all(), key=lambda lecon: lecon.ordre)
+            lecons_data = []
+            nb_terminees = 0
+            for lecon in lecons:
+                statut = progressions_map.get(lecon.id, StatutLeconChoices.NON_COMMENCE)
+                if statut == StatutLeconChoices.TERMINE:
+                    nb_terminees += 1
+                lecons_data.append({
+                    "lecon": lecon,
+                    "statut": statut,
+                })
+
             chapitres_data.append({
                 "chapitre": chap,
                 "debloque": chap.id in debloques_ids or user.is_admin,
-                "nb_lecons": len(lecon_ids),
+                "lecons": lecons_data,
+                "nb_lecons": len(lecons_data),
                 "nb_terminees": nb_terminees,
-                "progression_pct": int(nb_terminees / len(lecon_ids) * 100) if lecon_ids else 0,
+                "progression_pct": int(nb_terminees / len(lecons_data) * 100) if lecons_data else 0,
             })
 
         matieres_data.append({
