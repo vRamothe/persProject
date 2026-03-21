@@ -1,3 +1,5 @@
+import random
+
 import markdown
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -178,14 +180,21 @@ def quiz_view(request, lecon_pk):
         return redirect("lecon", lecon_pk=lecon_pk)
 
     quiz = lecon.quiz
-    questions = quiz.questions.order_by("ordre")
+    toutes_questions = list(quiz.questions.order_by("ordre"))
     resultat_existant = UserQuizResultat.objects.filter(user=user, quiz=quiz).first()
+
+    # Tirage aléatoire de 5 questions parmi les disponibles
+    nb_tirage = min(5, len(toutes_questions))
+    questions = random.sample(toutes_questions, nb_tirage)
+    question_ids = ",".join(str(q.id) for q in questions)
 
     context = {
         "lecon": lecon,
         "chapitre": chapitre,
         "quiz": quiz,
         "questions": questions,
+        "question_ids": question_ids,
+        "nb_total_questions": len(toutes_questions),
         "resultat_existant": resultat_existant,
     }
     return render(request, "courses/quiz.html", context)

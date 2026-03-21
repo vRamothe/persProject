@@ -65,7 +65,6 @@ class Command(BaseCommand):
         )
         liste_sequences = "\n".join([f"{index}. {item}" for index, item in enumerate(sequences, start=1)])
         exercice_corrige = self._build_exercice_corrige(matiere_nom, titre, mot_cle)
-        texte_libre = self._build_texte_libre_contextuel(titre, mot_cle)
         contenu = (
             f"# {titre}\n\n"
             f"## Parcours par séquences\n{liste_sequences}\n\n"
@@ -109,15 +108,6 @@ class Command(BaseCommand):
                                 "explication": "La méthode de résolution guidée est intégrée dans le cours.",
                                 "points": 1,
                             },
-                            {
-                                "ordre": 2,
-                                "type": "texte_libre",
-                                "texte": texte_libre["texte"],
-                                "reponse_correcte": texte_libre["reponse_correcte"],
-                                "tolerances": texte_libre["tolerances"],
-                                "explication": texte_libre["explication"],
-                                "points": 2,
-                            },
                         ],
                     },
                 },
@@ -139,15 +129,7 @@ class Command(BaseCommand):
                                 "explication": "La conclusion relie calcul et interprétation scientifique.",
                                 "points": 1,
                             },
-                            {
-                                "ordre": 2,
-                                "type": "texte_libre",
-                                "texte": f"Dans le chapitre {titre}, cite la notion la plus mobilisée dans les exercices.",
-                                "reponse_correcte": mot_cle,
-                                "tolerances": [mot_cle, f"notion {mot_cle}", f"{mot_cle} principale"],
-                                "explication": f"Le mot-clé attendu dans ce chapitre est {mot_cle}.",
-                                "points": 2,
-                            },
+
                         ],
                     },
                 },
@@ -181,13 +163,7 @@ class Command(BaseCommand):
             f"Notion directrice : {mot_cle}."
         )
 
-    def _build_texte_libre_contextuel(self, titre, mot_cle):
-        return {
-            "texte": f"Dans le chapitre {titre}, quel est le concept clé à citer en priorité ?",
-            "reponse_correcte": mot_cle,
-            "tolerances": [mot_cle, f"notion {mot_cle}", f"concept {mot_cle}"],
-            "explication": f"La notion centrale visée dans ce chapitre est {mot_cle}.",
-        }
+
 
     def _create_terminale_enrichment(self, matiere):
         plan = PLAN_ENRICHISSEMENT_TERMINALE.get(matiere.nom, [])
@@ -261,58 +237,14 @@ class Command(BaseCommand):
                 quiz=quiz,
                 ordre=1,
                 defaults={
-                    "texte": f"Dans le chapitre {chapitre.titre}, quel mot-clé annonce la phase où l'on justifie le résultat final ?",
-                    "type": "texte_libre",
-                    "options": None,
-                    "reponse_correcte": "conclusion",
-                    "tolerances": ["la conclusion", "conclure", "conclusion finale"],
+                    "texte": "Dans une résolution type bac, la dernière étape doit être une conclusion rédigée.",
+                    "type": "vrai_faux",
+                    "options": ["Vrai", "Faux"],
+                    "reponse_correcte": "vrai",
                     "explication": f"Pour {chapitre.titre}, une solution bac se termine par une conclusion rédigée et justifiée.",
-                    "points": 2,
+                    "points": 1,
                 },
             )
-
-        # Garantit au moins une question texte libre avec tolérances dans le chapitre.
-        if not Question.objects.filter(quiz__lecon__chapitre=chapitre, type="texte_libre").exists():
-            quiz_cible = Quiz.objects.filter(lecon__chapitre=chapitre).order_by("lecon__ordre").first()
-            if quiz_cible:
-                next_ordre = (quiz_cible.questions.order_by("-ordre").first().ordre if quiz_cible.questions.exists() else 0) + 1
-                Question.objects.update_or_create(
-                    quiz=quiz_cible,
-                    ordre=next_ordre,
-                    defaults={
-                        "texte": f"Dans le chapitre {chapitre.titre}, donne un terme clé (réponse courte).",
-                        "type": "texte_libre",
-                        "options": None,
-                        "reponse_correcte": "notion",
-                        "tolerances": ["notion", "methode", "méthode", "concept"],
-                        "explication": f"Cette question vérifie le vocabulaire scientifique du chapitre {chapitre.titre}.",
-                        "points": 1,
-                    },
-                )
-
-        # Garantit une question texte libre contextualisée (mention explicite du titre du chapitre).
-        has_contextual = Question.objects.filter(
-            quiz__lecon__chapitre=chapitre,
-            type="texte_libre",
-            texte__icontains=chapitre.titre,
-        ).exists()
-        if not has_contextual:
-            quiz_cible = Quiz.objects.filter(lecon__chapitre=chapitre).order_by("lecon__ordre").first()
-            if quiz_cible:
-                next_ordre = (quiz_cible.questions.order_by("-ordre").first().ordre if quiz_cible.questions.exists() else 0) + 1
-                Question.objects.update_or_create(
-                    quiz=quiz_cible,
-                    ordre=next_ordre,
-                    defaults={
-                        "texte": f"Dans le chapitre {chapitre.titre}, cite une notion centrale.",
-                        "type": "texte_libre",
-                        "options": None,
-                        "reponse_correcte": "notion",
-                        "tolerances": ["notion", "concept", "méthode", "methode"],
-                        "explication": f"Cette réponse doit être pertinente pour le chapitre {chapitre.titre}.",
-                        "points": 1,
-                    },
-                )
 
     def _create_lecon(self, chapitre, lecon_data):
         from courses.models import Lecon, Quiz, Question
@@ -352,4 +284,7 @@ class Command(BaseCommand):
                         "points": q.get("points", 1),
                     },
                 )
-            quiz.questions.exclude(ordre__in=questions_ordre).delete()
+            # Only remove seed-managed questions; leave generated extras untouched
+            if questions_ordre:
+                max_seed = max(questions_ordre)
+                quiz.questions.filter(ordre__lte=max_seed).exclude(ordre__in=questions_ordre).delete()

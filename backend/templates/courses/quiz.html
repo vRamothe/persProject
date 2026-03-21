@@ -23,7 +23,7 @@
         <div>
           <div class="flex items-center gap-2 mb-1">
             <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-200 text-amber-800">Quiz</span>
-            <span class="text-xs text-gray-500">{{ questions|length }} question{% if questions|length > 1 %}s{% endif %}</span>
+            <span class="text-xs text-gray-500">{{ questions|length }} question{% if questions|length > 1 %}s{% endif %} (sur {{ nb_total_questions }} disponibles)</span>
           </div>
           <h1 class="text-lg font-bold text-gray-900">{{ quiz.titre }}</h1>
           <p class="text-sm text-gray-600 mt-0.5">Score minimum pour valider : {{ quiz.score_minimum|floatformat:0 }}%</p>
@@ -49,6 +49,7 @@
         class="divide-y divide-gray-50">
 
         {% csrf_token %}
+        <input type="hidden" name="question_ids" value="{{ question_ids }}">
 
         {% for question in questions %}
         <div class="px-6 py-5" x-data="{ selected: null }">

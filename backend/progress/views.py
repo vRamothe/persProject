@@ -50,7 +50,18 @@ def soumettre_quiz(request, lecon_pk):
         return redirect("matieres")
 
     quiz = lecon.quiz
-    questions = list(quiz.questions.order_by("ordre"))
+
+    # Récupérer les IDs des questions tirées au sort depuis le formulaire
+    question_ids_raw = request.POST.get("question_ids", "")
+    if question_ids_raw:
+        try:
+            question_ids = [int(qid) for qid in question_ids_raw.split(",") if qid.strip()]
+        except ValueError:
+            question_ids = []
+        questions = list(quiz.questions.filter(id__in=question_ids))
+    else:
+        questions = list(quiz.questions.order_by("ordre"))
+
     total_points = sum(q.points for q in questions)
 
     points_obtenus = 0

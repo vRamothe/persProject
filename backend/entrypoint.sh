@@ -12,6 +12,9 @@ python manage.py migrate --noinput
 echo ">> Chargement des données initiales..."
 python manage.py seed_data
 
+echo ">> Complétion des quiz (20 QCM par quiz)..."
+python manage.py pad_quiz_questions
+
 echo ">> Collecte des fichiers statiques..."
 python manage.py collectstatic --noinput --clear
 
