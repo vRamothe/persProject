@@ -89,3 +89,32 @@ class ChapitreDebloque(models.Model):
 
     def __str__(self):
         return f"{self.user.email} — {self.chapitre.titre}"
+
+
+class UserChapitreQuizResultat(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="chapitre_quiz_resultats",
+        verbose_name="Élève",
+    )
+    chapitre = models.ForeignKey(
+        "courses.Chapitre",
+        on_delete=models.CASCADE,
+        related_name="quiz_resultats",
+        verbose_name="Chapitre",
+    )
+    score = models.FloatField(default=0.0, verbose_name="Meilleur score (%)")
+    nb_tentatives = models.PositiveIntegerField(default=0, verbose_name="Nombre de tentatives")
+    passe = models.BooleanField(default=False, verbose_name="Quiz chapitre validé")
+    reponses = models.JSONField(null=True, blank=True, verbose_name="Dernières réponses")
+    premiere_tentative = models.DateTimeField(auto_now_add=True)
+    derniere_tentative = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Résultat quiz chapitre"
+        verbose_name_plural = "Résultats quiz chapitres"
+        unique_together = [["user", "chapitre"]]
+
+    def __str__(self):
+        return f"{self.user.email} — {self.chapitre.titre} — {self.score:.1f}%"

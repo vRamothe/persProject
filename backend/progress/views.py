@@ -4,8 +4,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 
-from courses.models import Lecon, Chapitre
-from .models import UserProgression, UserQuizResultat, ChapitreDebloque, StatutLeconChoices
+from courses.models import Lecon, Chapitre, Question
+from .models import UserProgression, UserQuizResultat, UserChapitreQuizResultat, ChapitreDebloque, StatutLeconChoices
 
 
 @require_POST
@@ -148,32 +148,13 @@ def soumettre_quiz(request, lecon_pk):
 
 
 def _verifier_deblocage_chapitre_suivant(user, chapitre_actuel):
-    """Vérifie si toutes les leçons du chapitre sont terminées et débloque le suivant."""
-    lecons_du_chapitre = list(chapitre_actuel.lecons.values_list("id", flat=True))
-    if not lecons_du_chapitre:
-        return
-
-    nb_terminees = UserProgression.objects.filter(
-        user=user,
-        lecon_id__in=lecons_du_chapitre,
-        statut=StatutLeconChoices.TERMINE,
-    ).count()
-
-    if nb_terminees < len(lecons_du_chapitre):
-        return  # Pas encore toutes les leçons terminées
-
-    # Vérifier le score moyen des quiz du chapitre
-    from courses.models import Quiz as QuizModel
-    quiz_ids = QuizModel.objects.filter(
-        lecon__chapitre=chapitre_actuel
-    ).values_list("id", flat=True)
-
-    if quiz_ids:
-        resultats = UserQuizResultat.objects.filter(user=user, quiz_id__in=quiz_ids)
-        if resultats.exists():
-            score_moyen = sum(r.score for r in resultats) / resultats.count()
-            if score_moyen < chapitre_actuel.score_minimum_deblocage:
-                return  # Score insuffisant
+    """Vérifie si le quiz de chapitre est validé (≥ 80%) et débloque le suivant."""
+    # Le quiz de chapitre doit être passé avec ≥ 80%
+    resultat_chapitre = UserChapitreQuizResultat.objects.filter(
+        user=user, chapitre=chapitre_actuel, passe=True
+    ).first()
+    if not resultat_chapitre:
+        return False
 
     # Débloquer le chapitre suivant
     chapitre_suivant = Chapitre.objects.filter(
@@ -201,3 +182,99 @@ def _comparer_texte_libre(reponse, question):
             if normalized == str(alt).strip().lower():
                 return True
     return False
+
+
+@require_POST
+@login_required
+def soumettre_quiz_chapitre(request, chapitre_pk):
+    """Soumission du quiz de fin de chapitre, calcul du score, déblocage du suivant."""
+    user = request.user
+    chapitre = get_object_or_404(Chapitre, pk=chapitre_pk)
+
+    if not user.is_admin and chapitre.niveau != user.niveau:
+        return redirect("matieres")
+
+    # Récupérer les IDs des questions tirées au sort
+    question_ids_raw = request.POST.get("question_ids", "")
+    if question_ids_raw:
+        try:
+            question_ids = [int(qid) for qid in question_ids_raw.split(",") if qid.strip()]
+        except ValueError:
+            question_ids = []
+        questions = list(Question.objects.filter(id__in=question_ids).select_related("quiz"))
+    else:
+        return redirect("quiz_chapitre", chapitre_pk=chapitre_pk)
+
+    total_points = sum(q.points for q in questions)
+    points_obtenus = 0
+    reponses_soumises = {}
+    corrections = []
+
+    for question in questions:
+        cle = f"question_{question.id}"
+        reponse = request.POST.get(cle, "").strip()
+        reponses_soumises[str(question.id)] = reponse
+
+        correct = reponse.lower() == str(question.reponse_correcte).strip().lower()
+        if not correct and question.type == "texte_libre":
+            correct = _comparer_texte_libre(reponse, question)
+        if correct:
+            points_obtenus += question.points
+
+        if question.type == "qcm" and question.options:
+            try:
+                reponse_donnee_texte = question.options[int(reponse)] if reponse.isdigit() else reponse
+            except (IndexError, ValueError):
+                reponse_donnee_texte = reponse
+            try:
+                reponse_correcte_texte = question.options[int(question.reponse_correcte)]
+            except (IndexError, ValueError):
+                reponse_correcte_texte = question.reponse_correcte
+        elif question.type == "texte_libre":
+            reponse_donnee_texte = reponse if reponse else "—"
+            reponse_correcte_texte = question.reponse_correcte
+        else:
+            reponse_donnee_texte = reponse.capitalize() if reponse else "—"
+            reponse_correcte_texte = str(question.reponse_correcte).capitalize()
+
+        corrections.append({
+            "question": question,
+            "reponse_donnee": reponse,
+            "reponse_donnee_texte": reponse_donnee_texte,
+            "reponse_correcte_texte": reponse_correcte_texte,
+            "correct": correct,
+        })
+
+    score = (points_obtenus / total_points * 100) if total_points > 0 else 0.0
+    score_minimum = 80.0
+    passe = score >= score_minimum
+
+    # Enregistrer ou mettre à jour le résultat (on garde le meilleur score)
+    resultat, _ = UserChapitreQuizResultat.objects.get_or_create(user=user, chapitre=chapitre)
+    resultat.nb_tentatives += 1
+    resultat.reponses = reponses_soumises
+    if score > resultat.score:
+        resultat.score = score
+    if passe:
+        resultat.passe = True
+    resultat.save()
+
+    # Débloquer le chapitre suivant si validé
+    debloque_suivant = False
+    if passe:
+        debloque_suivant = _verifier_deblocage_chapitre_suivant(user, chapitre)
+
+    nb_bonnes_reponses = sum(1 for c in corrections if c["correct"])
+
+    from django.shortcuts import render
+    return render(request, "courses/quiz_chapitre_resultat.html", {
+        "chapitre": chapitre,
+        "score": round(score, 1),
+        "score_minimum": score_minimum,
+        "passe": passe,
+        "corrections": corrections,
+        "resultat": resultat,
+        "questions": questions,
+        "nb_bonnes_reponses": nb_bonnes_reponses,
+        "debloque_suivant": debloque_suivant,
+    })

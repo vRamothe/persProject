@@ -120,6 +120,57 @@
       {% endwith %}
       {% endfor %}
     </div>
+
+    <!-- Quiz de chapitre -->
+    {% if nb_questions_chapitre > 0 %}
+    <div class="px-5 py-5 border-t border-gray-200
+                {% if chapitre.matiere.nom == 'physique' %}bg-blue-50/50
+                {% elif chapitre.matiere.nom == 'chimie' %}bg-emerald-50/50
+                {% else %}bg-purple-50/50{% endif %}">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-lg
+                      {% if chapitre_quiz_resultat and chapitre_quiz_resultat.passe %}bg-emerald-100 text-emerald-700
+                      {% elif chapitre.matiere.nom == 'physique' %}bg-blue-100 text-blue-700
+                      {% elif chapitre.matiere.nom == 'chimie' %}bg-emerald-100 text-emerald-700
+                      {% else %}bg-purple-100 text-purple-700{% endif %}">
+            {% if chapitre_quiz_resultat and chapitre_quiz_resultat.passe %}
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+            {% else %}
+              🏆
+            {% endif %}
+          </div>
+          <div>
+            <p class="font-semibold text-gray-800 text-sm">Quiz de fin de chapitre</p>
+            <p class="text-xs text-gray-500">
+              10 questions — 80% minimum pour valider
+              {% if chapitre_quiz_resultat %}
+                &bull; Meilleur score : <span class="font-semibold {% if chapitre_quiz_resultat.passe %}text-emerald-600{% else %}text-red-500{% endif %}">{{ chapitre_quiz_resultat.score|floatformat:0 }}%</span>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        {% if toutes_lecons_terminees %}
+        <a href="{% url 'quiz_chapitre' chapitre.pk %}"
+           class="flex-shrink-0 text-xs font-semibold px-4 py-2.5 rounded-xl text-white transition-colors shadow-sm
+                  {% if chapitre_quiz_resultat and chapitre_quiz_resultat.passe %}bg-emerald-600 hover:bg-emerald-700
+                  {% elif chapitre.matiere.nom == 'physique' %}bg-blue-600 hover:bg-blue-700
+                  {% elif chapitre.matiere.nom == 'chimie' %}bg-emerald-600 hover:bg-emerald-700
+                  {% else %}bg-purple-600 hover:bg-purple-700{% endif %}">
+          {% if chapitre_quiz_resultat and chapitre_quiz_resultat.passe %}Refaire le quiz{% elif chapitre_quiz_resultat %}Réessayer{% else %}Passer le quiz{% endif %}
+        </a>
+        {% else %}
+        <span class="flex-shrink-0 text-xs text-gray-400 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 cursor-not-allowed">
+          🔒 Terminez toutes les leçons
+        </span>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
   </div>
 
   <!-- Score minimum pour débloquer la suite -->

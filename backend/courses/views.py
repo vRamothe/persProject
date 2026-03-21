@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 
-from .models import Matiere, Chapitre, Lecon
+from .models import Matiere, Chapitre, Lecon, Question
 
 
 def _extraire_youtube_id(url):
@@ -121,7 +121,7 @@ def chapitre_view(request, chapitre_pk):
     if not user.is_admin and chapitre.niveau != user.niveau:
         return redirect("matieres")
 
-    from progress.models import ChapitreDebloque, UserProgression, StatutLeconChoices
+    from progress.models import ChapitreDebloque, UserProgression, UserChapitreQuizResultat, StatutLeconChoices
 
     # Vérifier que le chapitre est débloqué
     if not user.is_admin:
@@ -148,12 +148,22 @@ def chapitre_view(request, chapitre_pk):
     nb_terminees = sum(1 for ld in lecons_data if ld["statut"] == "termine")
     progression_pct = int(nb_terminees / nb_lecons * 100) if nb_lecons > 0 else 0
 
+    # Résultat du quiz de chapitre
+    chapitre_quiz_resultat = UserChapitreQuizResultat.objects.filter(user=user, chapitre=chapitre).first()
+    # Le quiz de chapitre est accessible seulement si toutes les leçons sont terminées
+    toutes_lecons_terminees = nb_terminees == nb_lecons and nb_lecons > 0
+    # Vérifier qu'il y a des questions disponibles pour le quiz
+    nb_questions_chapitre = Question.objects.filter(quiz__lecon__chapitre=chapitre).count()
+
     return render(request, "courses/chapitres.html", {
         "chapitre": chapitre,
         "lecons_data": lecons_data,
         "nb_lecons": nb_lecons,
         "nb_terminees": nb_terminees,
         "progression_pct": progression_pct,
+        "chapitre_quiz_resultat": chapitre_quiz_resultat,
+        "toutes_lecons_terminees": toutes_lecons_terminees,
+        "nb_questions_chapitre": nb_questions_chapitre,
     })
 
 
@@ -277,3 +287,43 @@ def quiz_view(request, lecon_pk):
         "resultat_existant": resultat_existant,
     }
     return render(request, "courses/quiz.html", context)
+
+
+@login_required
+def quiz_chapitre_view(request, chapitre_pk):
+    """Quiz de fin de chapitre : 10 questions piochées parmi tous les quiz du chapitre."""
+    user = request.user
+    chapitre = get_object_or_404(Chapitre.objects.select_related("matiere"), pk=chapitre_pk)
+
+    if not user.is_admin and chapitre.niveau != user.niveau:
+        return redirect("matieres")
+
+    from progress.models import ChapitreDebloque, UserChapitreQuizResultat
+
+    if not user.is_admin:
+        if not ChapitreDebloque.objects.filter(user=user, chapitre=chapitre).exists():
+            return redirect("matieres")
+
+    # Rassembler toutes les questions des quiz de ce chapitre
+    toutes_questions = list(
+        Question.objects.filter(quiz__lecon__chapitre=chapitre).select_related("quiz")
+    )
+
+    if not toutes_questions:
+        return redirect("chapitre", chapitre_pk=chapitre_pk)
+
+    nb_tirage = min(10, len(toutes_questions))
+    questions = random.sample(toutes_questions, nb_tirage)
+    question_ids = ",".join(str(q.id) for q in questions)
+
+    resultat_existant = UserChapitreQuizResultat.objects.filter(user=user, chapitre=chapitre).first()
+
+    context = {
+        "chapitre": chapitre,
+        "questions": questions,
+        "question_ids": question_ids,
+        "nb_total_questions": len(toutes_questions),
+        "resultat_existant": resultat_existant,
+        "score_minimum": 80,
+    }
+    return render(request, "courses/quiz_chapitre.html", context)
