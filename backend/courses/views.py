@@ -24,6 +24,35 @@ def _extraire_youtube_id(url):
     return None
 
 
+def _proteger_latex(contenu):
+    """Protège les blocs LaTeX ($$...$$ et $...$) du traitement Markdown.
+
+    Remplace chaque bloc par un placeholder unique, renvoie le texte modifié
+    et un dictionnaire placeholder → LaTeX original.
+    """
+    placeholders = {}
+    counter = 0
+
+    def _remplacer(match):
+        nonlocal counter
+        key = f"\x00LATEX{counter}\x00"
+        placeholders[key] = match.group(0)
+        counter += 1
+        return key
+
+    # $$...$$ (display) en premier, puis $...$ (inline)
+    contenu = re.sub(r'\$\$.+?\$\$', _remplacer, contenu, flags=re.DOTALL)
+    contenu = re.sub(r'\$(?!\$).+?\$', _remplacer, contenu, flags=re.DOTALL)
+    return contenu, placeholders
+
+
+def _restaurer_latex(html, placeholders):
+    """Réinsère les blocs LaTeX originaux dans le HTML rendu."""
+    for key, latex in placeholders.items():
+        html = html.replace(key, latex)
+    return html
+
+
 @login_required
 def matieres_view(request):
     """Liste toutes les matières avec les chapitres du niveau de l'élève."""
@@ -159,12 +188,42 @@ def lecon_view(request, lecon_pk):
             prog.save(update_fields=["statut", "derniere_activite"])
         est_terminee = prog.statut == StatutLeconChoices.TERMINE
 
-    # Rendu Markdown → HTML
+    # Rendu Markdown → HTML (protéger le LaTeX des transformations Markdown)
+    contenu_protege, placeholders_latex = _proteger_latex(lecon.contenu)
     md = markdown.Markdown(extensions=["extra", "tables", "toc", "nl2br"])
-    contenu_html = md.convert(lecon.contenu)
+    contenu_html = md.convert(contenu_protege)
+    contenu_html = _restaurer_latex(contenu_html, placeholders_latex)
 
-    # Vidéo
+    # Vidéo — construire le HTML d'embed
     youtube_id = _extraire_youtube_id(lecon.video_youtube_url)
+    video_html = ""
+    if youtube_id:
+        video_html = (
+            '<div class="my-6">'
+            '<div class="relative w-full rounded-xl overflow-hidden shadow-sm" style="padding-bottom:56.25%">'
+            f'<iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/{youtube_id}?rel=0" '
+            f'title="{lecon.titre}" frameborder="0" '
+            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '
+            'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+            '</div></div>'
+        )
+    elif lecon.video_fichier:
+        video_html = (
+            '<div class="my-6">'
+            '<video class="w-full rounded-xl shadow-sm" controls preload="metadata">'
+            f'<source src="{lecon.video_fichier.url}" type="video/mp4">'
+            'Votre navigateur ne prend pas en charge la lecture vidéo.'
+            '</video></div>'
+        )
+
+    # Remplacer le marqueur [video] dans le contenu s'il existe
+    video_placeholder = "<p>[video]</p>"
+    video_in_content = video_placeholder in contenu_html
+    if video_in_content and video_html:
+        contenu_html = contenu_html.replace(video_placeholder, video_html, 1)
+    elif video_in_content:
+        # Marqueur présent mais pas de vidéo configurée — retirer le placeholder
+        contenu_html = contenu_html.replace(video_placeholder, "", 1)
 
     context = {
         "lecon": lecon,
@@ -175,6 +234,7 @@ def lecon_view(request, lecon_pk):
         "lecon_suivante": lecon.get_lecon_suivante(),
         "est_terminee": est_terminee,
         "youtube_id": youtube_id,
+        "video_in_content": video_in_content,
     }
     return render(request, "courses/lecon.html", context)
 
