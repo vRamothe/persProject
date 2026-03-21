@@ -12,7 +12,9 @@
         <h2 class="text-2xl font-bold">Bonjour, {{ user.prenom }} ! 👋</h2>
         <p class="text-indigo-200 mt-1 text-sm">
           Classe de <strong class="text-white">{{ user.get_niveau_display }}</strong> &mdash;
-          Continuez sur votre lancée !
+          {% if streak > 1 %}🔥 {{ streak }} jours consécutifs !
+          {% elif streak == 1 %}Actif aujourd'hui — continuez !
+          {% else %}Reprenez votre lancée !{% endif %}
         </p>
       </div>
       <div class="hidden sm:block text-right">
@@ -34,7 +36,7 @@
   </div>
 
   <!-- Statistiques -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
     <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
       <div class="text-2xl font-bold text-indigo-600">{{ lecons_terminees }}</div>
       <div class="text-xs text-gray-500 mt-1">Leçons terminées</div>
@@ -49,34 +51,129 @@
     </div>
     <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
       <div class="text-2xl font-bold text-amber-500">{{ score_moyen }}%</div>
-      <div class="text-xs text-gray-500 mt-1">Score moyen quiz</div>
+      <div class="text-xs text-gray-500 mt-1">Score moyen</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div class="text-2xl font-bold text-orange-500">🔥 {{ streak }}</div>
+      <div class="text-xs text-gray-500 mt-1">Jours consécutifs</div>
     </div>
   </div>
 
-  <!-- Actions rapides -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    <a href="{% url 'matieres' %}"
-       class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition-all group">
-      <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl mb-3 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-        📚
+  <!-- Progression par matière -->
+  {% if matieres_stats %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100">
+      <h3 class="font-semibold text-gray-800">Progression par matière</h3>
+    </div>
+    <div class="p-5 space-y-4">
+      {% for ms in matieres_stats %}
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">{{ ms.matiere.icone_svg }}</span>
+            <span class="text-sm font-medium text-gray-800">{{ ms.matiere.get_nom_display }}</span>
+          </div>
+          <div class="text-xs text-gray-500">
+            {{ ms.done }}/{{ ms.total_lecons }} leçons · score {{ ms.score_moyen }}%
+          </div>
+        </div>
+        <div class="bg-gray-100 rounded-full h-2.5">
+          <div class="h-2.5 rounded-full transition-all duration-500
+                      {% if ms.matiere.nom == 'physique' %}bg-blue-500
+                      {% elif ms.matiere.nom == 'chimie' %}bg-emerald-500
+                      {% else %}bg-purple-500{% endif %}"
+               style="width: {{ ms.pct }}%"></div>
+        </div>
       </div>
-      <div class="font-semibold text-gray-800 text-sm">Reprendre les cours</div>
-      <div class="text-xs text-gray-500 mt-0.5">Accéder à vos matières</div>
-    </a>
-    <a href="{% url 'profil' %}"
-       class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition-all group">
-      <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl mb-3 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-        👤
-      </div>
-      <div class="font-semibold text-gray-800 text-sm">Mon profil</div>
-      <div class="text-xs text-gray-500 mt-0.5">Modifier mes informations</div>
-    </a>
-    <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-100">
-      <div class="text-xl mb-3">💡</div>
-      <div class="font-semibold text-amber-800 text-sm">Le saviez-vous ?</div>
-      <div class="text-xs text-amber-700 mt-0.5">Terminez toutes les leçons d'un chapitre pour débloquer le suivant&nbsp;!</div>
+      {% endfor %}
     </div>
   </div>
+  {% endif %}
+
+  <!-- Score trend chart + Actions rapides -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- Score trend chart -->
+    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+      <h3 class="font-semibold text-gray-800 mb-3">Évolution des scores (30 jours)</h3>
+      <div class="h-48">
+        <canvas id="scoreChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="space-y-4">
+      {% if nb_revisions_dues > 0 %}
+      <a href="{% url 'revisions' %}"
+         class="block bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-200 hover:border-amber-300 hover:shadow-md transition-all group">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl group-hover:bg-amber-500 group-hover:text-white transition-colors">
+            🧠
+          </div>
+          <div>
+            <div class="font-semibold text-amber-800 text-sm">{{ nb_revisions_dues }} révision{{ nb_revisions_dues|pluralize }}</div>
+            <div class="text-xs text-amber-600">à faire aujourd'hui</div>
+          </div>
+        </div>
+      </a>
+      {% endif %}
+      <a href="{% url 'matieres' %}"
+         class="block bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition-all group">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+            📚
+          </div>
+          <div>
+            <div class="font-semibold text-gray-800 text-sm">Reprendre les cours</div>
+            <div class="text-xs text-gray-500">Accéder à vos matières</div>
+          </div>
+        </div>
+      </a>
+      <a href="{% url 'profil' %}"
+         class="block bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition-all group">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
+            👤
+          </div>
+          <div>
+            <div class="font-semibold text-gray-800 text-sm">Mon profil</div>
+            <div class="text-xs text-gray-500">Modifier mes informations</div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Points faibles -->
+  {% if chapitres_faibles %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100">
+      <h3 class="font-semibold text-gray-800">💡 Chapitres à renforcer</h3>
+      <p class="text-xs text-gray-500 mt-0.5">Chapitres avec un score moyen inférieur à 70%</p>
+    </div>
+    <ul class="divide-y divide-gray-50">
+      {% for ch in chapitres_faibles %}
+      <li class="px-5 py-3.5 flex items-center gap-3 hover:bg-gray-50 transition-colors">
+        <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-sm
+                    {% if ch.avg_score < 40 %}bg-red-100 text-red-700
+                    {% elif ch.avg_score < 60 %}bg-orange-100 text-orange-700
+                    {% else %}bg-amber-100 text-amber-700{% endif %}">
+          {{ ch.avg_score|floatformat:0 }}%
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-gray-800 truncate">{{ ch.quiz__lecon__chapitre__titre }}</div>
+          <div class="text-xs text-gray-500">
+            {% if ch.quiz__lecon__chapitre__matiere__nom == 'physique' %}Physique
+            {% elif ch.quiz__lecon__chapitre__matiere__nom == 'chimie' %}Chimie
+            {% else %}Mathématiques{% endif %}
+            · {{ ch.nb_quiz }} quiz tenté{{ ch.nb_quiz|pluralize }}
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 
   <!-- Activité récente -->
   {% if activite_recente %}
@@ -119,4 +216,54 @@
   {% endif %}
 
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  const labels = {{ labels_scores_json|safe }};
+  const data = {{ data_scores_json|safe }};
+  const ctx = document.getElementById('scoreChart');
+  if (!ctx) return;
+
+  const isDark = document.documentElement.classList.contains('dark');
+  const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)';
+  const tickColor = isDark ? '#9ca3af' : '#6b7280';
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Score moyen',
+        data: data,
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        borderWidth: 2,
+        spanGaps: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.parsed.y !== null ? ctx.parsed.y + '%' : 'Pas de données'; }
+          }
+        }
+      },
+      scales: {
+        y: { min: 0, max: 100, grid: { color: gridColor }, ticks: { color: tickColor, callback: v => v + '%' } },
+        x: { grid: { display: false }, ticks: { color: tickColor, maxTicksLimit: 8 } }
+      }
+    }
+  });
+})();
+</script>
 {% endblock %}

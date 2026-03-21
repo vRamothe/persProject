@@ -327,3 +327,130 @@ def quiz_chapitre_view(request, chapitre_pk):
         "score_minimum": 80,
     }
     return render(request, "courses/quiz_chapitre.html", context)
+
+
+@login_required
+def revisions_view(request):
+    """Page de révision espacée : affiche les questions dues aujourd'hui."""
+    from datetime import date
+    from progress.models import UserQuestionHistorique
+
+    user = request.user
+
+    # Questions dues (prochaine_revision <= aujourd'hui), priorité aux boîtes basses
+    historiques = (
+        UserQuestionHistorique.objects.filter(user=user, prochaine_revision__lte=date.today())
+        .select_related("question__quiz__lecon__chapitre__matiere")
+        .order_by("boite", "prochaine_revision")
+    )
+
+    # Statistiques de révision
+    total_historiques = UserQuestionHistorique.objects.filter(user=user).count()
+    nb_dues = historiques.count()
+    nb_maitrisees = UserQuestionHistorique.objects.filter(user=user, boite__gte=4).count()
+
+    # Pour le mode quiz de révision : tirer jusqu'à 10 questions
+    questions_dues = [h.question for h in historiques[:10]]
+    question_ids = ",".join(str(q.id) for q in questions_dues)
+
+    # Répartition par boîte pour la vue d'ensemble
+    from django.db.models import Count
+    repartition_boites = dict(
+        UserQuestionHistorique.objects.filter(user=user)
+        .values_list("boite")
+        .annotate(c=Count("id"))
+        .values_list("boite", "c")
+    )
+    box_colors = {
+        1: "bg-red-400", 2: "bg-orange-400", 3: "bg-yellow-400",
+        4: "bg-lime-400", 5: "bg-emerald-400",
+    }
+    box_display = [
+        (i, repartition_boites.get(i, 0), box_colors[i])
+        for i in range(1, 6)
+    ]
+
+    context = {
+        "questions": questions_dues,
+        "question_ids": question_ids,
+        "nb_dues": nb_dues,
+        "total_historiques": total_historiques,
+        "nb_maitrisees": nb_maitrisees,
+        "box_display": box_display,
+    }
+    return render(request, "courses/revisions.html", context)
+
+
+@login_required
+def soumettre_revisions(request):
+    """Soumission du quiz de révision espacée."""
+    from datetime import date
+    from progress.models import UserQuestionHistorique
+
+    if request.method != "POST":
+        return redirect("revisions")
+
+    user = request.user
+
+    question_ids_raw = request.POST.get("question_ids", "")
+    if not question_ids_raw:
+        return redirect("revisions")
+
+    try:
+        question_ids = [int(qid) for qid in question_ids_raw.split(",") if qid.strip()]
+    except ValueError:
+        return redirect("revisions")
+
+    questions = list(Question.objects.filter(id__in=question_ids).select_related("quiz__lecon__chapitre__matiere"))
+
+    corrections = []
+    for question in questions:
+        cle = f"question_{question.id}"
+        reponse = request.POST.get(cle, "").strip()
+
+        correct = reponse.lower() == str(question.reponse_correcte).strip().lower()
+        if not correct and question.type == "texte_libre" and question.tolerances:
+            normalized = reponse.strip().lower()
+            for alt in question.tolerances:
+                if normalized == str(alt).strip().lower():
+                    correct = True
+                    break
+
+        # Mettre à jour le Leitner
+        hist, _ = UserQuestionHistorique.objects.get_or_create(
+            user=user,
+            question=question,
+            defaults={"prochaine_revision": date.today()},
+        )
+        hist.enregistrer_reponse(correct)
+
+        if question.type == "qcm" and question.options:
+            try:
+                reponse_donnee_texte = question.options[int(reponse)] if reponse.isdigit() else reponse
+            except (IndexError, ValueError):
+                reponse_donnee_texte = reponse
+            try:
+                reponse_correcte_texte = question.options[int(question.reponse_correcte)]
+            except (IndexError, ValueError):
+                reponse_correcte_texte = question.reponse_correcte
+        else:
+            reponse_donnee_texte = reponse if reponse else "—"
+            reponse_correcte_texte = question.reponse_correcte
+
+        corrections.append({
+            "question": question,
+            "reponse_donnee": reponse,
+            "reponse_donnee_texte": reponse_donnee_texte,
+            "reponse_correcte_texte": reponse_correcte_texte,
+            "correct": correct,
+        })
+
+    nb_bonnes_reponses = sum(1 for c in corrections if c["correct"])
+    score = round(nb_bonnes_reponses / len(corrections) * 100, 1) if corrections else 0
+
+    return render(request, "courses/revisions_resultat.html", {
+        "corrections": corrections,
+        "nb_bonnes_reponses": nb_bonnes_reponses,
+        "score": score,
+        "total": len(corrections),
+    })

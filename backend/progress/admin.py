@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserProgression, UserQuizResultat, ChapitreDebloque, UserChapitreQuizResultat
+from .models import UserProgression, UserQuizResultat, ChapitreDebloque, UserChapitreQuizResultat, UserQuestionHistorique
 
 
 @admin.register(UserProgression)
@@ -27,3 +27,10 @@ class UserChapitreQuizResultatAdmin(admin.ModelAdmin):
     list_display = ["user", "chapitre", "score", "passe", "nb_tentatives", "derniere_tentative"]
     list_filter = ["passe"]
     raw_id_fields = ["user", "chapitre"]
+
+
+@admin.register(UserQuestionHistorique)
+class UserQuestionHistoriqueAdmin(admin.ModelAdmin):
+    list_display = ["user", "question", "boite", "prochaine_revision", "derniere_reponse_correcte", "nb_bonnes", "nb_total"]
+    list_filter = ["boite", "derniere_reponse_correcte"]
+    raw_id_fields = ["user", "question"]

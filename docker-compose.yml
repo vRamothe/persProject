@@ -31,6 +31,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-sciencelycee}:${POSTGRES_PASSWORD:-sciencelycee_secret}@db:5432/${POSTGRES_DB:-sciencelycee}?sslmode=disable
       DJANGO_SETTINGS_MODULE: config.settings.development
     volumes:
+      - ./backend:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/mediafiles
     expose:

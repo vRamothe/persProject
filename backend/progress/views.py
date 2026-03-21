@@ -1,11 +1,14 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 
 from courses.models import Lecon, Chapitre, Question
-from .models import UserProgression, UserQuizResultat, UserChapitreQuizResultat, ChapitreDebloque, StatutLeconChoices
+from .models import (
+    UserProgression, UserQuizResultat, UserChapitreQuizResultat,
+    ChapitreDebloque, StatutLeconChoices, UserQuestionHistorique,
+)
 
 
 @require_POST
@@ -116,6 +119,9 @@ def soumettre_quiz(request, lecon_pk):
     if passe:
         resultat.passe = True
     resultat.save()
+
+    # Répétition espacée : enregistrer chaque réponse
+    _enregistrer_historique_questions(user, corrections)
 
     # Marquer la leçon comme "terminée" si quiz passé
     if passe:
@@ -259,6 +265,9 @@ def soumettre_quiz_chapitre(request, chapitre_pk):
         resultat.passe = True
     resultat.save()
 
+    # Répétition espacée : enregistrer chaque réponse
+    _enregistrer_historique_questions(user, corrections)
+
     # Débloquer le chapitre suivant si validé
     debloque_suivant = False
     if passe:
@@ -278,3 +287,17 @@ def soumettre_quiz_chapitre(request, chapitre_pk):
         "nb_bonnes_reponses": nb_bonnes_reponses,
         "debloque_suivant": debloque_suivant,
     })
+
+
+def _enregistrer_historique_questions(user, corrections):
+    """Met à jour le suivi Leitner pour chaque question répondue."""
+    from .models import LEITNER_INTERVALLES
+
+    for c in corrections:
+        question = c["question"]
+        hist, created = UserQuestionHistorique.objects.get_or_create(
+            user=user,
+            question=question,
+            defaults={"prochaine_revision": date.today() + timedelta(days=1)},
+        )
+        hist.enregistrer_reponse(c["correct"])

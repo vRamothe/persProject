@@ -69,8 +69,10 @@ class TableauDeBordView(View):
 
 
 def _dashboard_eleve(request):
-    from progress.models import UserProgression, UserQuizResultat, ChapitreDebloque, StatutLeconChoices
-    from courses.models import Lecon, Chapitre
+    from progress.models import UserProgression, UserQuizResultat, ChapitreDebloque, StatutLeconChoices, UserQuestionHistorique
+    from courses.models import Lecon, Chapitre, Matiere
+    import json
+    from datetime import date, timedelta
 
     user = request.user
 
@@ -93,6 +95,85 @@ def _dashboard_eleve(request):
         .order_by("-derniere_activite")[:5]
     )
 
+    # --- Per-subject stats ---
+    matieres = Matiere.objects.all()
+    matieres_stats = []
+    for matiere in matieres:
+        lecons_mat = Lecon.objects.filter(chapitre__matiere=matiere, chapitre__niveau=user.niveau)
+        total_mat = lecons_mat.count()
+        done_mat = UserProgression.objects.filter(
+            user=user, lecon__in=lecons_mat, statut=StatutLeconChoices.TERMINE
+        ).count()
+        quiz_mat = UserQuizResultat.objects.filter(
+            user=user, quiz__lecon__chapitre__matiere=matiere
+        )
+        score_mat = quiz_mat.aggregate(avg=Avg("score"))["avg"] or 0.0
+        if total_mat > 0:
+            matieres_stats.append({
+                "matiere": matiere,
+                "total_lecons": total_mat,
+                "done": done_mat,
+                "pct": round(done_mat / total_mat * 100),
+                "score_moyen": round(score_mat, 1),
+            })
+
+    # --- Streak (consecutive days with activity) ---
+    today = date.today()
+    activite_dates = set(
+        UserProgression.objects.filter(user=user)
+        .values_list("derniere_activite__date", flat=True)
+    )
+    # Also include connexion dates
+    connexion_dates = set(
+        user.connexions.values_list("timestamp__date", flat=True)
+    )
+    all_dates = activite_dates | connexion_dates
+    streak = 0
+    d = today
+    while d in all_dates:
+        streak += 1
+        d -= timedelta(days=1)
+
+    # --- Score trend (last 30 days) ---
+    depuis = today - timedelta(days=29)
+    quiz_recents = (
+        resultats_quiz.filter(derniere_tentative__date__gte=depuis)
+        .annotate(jour=TruncDate("derniere_tentative"))
+        .values("jour")
+        .annotate(avg_score=Avg("score"))
+        .order_by("jour")
+    )
+    scores_par_jour = {row["jour"]: round(row["avg_score"], 1) for row in quiz_recents}
+    labels_scores = []
+    data_scores = []
+    for i in range(30):
+        d = depuis + timedelta(days=i)
+        labels_scores.append(d.strftime("%d/%m"))
+        data_scores.append(scores_par_jour.get(d, None))
+
+    # Fill None values with the last known score for a smoother chart
+    last_val = None
+    data_scores_filled = []
+    for v in data_scores:
+        if v is not None:
+            last_val = v
+        data_scores_filled.append(last_val)
+
+    # --- Spaced repetition stats ---
+    nb_revisions_dues = UserQuestionHistorique.objects.filter(
+        user=user, prochaine_revision__lte=today
+    ).count()
+
+    # --- Weak areas (chapters with lowest quiz scores) ---
+    from django.db.models import Count as DbCount
+    chapitres_faibles = (
+        UserQuizResultat.objects.filter(user=user)
+        .values("quiz__lecon__chapitre__id", "quiz__lecon__chapitre__titre", "quiz__lecon__chapitre__matiere__nom")
+        .annotate(avg_score=Avg("score"), nb_quiz=DbCount("id"))
+        .filter(avg_score__lt=70)
+        .order_by("avg_score")[:5]
+    )
+
     context = {
         "total_lecons": total_lecons,
         "lecons_terminees": lecons_terminees,
@@ -101,6 +182,12 @@ def _dashboard_eleve(request):
         "score_moyen": round(score_moyen, 1),
         "progression_globale": round(progression_globale, 1),
         "activite_recente": activite_recente,
+        "matieres_stats": matieres_stats,
+        "streak": streak,
+        "nb_revisions_dues": nb_revisions_dues,
+        "chapitres_faibles": list(chapitres_faibles),
+        "labels_scores_json": json.dumps(labels_scores),
+        "data_scores_json": json.dumps(data_scores_filled),
     }
     return render(request, "dashboard/eleve.html", context)
 

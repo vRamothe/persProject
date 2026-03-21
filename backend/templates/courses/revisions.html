@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Révisions — ScienceLycée{% endblock %}
+{% block page_title %}Révisions espacées{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+  <!-- En-tête stats -->
+  <div class="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-6 text-white shadow-lg">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-2xl font-bold">Révisions 🧠</h2>
+        <p class="text-indigo-200 mt-1 text-sm">
+          Les questions que vous avez manquées reviennent automatiquement.
+          Plus vous les réussissez, moins elles apparaissent !
+        </p>
+      </div>
+      <div class="hidden sm:block text-right">
+        <div class="text-3xl font-bold">{{ nb_dues }}</div>
+        <div class="text-indigo-200 text-xs mt-0.5">à réviser aujourd'hui</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistiques Leitner -->
+  <div class="grid grid-cols-3 gap-4">
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div class="text-2xl font-bold text-indigo-600">{{ total_historiques }}</div>
+      <div class="text-xs text-gray-500 mt-1">Questions rencontrées</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div class="text-2xl font-bold text-amber-500">{{ nb_dues }}</div>
+      <div class="text-xs text-gray-500 mt-1">À réviser aujourd'hui</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div class="text-2xl font-bold text-emerald-600">{{ nb_maitrisees }}</div>
+      <div class="text-xs text-gray-500 mt-1">Maîtrisées (boîte 4–5)</div>
+    </div>
+  </div>
+
+  <!-- Répartition par boîte -->
+  {% if total_historiques > 0 %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+    <h3 class="font-semibold text-gray-800 mb-3">Répartition par boîte</h3>
+    <div class="space-y-2">
+      {% for box_num, box_label, box_color in box_display %}
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-medium text-gray-600 w-10">📦 {{ box_num }}</span>
+        <div class="flex-1 bg-gray-100 rounded-full h-4">
+          <div class="{{ box_color }} rounded-full h-4 transition-all duration-500 text-xs text-white font-medium flex items-center justify-center"
+               style="width: {% if box_label > 0 %}{% widthratio box_label total_historiques 100 %}%{% else %}0{% endif %}; min-width: {% if box_label > 0 %}1.5rem{% else %}0{% endif %};">
+            {% if box_label > 0 %}{{ box_label }}{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="text-xs text-gray-400 mt-3">
+      📦 1 = à revoir demain · 📦 5 = acquis (révision dans 30j)
+    </p>
+  </div>
+  {% endif %}
+
+  <!-- Quiz de révision -->
+  {% if questions %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+       x-data="{ answered: false }">
+    <div class="px-5 py-4 border-b border-gray-100">
+      <h3 class="font-semibold text-gray-800">{{ questions|length }} question{{ questions|pluralize }} à réviser</h3>
+    </div>
+
+    <form method="post" action="{% url 'soumettre_revisions' %}" class="p-5 space-y-6">
+      {% csrf_token %}
+      <input type="hidden" name="question_ids" value="{{ question_ids }}">
+
+      {% for question in questions %}
+      <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+        <p class="font-medium text-gray-800 mb-1">{{ forloop.counter }}. {{ question.texte }}</p>
+        <p class="text-xs text-gray-400 mb-3">{{ question.quiz.lecon.chapitre.matiere.get_nom_display }} — {{ question.quiz.lecon.titre }}</p>
+
+        {% if question.type == "qcm" and question.options %}
+          <div class="space-y-2">
+            {% for option in question.options %}
+            <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-200 cursor-pointer hover:border-indigo-300 transition-colors">
+              <input type="radio" name="question_{{ question.id }}" value="{{ forloop.counter0 }}"
+                     class="w-4 h-4 text-indigo-600">
+              <span class="text-sm text-gray-700">{{ option }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        {% elif question.type == "vrai_faux" %}
+          <div class="flex gap-3">
+            <label class="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-white border border-gray-200 cursor-pointer hover:border-emerald-300 transition-colors">
+              <input type="radio" name="question_{{ question.id }}" value="vrai" class="w-4 h-4 text-emerald-600">
+              <span class="text-sm font-medium text-gray-700">Vrai</span>
+            </label>
+            <label class="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-white border border-gray-200 cursor-pointer hover:border-red-300 transition-colors">
+              <input type="radio" name="question_{{ question.id }}" value="faux" class="w-4 h-4 text-red-600">
+              <span class="text-sm font-medium text-gray-700">Faux</span>
+            </label>
+          </div>
+        {% else %}
+          <input type="text" name="question_{{ question.id }}"
+                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm"
+                 placeholder="Votre réponse…" autocomplete="off">
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <button type="submit"
+              class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors shadow-sm">
+        Valider mes réponses
+      </button>
+    </form>
+  </div>
+
+  {% elif total_historiques == 0 %}
+  <!-- Aucune question encore rencontrée -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+    <div class="text-4xl mb-3">📝</div>
+    <h3 class="text-gray-700 font-semibold">Aucune question à réviser pour le moment</h3>
+    <p class="text-gray-500 text-sm mt-1">Commencez par passer des quiz dans vos leçons. Les questions que vous rencontrerez apparaîtront ici pour révision.</p>
+    <a href="{% url 'matieres' %}" class="mt-4 inline-block px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors">
+      Voir les cours
+    </a>
+  </div>
+
+  {% else %}
+  <!-- Toutes les révisions sont faites ! -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+    <div class="text-4xl mb-3">🎉</div>
+    <h3 class="text-gray-700 font-semibold">Bravo, tout est à jour !</h3>
+    <p class="text-gray-500 text-sm mt-1">Vous avez révisé toutes les questions prévues pour aujourd'hui. Revenez demain pour la prochaine session.</p>
+    <a href="{% url 'matieres' %}" class="mt-4 inline-block px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors">
+      Continuer les cours
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

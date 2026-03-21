@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from datetime import date, timedelta
 
 
 class StatutLeconChoices(models.TextChoices):
@@ -118,3 +119,50 @@ class UserChapitreQuizResultat(models.Model):
 
     def __str__(self):
         return f"{self.user.email} — {self.chapitre.titre} — {self.score:.1f}%"
+
+
+# Intervalles Leitner (jours) par boîte
+LEITNER_INTERVALLES = {1: 1, 2: 3, 3: 7, 4: 14, 5: 30}
+
+
+class UserQuestionHistorique(models.Model):
+    """Suivi par question pour la répétition espacée (système Leitner)."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="question_historiques",
+        verbose_name="Élève",
+    )
+    question = models.ForeignKey(
+        "courses.Question",
+        on_delete=models.CASCADE,
+        related_name="historiques",
+        verbose_name="Question",
+    )
+    boite = models.PositiveSmallIntegerField(default=1, verbose_name="Boîte Leitner (1–5)")
+    prochaine_revision = models.DateField(verbose_name="Prochaine révision")
+    derniere_reponse_correcte = models.BooleanField(default=False)
+    nb_bonnes = models.PositiveIntegerField(default=0)
+    nb_total = models.PositiveIntegerField(default=0)
+    mis_a_jour_le = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Historique question"
+        verbose_name_plural = "Historiques questions"
+        unique_together = [["user", "question"]]
+
+    def __str__(self):
+        return f"{self.user.email} — Q{self.question_id} boîte {self.boite}"
+
+    def enregistrer_reponse(self, correcte):
+        """Met à jour la boîte et la date de prochaine révision."""
+        self.nb_total += 1
+        self.derniere_reponse_correcte = correcte
+        if correcte:
+            self.nb_bonnes += 1
+            self.boite = min(self.boite + 1, 5)
+        else:
+            self.boite = 1
+        intervalle = LEITNER_INTERVALLES[self.boite]
+        self.prochaine_revision = date.today() + timedelta(days=intervalle)
+        self.save()
