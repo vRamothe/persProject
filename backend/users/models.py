@@ -64,3 +64,23 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     @property
     def is_eleve(self):
         return self.role == RoleChoices.ELEVE
+
+
+class ConnexionLog(models.Model):
+    """Enregistre chaque connexion réussie d'un utilisateur."""
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="connexions",
+        verbose_name="Utilisateur",
+    )
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Date / heure")
+    ip = models.GenericIPAddressField(null=True, blank=True, verbose_name="Adresse IP")
+
+    class Meta:
+        verbose_name = "Connexion"
+        verbose_name_plural = "Connexions"
+        ordering = ["-timestamp"]
+
+    def __str__(self):
+        return f"{self.user.email} — {self.timestamp}"

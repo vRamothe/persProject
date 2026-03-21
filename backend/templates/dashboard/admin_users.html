@@ -117,8 +117,12 @@
             </td>
             <!-- Actions -->
             <td class="px-5 py-3.5 text-right">
+              <a href="{% url 'admin_eleve_detail' eleve.pk %}"
+                 class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors mr-3">
+                Suivi
+              </a>
               <a href="{% url 'admin:users_customuser_change' eleve.pk %}"
-                 class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+                 class="text-xs text-gray-500 hover:text-gray-800 font-medium transition-colors">
                 Modifier
               </a>
             </td>

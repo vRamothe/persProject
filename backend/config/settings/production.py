@@ -18,3 +18,9 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
+
+# Force SSL on Heroku Postgres (DYNO is only set on real Heroku dynos, not local Docker)
+import os as _os
+if _os.environ.get("DYNO") and DATABASES.get("default"):
+    DATABASES["default"].setdefault("OPTIONS", {})
+    DATABASES["default"]["OPTIONS"]["sslmode"] = "require"

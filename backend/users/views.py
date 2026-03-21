@@ -4,10 +4,11 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.utils.decorators import method_decorator
-from django.db.models import Count, Avg
+from django.db.models import Avg
+from django.db.models.functions import TruncDate
 
 from .forms import ConnexionForm, InscriptionForm, ProfilForm, MotDePasseForm
-from .models import CustomUser
+from .models import CustomUser, ConnexionLog
 
 
 class ConnexionView(View):
@@ -23,6 +24,11 @@ class ConnexionView(View):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            # Enregistrer la connexion
+            ip = request.META.get("HTTP_X_FORWARDED_FOR", request.META.get("REMOTE_ADDR"))
+            if ip:
+                ip = ip.split(",")[0].strip()
+            ConnexionLog.objects.create(user=user, ip=ip or None)
             next_url = request.GET.get("next", "tableau_de_bord")
             return redirect(next_url)
         return render(request, self.template_name, {"form": form})
@@ -101,7 +107,7 @@ def _dashboard_eleve(request):
 
 def _dashboard_admin(request):
     from progress.models import UserProgression, UserQuizResultat, StatutLeconChoices
-    from courses.models import Lecon, Chapitre, Matiere
+    from courses.models import Lecon, Chapitre
 
     nb_eleves = CustomUser.objects.filter(role="eleve", is_active=True).count()
     nb_chapitres = Chapitre.objects.count()
@@ -240,6 +246,137 @@ def admin_toggle_actif(request, user_id):
         statut = "activé" if eleve.is_active else "désactivé"
         messages.success(request, f"Le compte de {eleve.nom_complet} a été {statut}.")
     return redirect("admin_utilisateurs")
+
+
+@login_required
+def admin_eleve_detail(request, user_id):
+    if not request.user.is_admin:
+        return redirect("tableau_de_bord")
+
+    eleve = get_object_or_404(CustomUser, id=user_id, role="eleve")
+
+    from progress.models import UserProgression, UserQuizResultat, ChapitreDebloque, StatutLeconChoices
+    from courses.models import Lecon, Chapitre, Matiere
+    from django.db.models import Count as DbCount, Avg
+    import json
+    from datetime import date, timedelta
+
+    # --- Progression globale ---
+    total_lecons = Lecon.objects.filter(chapitre__niveau=eleve.niveau).count()
+    lecons_terminees_qs = UserProgression.objects.filter(
+        user=eleve, statut=StatutLeconChoices.TERMINE
+    )
+    nb_terminees = lecons_terminees_qs.count()
+    progression_globale = round(nb_terminees / total_lecons * 100, 1) if total_lecons > 0 else 0.0
+
+    resultats_quiz = UserQuizResultat.objects.filter(user=eleve)
+    nb_quiz_passes = resultats_quiz.filter(passe=True).count()
+    score_moyen = resultats_quiz.aggregate(avg=Avg("score"))["avg"] or 0.0
+
+    # --- Chapitres du niveau avec statut de déblocage ---
+    chapitres = Chapitre.objects.filter(niveau=eleve.niveau).select_related("matiere").order_by("matiere", "ordre")
+    debloques_ids = set(
+        ChapitreDebloque.objects.filter(user=eleve).values_list("chapitre_id", flat=True)
+    )
+    lecons_par_chapitre = {
+        row["chapitre_id"]: row["c"]
+        for row in Lecon.objects.filter(chapitre__niveau=eleve.niveau)
+        .values("chapitre_id")
+        .annotate(c=DbCount("id"))
+    }
+    terminees_par_chapitre = {
+        row["lecon__chapitre_id"]: row["c"]
+        for row in lecons_terminees_qs.select_related("lecon")
+        .values("lecon__chapitre_id")
+        .annotate(c=DbCount("id"))
+    }
+    chapitres_data = []
+    for ch in chapitres:
+        total_ch = lecons_par_chapitre.get(ch.id, 0)
+        done_ch = terminees_par_chapitre.get(ch.id, 0)
+        chapitres_data.append({
+            "chapitre": ch,
+            "debloque": ch.id in debloques_ids,
+            "total_lecons": total_ch,
+            "lecons_terminees": done_ch,
+            "progression_pct": round(done_ch / total_ch * 100) if total_ch > 0 else 0,
+        })
+
+    # --- Fréquence de connexions : 30 derniers jours ---
+    today = date.today()
+    depuis = today - timedelta(days=29)
+    connexions_qs = eleve.connexions.filter(timestamp__date__gte=depuis)
+    connexions_par_jour = {
+        row["jour"]: row["c"]
+        for row in connexions_qs.annotate(jour=TruncDate("timestamp"))
+        .values("jour")
+        .annotate(c=DbCount("id"))
+    }
+    labels_connexions = []
+    data_connexions = []
+    for i in range(30):
+        d = depuis + timedelta(days=i)
+        labels_connexions.append(d.strftime("%d/%m"))
+        data_connexions.append(connexions_par_jour.get(d, 0))
+
+    nb_connexions_total = eleve.connexions.count()
+    derniere_connexion = eleve.connexions.first()
+
+    # --- Courbe de progression : leçons terminées cumulées sur 30 jours ---
+    progressions_recentes = (
+        lecons_terminees_qs.filter(termine_le__date__gte=depuis)
+        .annotate(jour=TruncDate("termine_le"))
+        .values("jour")
+        .annotate(c=DbCount("id"))
+    )
+    prog_par_jour = {row["jour"]: row["c"] for row in progressions_recentes}
+    data_progression = []
+    cumul = nb_terminees - sum(prog_par_jour.values())  # leçons terminées avant la fenêtre
+    for i in range(30):
+        d = depuis + timedelta(days=i)
+        cumul += prog_par_jour.get(d, 0)
+        data_progression.append(cumul)
+
+    context = {
+        "eleve": eleve,
+        "total_lecons": total_lecons,
+        "nb_terminees": nb_terminees,
+        "progression_globale": progression_globale,
+        "nb_quiz_passes": nb_quiz_passes,
+        "score_moyen": round(score_moyen, 1),
+        "nb_connexions_total": nb_connexions_total,
+        "derniere_connexion": derniere_connexion,
+        "chapitres_data": chapitres_data,
+        "labels_connexions_json": json.dumps(labels_connexions),
+        "data_connexions_json": json.dumps(data_connexions),
+        "labels_progression_json": json.dumps(labels_connexions),  # mêmes labels
+        "data_progression_json": json.dumps(data_progression),
+    }
+    return render(request, "dashboard/admin_eleve_detail.html", context)
+
+
+@login_required
+def admin_toggle_chapitre(request, user_id, chapitre_id):
+    if not request.user.is_admin:
+        return redirect("tableau_de_bord")
+    if request.method != "POST":
+        return redirect("admin_eleve_detail", user_id=user_id)
+
+    from progress.models import ChapitreDebloque
+    from courses.models import Chapitre
+
+    eleve = get_object_or_404(CustomUser, id=user_id, role="eleve")
+    chapitre = get_object_or_404(Chapitre, id=chapitre_id)
+
+    obj = ChapitreDebloque.objects.filter(user=eleve, chapitre=chapitre).first()
+    if obj:
+        obj.delete()
+        messages.success(request, f"Chapitre « {chapitre.titre} » verrouillé pour {eleve.nom_complet}.")
+    else:
+        ChapitreDebloque.objects.create(user=eleve, chapitre=chapitre)
+        messages.success(request, f"Chapitre « {chapitre.titre} » débloqué pour {eleve.nom_complet}.")
+
+    return redirect("admin_eleve_detail", user_id=user_id)
 
 
 # ---- Prévisualisation élève ----
