@@ -86,6 +86,19 @@ class Lecon(models.Model):
     contenu = models.TextField(verbose_name="Contenu (Markdown)", help_text="Rédigez le cours en Markdown. Utilisez $...$ pour les équations LaTeX.")
     ordre = models.PositiveIntegerField(default=1, verbose_name="Ordre")
     duree_estimee = models.PositiveIntegerField(default=15, verbose_name="Durée estimée (min)")
+    video_youtube_url = models.URLField(
+        blank=True,
+        default="",
+        verbose_name="URL YouTube",
+        help_text="Lien YouTube (ex: https://www.youtube.com/watch?v=... ou https://youtu.be/...)",
+    )
+    video_fichier = models.FileField(
+        upload_to="lecons/videos/",
+        blank=True,
+        default="",
+        verbose_name="Fichier vidéo",
+        help_text="Téléversez un fichier vidéo (MP4 recommandé). Ignoré si une URL YouTube est renseignée.",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

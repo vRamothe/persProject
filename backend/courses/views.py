@@ -1,4 +1,5 @@
 import random
+import re
 
 import markdown
 from django.contrib.auth.decorators import login_required
@@ -7,6 +8,20 @@ from django.utils.decorators import method_decorator
 from django.views import View
 
 from .models import Matiere, Chapitre, Lecon
+
+
+def _extraire_youtube_id(url):
+    """Extrait l'identifiant vidéo d'une URL YouTube."""
+    if not url:
+        return None
+    patterns = [
+        r'(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]{11})',
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+    return None
 
 
 @login_required
@@ -148,6 +163,9 @@ def lecon_view(request, lecon_pk):
     md = markdown.Markdown(extensions=["extra", "tables", "toc", "nl2br"])
     contenu_html = md.convert(lecon.contenu)
 
+    # Vidéo
+    youtube_id = _extraire_youtube_id(lecon.video_youtube_url)
+
     context = {
         "lecon": lecon,
         "chapitre": chapitre,
@@ -156,6 +174,7 @@ def lecon_view(request, lecon_pk):
         "lecon_precedente": lecon.get_lecon_precedente(),
         "lecon_suivante": lecon.get_lecon_suivante(),
         "est_terminee": est_terminee,
+        "youtube_id": youtube_id,
     }
     return render(request, "courses/lecon.html", context)
 

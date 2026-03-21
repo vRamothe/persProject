@@ -144,6 +144,32 @@
     html.dark .prose th              { background: #3730a3 !important; }
     html.dark .prose td              { color: #d1d5db !important; border-bottom-color: #374151 !important; }
     html.dark .prose tr:nth-child(even) td { background: #1f2937 !important; }
+
+    /* ===================== SIDEBAR LIGHT MODE ===================== */
+    /* The sidebar uses dark-indigo classes by default (bg-indigo-950, etc.)
+       which doubles as the dark-mode look. In light mode we override them. */
+    html:not(.dark) aside { background-color: #ffffff !important; box-shadow: 1px 0 0 #e5e7eb; }
+    html:not(.dark) aside .border-indigo-900 { border-color: #e5e7eb !important; }
+    /* Text */
+    html:not(.dark) aside .text-white        { color: #1e1b4b !important; }
+    html:not(.dark) aside .text-indigo-200   { color: #4338ca !important; }
+    html:not(.dark) aside .text-indigo-300   { color: #6366f1 !important; }
+    html:not(.dark) aside .text-indigo-400   { color: #6366f1 !important; }
+    /* Keep white text on vivid accent backgrounds (logo icon, avatar, active preview pills) */
+    html:not(.dark) aside .text-white.bg-indigo-500,
+    html:not(.dark) aside .text-white.bg-indigo-600,
+    html:not(.dark) aside .text-white.bg-blue-600,
+    html:not(.dark) aside .text-white.bg-purple-600 { color: #ffffff !important; }
+    /* Active nav item & inactive preview badges */
+    html:not(.dark) aside .bg-indigo-800     { background-color: #e0e7ff !important; }
+    /* Hovers */
+    html:not(.dark) aside .hover\:bg-indigo-800:hover { background-color: #eef2ff !important; }
+    html:not(.dark) aside .hover\:text-white:hover    { color: #312e81 !important; }
+    /* Quit-preview button */
+    html:not(.dark) aside .bg-red-900\/40            { background-color: #fef2f2 !important; }
+    html:not(.dark) aside .text-red-300              { color: #dc2626 !important; }
+    html:not(.dark) aside .hover\:bg-red-900\/60:hover { background-color: #fee2e2 !important; }
+    html:not(.dark) aside .hover\:text-red-200:hover   { color: #b91c1c !important; }
   </style>
 
   {% block extra_head %}{% endblock %}

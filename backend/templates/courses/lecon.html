@@ -67,6 +67,34 @@
       {% endif %}
     </div>
 
+    <!-- Vidéo (YouTube ou fichier) -->
+    {% if youtube_id %}
+    <div class="px-6 pt-6">
+      <div class="relative w-full rounded-xl overflow-hidden shadow-sm" style="padding-bottom: 56.25%;">
+        <iframe
+          class="absolute inset-0 w-full h-full"
+          src="https://www.youtube.com/embed/{{ youtube_id }}?rel=0"
+          title="{{ lecon.titre }}"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+    {% elif lecon.video_fichier %}
+    <div class="px-6 pt-6">
+      <video
+        class="w-full rounded-xl shadow-sm"
+        controls
+        preload="metadata"
+      >
+        <source src="{{ lecon.video_fichier.url }}" type="video/mp4">
+        Votre navigateur ne prend pas en charge la lecture vidéo.
+      </video>
+    </div>
+    {% endif %}
+
     <!-- Contenu Markdown rendu -->
     <div class="px-6 py-6 prose text-gray-700 text-[0.95rem] leading-relaxed">
       {{ contenu_html|safe }}

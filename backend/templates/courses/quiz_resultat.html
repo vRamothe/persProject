@@ -9,7 +9,7 @@
       {{ score|floatformat:0 }}%
     </div>
     <h2 class="text-lg font-bold {% if passe %}text-emerald-700{% else %}text-red-600{% endif %} mb-1">
-      {% if passe %}Félicitations, vous avez réussi ! 🎉{% else %}Pas encore validé this fois{% endif %}
+      {% if passe %}Félicitations, vous avez réussi ! 🎉{% else %}Pas encore validé, essayez encore !{% endif %}
     </h2>
     <p class="text-sm text-gray-500">
       {{ nb_bonnes_reponses }} bonne{% if nb_bonnes_reponses > 1 %}s{% endif %} réponse{% if nb_bonnes_reponses > 1 %}s{% endif %}

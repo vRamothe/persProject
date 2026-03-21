@@ -55,7 +55,7 @@ class LeconAdmin(admin.ModelAdmin):
     list_filter = ["chapitre__matiere", "chapitre__niveau"]
     search_fields = ["titre", "chapitre__titre"]
     ordering = ["chapitre__matiere", "chapitre__niveau", "chapitre__ordre", "ordre"]
-    fields = ["chapitre", "ordre", "titre", "duree_estimee", "contenu"]
+    fields = ["chapitre", "ordre", "titre", "duree_estimee", "video_youtube_url", "video_fichier", "contenu"]
 
     def has_quiz(self, obj):
         return obj.has_quiz
