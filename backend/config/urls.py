@@ -4,8 +4,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 
+def _home_view(request):
+    if request.user.is_authenticated:
+        return redirect("tableau_de_bord")
+    from courses.views import accueil_view
+    return accueil_view(request)
+
 urlpatterns = [
-    path("", lambda r: redirect("tableau_de_bord"), name="home"),
+    path("", _home_view, name="home"),
     path("django-admin/", admin.site.urls),
     path("", include("users.urls")),
     path("cours/", include("courses.urls")),

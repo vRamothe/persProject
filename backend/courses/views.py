@@ -568,3 +568,39 @@ def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug
         "video_in_content": video_in_content,
         "meta_description": meta_description,
     })
+
+
+def accueil_view(request):
+    """Page d'accueil publique affichant toutes les matières et leurs chapitres."""
+    from .models import NiveauChoices
+
+    matieres_data = []
+    for matiere in Matiere.objects.prefetch_related("chapitres__lecons").all():
+        chapitres = matiere.chapitres.order_by("niveau", "ordre")
+        niveaux_data = []
+        for niveau_val, niveau_label in NiveauChoices.choices:
+            chaps = [c for c in chapitres if c.niveau == niveau_val]
+            if not chaps:
+                continue
+            chapitres_data = []
+            for chap in chaps:
+                lecons = sorted(chap.lecons.all(), key=lambda l: l.ordre)
+                lecons_data = [{"lecon": l, "gratuit": l.gratuit} for l in lecons]
+                chapitres_data.append({
+                    "chapitre": chap,
+                    "lecons": lecons_data,
+                    "nb_lecons": len(lecons_data),
+                })
+            niveaux_data.append({
+                "niveau_val": niveau_val,
+                "niveau_label": niveau_label,
+                "chapitres": chapitres_data,
+            })
+        matieres_data.append({
+            "matiere": matiere,
+            "niveaux_data": niveaux_data,
+        })
+
+    return render(request, "courses/accueil.html", {
+        "matieres_data": matieres_data,
+    })

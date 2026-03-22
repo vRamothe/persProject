@@ -37,18 +37,13 @@
     </div>
   </div>
 
-  <!-- Other subjects navigation -->
+  <!-- Subject navigation -->
   <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-2">
     <div class="flex gap-3 flex-wrap">
-      {% if matiere.nom != 'physique' %}
-      <a href="{% url 'catalogue_matiere' matiere_slug='physique' %}" class="text-sm px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-medium">⚛ Physique</a>
-      {% endif %}
-      {% if matiere.nom != 'chimie' %}
-      <a href="{% url 'catalogue_matiere' matiere_slug='chimie' %}" class="text-sm px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors font-medium">🧪 Chimie</a>
-      {% endif %}
-      {% if matiere.nom != 'mathematiques' %}
-      <a href="{% url 'catalogue_matiere' matiere_slug='mathematiques' %}" class="text-sm px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors font-medium">∑ Mathématiques</a>
-      {% endif %}
+      <a href="{% url 'home' %}" class="text-sm px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors font-medium">🏠 Accueil</a>
+      <a href="{% url 'catalogue_matiere' matiere_slug='physique' %}" class="text-sm px-3 py-1.5 rounded-full transition-colors font-medium {% if matiere.nom == 'physique' %}bg-blue-600 text-white{% else %}bg-blue-50 text-blue-700 hover:bg-blue-100{% endif %}">⚛ Physique</a>
+      <a href="{% url 'catalogue_matiere' matiere_slug='chimie' %}" class="text-sm px-3 py-1.5 rounded-full transition-colors font-medium {% if matiere.nom == 'chimie' %}bg-emerald-600 text-white{% else %}bg-emerald-50 text-emerald-700 hover:bg-emerald-100{% endif %}">🧪 Chimie</a>
+      <a href="{% url 'catalogue_matiere' matiere_slug='mathematiques' %}" class="text-sm px-3 py-1.5 rounded-full transition-colors font-medium {% if matiere.nom == 'mathematiques' %}bg-purple-600 text-white{% else %}bg-purple-50 text-purple-700 hover:bg-purple-100{% endif %}">∑ Mathématiques</a>
     </div>
   </div>
 
