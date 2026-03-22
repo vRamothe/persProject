@@ -1,5 +1,10 @@
+import logging
+import os
 import random
 import re
+import subprocess
+import tempfile
+from html import escape as html_escape
 
 import markdown
 from django.contrib.auth.decorators import login_required
@@ -9,6 +14,8 @@ from django.views import View
 
 from .models import Matiere, Chapitre, Lecon, Question
 from collections import defaultdict
+
+logger = logging.getLogger(__name__)
 
 
 def _selectionner_questions_chapitre(chapitre, nb_total=10):
@@ -81,6 +88,131 @@ def _restaurer_latex(html, placeholders):
     for key, latex in placeholders.items():
         html = html.replace(key, latex)
     return html
+
+
+def _restaurer_latex_svg(html, placeholders):
+    """Convertit les blocs LaTeX en SVG via le moteur LaTeX + dvisvgm.
+
+    Pipeline : LaTeX source → latex (DVI) → dvisvgm --no-fonts (SVG vectoriel).
+    Toutes les équations sont compilées en un seul appel LaTeX (une par page),
+    puis dvisvgm produit un SVG par page avec --exact-bbox.
+    Les glyphes sont convertis en <path> (--no-fonts) : pas de dépendance de police.
+    """
+    if not placeholders:
+        return html
+
+    # Collecter les équations dans l'ordre des placeholders
+    equations = []
+    for key in sorted(placeholders.keys(), key=lambda k: int(re.search(r'\d+', k).group())):
+        raw = placeholders[key]
+        is_display = raw.startswith("$$") and raw.endswith("$$")
+        inner = raw[2:-2].strip() if is_display else raw[1:-1].strip()
+        equations.append((key, inner, is_display))
+
+    svgs = _compiler_equations_latex(equations)
+
+    for i, (key, inner, is_display) in enumerate(equations):
+        svg = svgs.get(i)
+        if svg:
+            if is_display:
+                html = html.replace(key, f'<div class="math-block">{svg}</div>')
+            else:
+                html = html.replace(key, f'<span class="math-inline">{svg}</span>')
+        else:
+            # Fallback : texte brut échappé
+            html = html.replace(key, html_escape(placeholders[key]))
+
+    return html
+
+
+def _compiler_equations_latex(equations):
+    """Compile toutes les équations en un seul appel LaTeX + dvisvgm.
+
+    Renvoie un dict {index: svg_string} pour chaque équation réussie.
+    """
+    if not equations:
+        return {}
+
+    tex_parts = [
+        r'\documentclass[11pt]{article}',
+        r'\usepackage{amsmath}',
+        r'\usepackage{amssymb}',
+        r'\usepackage{amsfonts}',
+        r'\pagestyle{empty}',
+        r'\begin{document}',
+    ]
+
+    for i, (key, inner, is_display) in enumerate(equations):
+        if i > 0:
+            tex_parts.append(r'\newpage')
+        if is_display:
+            tex_parts.append(f'\\[{inner}\\]')
+        else:
+            tex_parts.append(f'${inner}$')
+
+    tex_parts.append(r'\end{document}')
+    tex_content = '\n'.join(tex_parts)
+
+    svgs = {}
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tex_path = os.path.join(tmpdir, 'eq.tex')
+            with open(tex_path, 'w') as f:
+                f.write(tex_content)
+
+            # latex → DVI
+            subprocess.run(
+                ['latex', '-interaction=nonstopmode',
+                 '-output-directory', tmpdir, tex_path],
+                capture_output=True, timeout=30,
+            )
+
+            dvi_path = os.path.join(tmpdir, 'eq.dvi')
+            if not os.path.exists(dvi_path):
+                logger.warning("LaTeX : pas de DVI produit")
+                return {}
+
+            # dvisvgm → SVG (un fichier par page)
+            n = len(equations)
+            subprocess.run(
+                ['dvisvgm', '--no-fonts', '--exact-bbox',
+                 f'--page=1-{n}',
+                 '-o', os.path.join(tmpdir, 'eq-%p.svg'),
+                 dvi_path],
+                capture_output=True, timeout=30,
+            )
+
+            # dvisvgm zero-pads les numéros de page (%p) → lire tous les
+            # fichiers eq-*.svg et extraire le numéro de page du nom.
+            for fname in os.listdir(tmpdir):
+                m = re.match(r'eq-0*(\d+)\.svg$', fname)
+                if m:
+                    page = int(m.group(1))
+                    idx = page - 1
+                    if 0 <= idx < n:
+                        with open(os.path.join(tmpdir, fname), 'r') as f:
+                            svg = f.read()
+                        svgs[idx] = _nettoyer_svg(svg, f'eq{idx}')
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
+        logger.warning("Pipeline LaTeX→SVG échoué : %s", e)
+
+    return svgs
+
+
+def _nettoyer_svg(svg_content, prefix):
+    """Nettoie le SVG produit par dvisvgm pour l'intégration inline.
+
+    Préfixe tous les id/href pour éviter les collisions entre SVG.
+    """
+    svg_content = re.sub(r'<\?xml[^?]*\?>\s*', '', svg_content)
+    svg_content = re.sub(r'<!--[\s\S]*?-->\s*', '', svg_content)
+    # Préfixer les IDs pour éviter "Anchor defined twice" dans WeasyPrint
+    # dvisvgm utilise des guillemets simples
+    svg_content = re.sub(r"""\bid=(['"])([^'"]+)\1""", rf'id=\1{prefix}-\2\1', svg_content)
+    svg_content = re.sub(r"""xlink:href=(['"])#([^'"]+)\1""", rf'xlink:href=\1#{prefix}-\2\1', svg_content)
+    svg_content = re.sub(r"""(?<!xlink:)href=(['"])#([^'"]+)\1""", rf'href=\1#{prefix}-\2\1', svg_content)
+    svg_content = re.sub(r'url\(#([^)]+)\)', rf'url(#{prefix}-\1)', svg_content)
+    return svg_content.strip()
 
 
 @login_required
@@ -656,7 +788,7 @@ def lecon_pdf_view(request, lecon_pk):
     contenu_protege, placeholders_latex = _proteger_latex(lecon.contenu)
     md = markdown.Markdown(extensions=["extra", "tables", "toc", "nl2br"])
     contenu_html = md.convert(contenu_protege)
-    contenu_html = _restaurer_latex(contenu_html, placeholders_latex)
+    contenu_html = _restaurer_latex_svg(contenu_html, placeholders_latex)
 
     html_string = render_to_string("courses/lecon_pdf.html", {
         "lecon": lecon,
