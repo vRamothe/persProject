@@ -33,7 +33,7 @@ urlpatterns = [
     path("admin-panel/utilisateurs/<int:user_id>/toggle/", views.admin_toggle_actif, name="admin_toggle_actif"),
     path("admin-panel/utilisateurs/<int:user_id>/", views.admin_eleve_detail, name="admin_eleve_detail"),
     path("admin-panel/utilisateurs/<int:user_id>/chapitre/<int:chapitre_id>/toggle/", views.admin_toggle_chapitre, name="admin_toggle_chapitre"),
-    path("admin-panel/preview/<str:niveau>/", views.preview_niveau_view, name="preview_niveau"),
     path("admin-panel/preview/exit/", views.exit_preview_view, name="exit_preview"),
+    path("admin-panel/preview/<str:niveau>/", views.preview_niveau_view, name="preview_niveau"),
     path("admin-panel/analytics/", views.admin_analytics_view, name="admin_analytics"),
 ]
