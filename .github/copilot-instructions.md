@@ -11,14 +11,14 @@ ScienceLycée is a French high-school e-learning platform for Physics, Chemistry
 | Math rendering | KaTeX 0.16.9 (auto-render) |
 | Content | Markdown rendered server-side via `python-markdown` with LaTeX protection |
 | Auth | Custom `users.CustomUser` (email-based, `AUTH_USER_MODEL`) |
-| Deploy | Docker Compose — `db` (postgres), `web` (gunicorn + `--reload` in dev), `nginx` |
+| Deploy | Docker Compose (dev) — `db` (postgres), `web` (gunicorn + `--reload`), `nginx` · Heroku (prod) — `heroku.yml` container deploy |
 | Config | `python-decouple` + `.env`, settings split: `base / development / production` |
 
 ## Django App Structure
 ```
 backend/
   app/           # Unused scaffolding — do not add code here
-  config/        # urls.py, wsgi.py, settings/{base,development,production}.py
+  config/        # urls.py, views.py, wsgi.py, settings/{base,development,production}.py
   users/         # CustomUser, ConnexionLog, managers, forms, views, urls
   courses/       # Matiere > Chapitre > Lecon > Quiz > Question hierarchy + revision views
   progress/      # UserProgression, UserQuizResultat, UserChapitreQuizResultat, ChapitreDebloque, UserQuestionHistorique
@@ -90,7 +90,7 @@ Admins can simulate the exact student view for any level without creating dummy 
 
 ## URL Map
 ```
-/                                          → home (redirect to tableau_de_bord)
+/                                          → home (public accueil for anon, redirect to tableau_de_bord for auth)
 /connexion/                                → connexion
 /inscription/                              → inscription
 /deconnexion/                              → deconnexion
