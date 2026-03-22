@@ -454,3 +454,117 @@ def soumettre_revisions(request):
         "score": score,
         "total": len(corrections),
     })
+
+
+# ============================================================
+# PUBLIC VIEWS — no @login_required
+# ============================================================
+
+def catalogue_matiere_view(request, matiere_slug):
+    """Page publique listant les chapitres d'une matière par niveau."""
+    matiere = get_object_or_404(Matiere, slug=matiere_slug)
+    chapitres = matiere.chapitres.prefetch_related("lecons").order_by("niveau", "ordre")
+
+    from .models import NiveauChoices
+    niveaux_data = []
+    for niveau_val, niveau_label in NiveauChoices.choices:
+        chaps = [c for c in chapitres if c.niveau == niveau_val]
+        if not chaps:
+            continue
+        chapitres_data = []
+        for chap in chaps:
+            lecons = sorted(chap.lecons.all(), key=lambda l: l.ordre)
+            lecons_data = []
+            for lecon in lecons:
+                lecons_data.append({
+                    "lecon": lecon,
+                    "gratuit": lecon.gratuit,
+                })
+            chapitres_data.append({
+                "chapitre": chap,
+                "lecons": lecons_data,
+                "nb_lecons": len(lecons_data),
+            })
+        niveaux_data.append({
+            "niveau_val": niveau_val,
+            "niveau_label": niveau_label,
+            "chapitres": chapitres_data,
+        })
+
+    return render(request, "courses/catalogue.html", {
+        "matiere": matiere,
+        "niveaux_data": niveaux_data,
+    })
+
+
+def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug):
+    """Affichage public d'une leçon gratuite (sans login)."""
+    matiere = get_object_or_404(Matiere, slug=matiere_slug)
+    chapitre = get_object_or_404(
+        Chapitre, matiere=matiere, niveau=niveau, slug=chapitre_slug
+    )
+    lecon = get_object_or_404(
+        Lecon.objects.select_related("chapitre__matiere"),
+        chapitre=chapitre, slug=lecon_slug,
+    )
+
+    # Non-free lesson → redirect to login
+    if not lecon.gratuit:
+        from django.urls import reverse
+        from urllib.parse import urlencode
+        login_url = reverse("connexion")
+        next_url = request.get_full_path()
+        return redirect(f"{login_url}?{urlencode({'next': next_url})}")
+
+    # Authenticated user → redirect to the full lesson view with progression
+    if request.user.is_authenticated:
+        return redirect("lecon", lecon_pk=lecon.pk)
+
+    # Render lesson content (read-only, no progression)
+    contenu_protege, placeholders_latex = _proteger_latex(lecon.contenu)
+    md = markdown.Markdown(extensions=["extra", "tables", "toc", "nl2br"])
+    contenu_html = md.convert(contenu_protege)
+    contenu_html = _restaurer_latex(contenu_html, placeholders_latex)
+
+    youtube_id = _extraire_youtube_id(lecon.video_youtube_url)
+    video_html = ""
+    if youtube_id:
+        video_html = (
+            '<div class="my-6">'
+            '<div class="relative w-full rounded-xl overflow-hidden shadow-sm" style="padding-bottom:56.25%">'
+            f'<iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/{youtube_id}?rel=0" '
+            f'title="{lecon.titre}" frameborder="0" '
+            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '
+            'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+            '</div></div>'
+        )
+    elif lecon.video_fichier:
+        video_html = (
+            '<div class="my-6">'
+            '<video class="w-full rounded-xl shadow-sm" controls preload="metadata">'
+            f'<source src="{lecon.video_fichier.url}" type="video/mp4">'
+            'Votre navigateur ne prend pas en charge la lecture vidéo.'
+            '</video></div>'
+        )
+
+    video_placeholder = "<p>[video]</p>"
+    video_in_content = video_placeholder in contenu_html
+    if video_in_content and video_html:
+        contenu_html = contenu_html.replace(video_placeholder, video_html, 1)
+    elif video_in_content:
+        contenu_html = contenu_html.replace(video_placeholder, "", 1)
+
+    # Strip Markdown for meta description
+    import re as _re
+    meta_description = _re.sub(r'[#*_\[\]()>`$]', '', lecon.contenu)
+    meta_description = ' '.join(meta_description.split())[:160]
+
+    return render(request, "courses/lecon_publique.html", {
+        "lecon": lecon,
+        "chapitre": chapitre,
+        "matiere": matiere,
+        "contenu_html": contenu_html,
+        "youtube_id": youtube_id,
+        "video_in_content": video_in_content,
+        "meta_description": meta_description,
+    })

@@ -29,9 +29,9 @@ backend/
 ## Key Models
 - `users.CustomUser` — email login, `role` (admin|eleve), `niveau` (seconde|premiere|terminale)
 - `users.ConnexionLog` — logs each successful login (user, timestamp, ip)
-- `courses.Matiere` — physique / chimie / mathematiques
-- `courses.Chapitre` — belongs to Matiere + niveau, has `ordre` and `score_minimum_deblocage`
-- `courses.Lecon` — belongs to Chapitre, `contenu` in Markdown, optional `video_youtube_url` or `video_fichier`
+- `courses.Matiere` — physique / chimie / mathematiques; has `slug` (unique, auto-populated from `nom`)
+- `courses.Chapitre` — belongs to Matiere + niveau, has `ordre`, `score_minimum_deblocage`, and `slug` (auto-populated from `titre`, unique per matiere+niveau)
+- `courses.Lecon` — belongs to Chapitre, `contenu` in Markdown, optional `video_youtube_url` or `video_fichier`; has `slug` (auto-populated from `titre`, unique per chapitre) and `gratuit` BooleanField (marks lesson as publicly accessible without login)
 - `courses.Quiz` / `courses.Question` — QCM, Vrai/Faux, or **Texte libre** linked to a Lecon
   - `Question.type` choices: `qcm`, `vrai_faux`, `texte_libre`
   - `Question.tolerances` (JSONField, optional) — accepted alternative answers for `texte_libre`, e.g. `["azote", "N2"]`; comparison is case-insensitive
@@ -75,6 +75,7 @@ Always respect this mapping when adding UI for subject-specific elements.
 - All pages extend `base.html`
 - Authenticated pages use `{% block content %}` + `{% block page_title %}`
 - Non-authenticated pages use `{% block full_content %}` (full page, no sidebar)
+- Public SEO pages (catalogue, free lessons) use `{% block full_content %}` + `{% block extra_head %}` to set `<meta name="robots" content="index, follow">` (base.html defaults to `noindex, nofollow`)
 - **Never** add dark-mode Tailwind classes in child templates — dark mode is handled globally in `base.html` via `html.dark { }` CSS overrides
 - Dark mode toggle (sun/moon button) lives in the top-right of the header; theme is persisted in `localStorage`; the `<html>` tag gets/loses the `dark` class; initialisation script in `<head>` prevents flash-of-unstyled-content
 
@@ -108,6 +109,9 @@ Admins can simulate the exact student view for any level without creating dummy 
 /cours/chapitre/<pk>/quiz/                 → quiz_chapitre
 /cours/lecon/<pk>/                         → lecon
 /cours/lecon/<pk>/quiz/                    → quiz
+/cours/<matiere_slug>/                     → catalogue_matiere (public, no login)
+/cours/<matiere_slug>/<niveau>/<chapitre_slug>/<lecon_slug>/
+                                           → lecon_publique (public if gratuit=True, else redirect to login)
 /progression/terminer/<pk>/                → terminer_lecon
 /progression/quiz/<pk>/soumettre/          → soumettre_quiz
 /progression/quiz-chapitre/<pk>/soumettre/ → soumettre_quiz_chapitre

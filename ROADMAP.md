@@ -10,7 +10,7 @@
 
 | # | Task | Type | Detail |
 |---|------|------|--------|
-| 1 | **Open "hook" content (SEO & storefront)** | Business | Remove `@login_required` on the first lesson of every chapter. Add slug-based, SEO-friendly URLs so Googlebot can index free content. |
+| 1 | ~~**Open "hook" content (SEO & storefront)**~~ ✅ | Business | Slug-based public URLs (`/cours/<matiere>/`, `/cours/<matiere>/<niveau>/<chapitre>/<lecon>/`), `gratuit` BooleanField, catalogue + public lesson templates, SEO meta, data migration. |
 | 2 | **Visual paywall** | Business | Premium lessons stay visible with a 🔒 icon. On click → modal paywall ("Unlock the full Bac program") with pricing tiers — not a login redirect. |
 | 3 | **Stripe integration** | Business | Stripe Checkout Sessions or Elements in Django. Two tiers: Monthly (~€19/mo) and Annual (~€119/yr). Webhook to activate/deactivate subscriptions. |
 | 4 | **Password reset flow** | Tech | No reset exists — students are locked out. Add Django's built-in `PasswordResetView` flow with email sending. |
@@ -83,3 +83,4 @@
 - ~~Bind-mount source code in dev + `.dockerignore`~~ — Bind mount, gunicorn `--reload`, `.dockerignore` added
 - ~~Spaced repetition / revision mode~~ — Leitner box system with `UserQuestionHistorique` model, "Révisions" page
 - ~~Progress dashboard with analytics~~ — Per-subject stats, streak tracking, score trend chart, weak areas
+- ~~Open "hook" content (SEO & storefront)~~ — Public catalogue & free lessons with slug URLs, `gratuit` field, SEO meta tags, data migration for slugs

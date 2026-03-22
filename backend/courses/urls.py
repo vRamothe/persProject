@@ -9,4 +9,8 @@ urlpatterns = [
     path("chapitre/<int:chapitre_pk>/quiz/", views.quiz_chapitre_view, name="quiz_chapitre"),
     path("lecon/<int:lecon_pk>/", views.lecon_view, name="lecon"),
     path("lecon/<int:lecon_pk>/quiz/", views.quiz_view, name="quiz"),
+    # Public routes (no login required)
+    path("<slug:matiere_slug>/", views.catalogue_matiere_view, name="catalogue_matiere"),
+    path("<slug:matiere_slug>/<str:niveau>/<slug:chapitre_slug>/<slug:lecon_slug>/",
+         views.lecon_publique_view, name="lecon_publique"),
 ]

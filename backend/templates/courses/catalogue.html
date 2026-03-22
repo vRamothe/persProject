@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}{{ matiere.get_nom_display }} — Cours gratuits | ScienceLycée{% endblock %}
+
+{% block extra_head %}
+<meta name="description" content="Cours de {{ matiere.get_nom_display }} pour le lycée : Seconde, Première, Terminale. Leçons gratuites, quiz et révisions pour réussir le Bac.">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="{{ matiere.get_nom_display }} — ScienceLycée">
+<meta property="og:description" content="Cours de {{ matiere.get_nom_display }} pour le lycée. Accède gratuitement à des leçons de qualité.">
+<meta property="og:type" content="website">
+{% endblock %}
+
+{% block full_content %}
+<div class="min-h-screen bg-gray-50">
+
+  <!-- Top nav bar -->
+  <nav class="bg-white border-b border-gray-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <a href="{% url 'home' %}" class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow">⚗</div>
+        <span class="font-bold text-lg text-gray-900 tracking-tight">ScienceLycée</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="{% url 'connexion' %}" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Connexion</a>
+        <a href="{% url 'inscription' %}" class="text-sm font-semibold px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">Créer un compte</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Subject header -->
+  <div class="{% if matiere.nom == 'physique' %}bg-gradient-to-r from-blue-600 to-blue-700
+              {% elif matiere.nom == 'chimie' %}bg-gradient-to-r from-emerald-600 to-emerald-700
+              {% else %}bg-gradient-to-r from-purple-600 to-purple-700{% endif %}">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 text-center">
+      <div class="text-5xl mb-3">{{ matiere.icone_svg }}</div>
+      <h1 class="text-3xl sm:text-4xl font-bold text-white">{{ matiere.get_nom_display }}</h1>
+      <p class="text-white/80 mt-2 text-lg max-w-xl mx-auto">{{ matiere.description|default:"Cours complets pour le lycée — Seconde, Première, Terminale" }}</p>
+    </div>
+  </div>
+
+  <!-- Other subjects navigation -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-2">
+    <div class="flex gap-3 flex-wrap">
+      {% if matiere.nom != 'physique' %}
+      <a href="{% url 'catalogue_matiere' matiere_slug='physique' %}" class="text-sm px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-medium">⚛ Physique</a>
+      {% endif %}
+      {% if matiere.nom != 'chimie' %}
+      <a href="{% url 'catalogue_matiere' matiere_slug='chimie' %}" class="text-sm px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors font-medium">🧪 Chimie</a>
+      {% endif %}
+      {% if matiere.nom != 'mathematiques' %}
+      <a href="{% url 'catalogue_matiere' matiere_slug='mathematiques' %}" class="text-sm px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors font-medium">∑ Mathématiques</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Content by niveau -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-12">
+
+    {% for niv in niveaux_data %}
+    <section>
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+        <span class="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold
+                     {% if matiere.nom == 'physique' %}bg-blue-100 text-blue-700
+                     {% elif matiere.nom == 'chimie' %}bg-emerald-100 text-emerald-700
+                     {% else %}bg-purple-100 text-purple-700{% endif %}">
+          {% if niv.niveau_val == 'seconde' %}2de
+          {% elif niv.niveau_val == 'premiere' %}1re
+          {% else %}Tle{% endif %}
+        </span>
+        {{ niv.niveau_label }}
+      </h2>
+
+      <div class="grid gap-4">
+        {% for chap_item in niv.chapitres %}
+        {% with chap=chap_item.chapitre %}
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden"
+             x-data="{ open: false }">
+          
+          <!-- Chapter header -->
+          <button @click="open = !open" class="w-full px-5 py-4 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors text-left">
+            <div class="min-w-0">
+              <h3 class="font-semibold text-gray-900">Ch. {{ chap.ordre }} — {{ chap.titre }}</h3>
+              {% if chap.description %}
+              <p class="text-sm text-gray-500 mt-0.5 line-clamp-1">{{ chap.description|truncatewords:20 }}</p>
+              {% endif %}
+            </div>
+            <div class="flex items-center gap-3 flex-shrink-0">
+              <span class="text-xs text-gray-400">{{ chap_item.nb_lecons }} leçon{{ chap_item.nb_lecons|pluralize }}</span>
+              <svg class="w-5 h-5 text-gray-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </div>
+          </button>
+
+          <!-- Lessons list -->
+          <div x-show="open" x-transition.duration.200ms class="border-t border-gray-100">
+            {% for lecon_item in chap_item.lecons %}
+            {% with l=lecon_item.lecon %}
+            <div class="px-5 py-3 flex items-center gap-3 {% if not forloop.last %}border-b border-gray-50{% endif %}">
+              {% if lecon_item.gratuit %}
+                <span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs
+                             {% if matiere.nom == 'physique' %}bg-blue-100 text-blue-600
+                             {% elif matiere.nom == 'chimie' %}bg-emerald-100 text-emerald-600
+                             {% else %}bg-purple-100 text-purple-600{% endif %}">
+                  {{ l.ordre }}
+                </span>
+                <a href="{% url 'lecon_publique' matiere_slug=matiere.slug niveau=chap.niveau chapitre_slug=chap.slug lecon_slug=l.slug %}"
+                   class="flex-1 min-w-0 font-medium text-gray-900 hover:text-indigo-600 transition-colors truncate">
+                  {{ l.titre }}
+                </a>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full
+                             {% if matiere.nom == 'physique' %}bg-blue-100 text-blue-700
+                             {% elif matiere.nom == 'chimie' %}bg-emerald-100 text-emerald-700
+                             {% else %}bg-purple-100 text-purple-700{% endif %}">Gratuit</span>
+              {% else %}
+                <span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs bg-gray-100 text-gray-400">🔒</span>
+                <span class="flex-1 min-w-0 text-gray-400 truncate">{{ l.titre }}</span>
+              {% endif %}
+              <span class="text-xs text-gray-400 flex-shrink-0">{{ l.duree_estimee }} min</span>
+            </div>
+            {% endwith %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+      </div>
+    </section>
+    {% endfor %}
+
+    {% if not niveaux_data %}
+    <div class="text-center py-16">
+      <p class="text-gray-500 text-lg">Aucun contenu disponible pour le moment.</p>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="bg-gradient-to-r from-indigo-600 to-purple-600">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12 text-center">
+      <h2 class="text-2xl font-bold text-white mb-2">Prêt à réussir ton Bac ?</h2>
+      <p class="text-indigo-100 mb-6">Crée ton compte pour accéder à tous les cours, quiz et révisions.</p>
+      <a href="{% url 'inscription' %}"
+         class="inline-flex items-center gap-2 px-6 py-3 bg-white text-indigo-700 font-bold rounded-xl shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all">
+        Créer un compte gratuitement
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 py-6">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-400">
+      ScienceLycée — Plateforme d'apprentissage pour le lycée
+    </div>
+  </footer>
+
+</div>
+{% endblock %}

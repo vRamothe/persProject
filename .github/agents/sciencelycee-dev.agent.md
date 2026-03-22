@@ -1,5 +1,5 @@
 ---
-description: "ScienceLycée dev agent — use when building features, fixing bugs, adding models, views, templates, or migrations for this Django e-learning app. Use for: new page, new model, new URL, template change, dark mode theme, admin preview mode, Docker/deployment issue, seed data, quiz logic (QCM/vrai-faux/texte libre), progress tracking, spaced repetition, Leitner system, chapter quiz, chapter unlock, student dashboard, revision page, streak, score chart."
+description: "ScienceLycée dev agent — use when building features, fixing bugs, adding models, views, templates, or migrations for this Django e-learning app. Use for: new page, new model, new URL, template change, dark mode theme, admin preview mode, Docker/deployment issue, seed data, quiz logic (QCM/vrai-faux/texte libre), progress tracking, spaced repetition, Leitner system, chapter quiz, chapter unlock, student dashboard, revision page, streak, score chart, public catalogue, SEO, free lessons, slug URLs."
 tools: [read, edit, search, execute, todo]
 name: "ScienceLycée Dev"
 argument-hint: "Describe the feature or bug to implement"
@@ -12,8 +12,11 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 - Django 5.1 with PostgreSQL, function-based views, `@login_required`
 - Server-side rendering with HTMX + Alpine.js + Tailwind CSS (CDN, `darkMode: 'class'`)
 - The exact model hierarchy: `Matiere → Chapitre → Lecon → Quiz → Question`
+  - All three content models have `slug` fields (auto-populated via `save()`, unique per parent scope)
+  - `Lecon.gratuit` BooleanField — marks lessons as publicly accessible without login
   - `Question.type` choices: `qcm`, `vrai_faux`, `texte_libre`
   - `Question.tolerances` (JSONField, optional) — alternative accepted answers for `texte_libre`; comparison is case-insensitive via `_comparer_texte_libre()` in `progress/views.py`
+- **Public catalogue & free lessons**: `catalogue_matiere_view` and `lecon_publique_view` in `courses/views.py` — no `@login_required`, slug-based SEO URLs; non-free lessons redirect to login; authenticated users redirect to PK-based views; `base.html` defaults to `noindex,nofollow`, public templates override via `{% block extra_head %}`
 - Progress tracking: `UserProgression`, `UserQuizResultat`, `UserChapitreQuizResultat`, `ChapitreDebloque`
 - **Spaced repetition**: `UserQuestionHistorique` (Leitner 5-box system); `_enregistrer_historique_questions()` in `progress/views.py` records answers; `revisions_view` / `soumettre_revisions` in `courses/views.py`
 - **Chapter quiz & unlock**: chapter quiz = 10 random questions from lesson quizzes; ≥80% required; `_verifier_deblocage_chapitre_suivant()` checks `UserChapitreQuizResultat`
@@ -60,6 +63,8 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 | Chapter quiz | `courses/views.py` (`quiz_chapitre_view`) + `progress/views.py` (`soumettre_quiz_chapitre`) + `templates/courses/quiz_chapitre.html` + `quiz_chapitre_resultat.html` |
 | Spaced repetition | `progress/models.py` (`UserQuestionHistorique`, `LEITNER_INTERVALLES`) + `courses/views.py` (`revisions_view`, `soumettre_revisions`) + `templates/courses/revisions.html` + `revisions_resultat.html` |
 | Student dashboard | `users/views.py` (`_dashboard_eleve`) + `templates/dashboard/eleve.html` |
+| Public catalogue | `courses/views.py` (`catalogue_matiere_view`) + `templates/courses/catalogue.html` |
+| Public free lesson | `courses/views.py` (`lecon_publique_view`) + `templates/courses/lecon_publique.html` |
 | Forms | `users/forms.py` (keep Tailwind widget classes consistent) |
 | Admin interface | `*/admin.py` |
 | Seed content | `courses/management/commands/seed_content.py` |

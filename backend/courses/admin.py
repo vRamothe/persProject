@@ -24,7 +24,8 @@ class QuestionInline(admin.TabularInline):
 
 @admin.register(Matiere)
 class MatiereAdmin(admin.ModelAdmin):
-    list_display = ["get_nom_display", "description"]
+    list_display = ["get_nom_display", "slug", "description"]
+    prepopulated_fields = {"slug": ("nom",)}
     inlines = [ChapitreInline]
 
     def get_nom_display(self, obj):
@@ -34,10 +35,11 @@ class MatiereAdmin(admin.ModelAdmin):
 
 @admin.register(Chapitre)
 class ChapitreAdmin(admin.ModelAdmin):
-    list_display = ["titre", "matiere", "get_niveau_display", "ordre", "score_minimum_deblocage", "get_nb_lecons"]
+    list_display = ["titre", "slug", "matiere", "get_niveau_display", "ordre", "score_minimum_deblocage", "get_nb_lecons"]
     list_filter = ["matiere", "niveau"]
     search_fields = ["titre"]
     ordering = ["matiere", "niveau", "ordre"]
+    prepopulated_fields = {"slug": ("titre",)}
     inlines = [LeconInline]
 
     def get_niveau_display(self, obj):
@@ -51,11 +53,12 @@ class ChapitreAdmin(admin.ModelAdmin):
 
 @admin.register(Lecon)
 class LeconAdmin(admin.ModelAdmin):
-    list_display = ["titre", "chapitre", "ordre", "duree_estimee", "has_quiz"]
-    list_filter = ["chapitre__matiere", "chapitre__niveau"]
+    list_display = ["titre", "slug", "chapitre", "ordre", "duree_estimee", "gratuit", "has_quiz"]
+    list_filter = ["gratuit", "chapitre__matiere", "chapitre__niveau"]
     search_fields = ["titre", "chapitre__titre"]
     ordering = ["chapitre__matiere", "chapitre__niveau", "chapitre__ordre", "ordre"]
-    fields = ["chapitre", "ordre", "titre", "duree_estimee", "video_youtube_url", "video_fichier", "contenu"]
+    prepopulated_fields = {"slug": ("titre",)}
+    fields = ["chapitre", "ordre", "titre", "slug", "gratuit", "duree_estimee", "video_youtube_url", "video_fichier", "contenu"]
 
     def has_quiz(self, obj):
         return obj.has_quiz

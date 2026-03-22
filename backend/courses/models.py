@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 
 
 class MatiereChoices(models.TextChoices):
@@ -28,6 +29,7 @@ MATIERE_COULEURS = {
 
 class Matiere(models.Model):
     nom = models.CharField(max_length=50, choices=MatiereChoices.choices, unique=True, verbose_name="Nom")
+    slug = models.SlugField(max_length=60, unique=True, blank=True, verbose_name="Slug")
     description = models.TextField(blank=True, verbose_name="Description")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -35,6 +37,11 @@ class Matiere(models.Model):
         verbose_name = "Matière"
         verbose_name_plural = "Matières"
         ordering = ["nom"]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.nom  # nom values are already slug-safe
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.get_nom_display()
@@ -57,6 +64,7 @@ class Chapitre(models.Model):
     matiere = models.ForeignKey(Matiere, on_delete=models.CASCADE, related_name="chapitres", verbose_name="Matière")
     niveau = models.CharField(max_length=20, choices=NiveauChoices.choices, verbose_name="Niveau")
     titre = models.CharField(max_length=255, verbose_name="Titre")
+    slug = models.SlugField(max_length=255, blank=True, verbose_name="Slug")
     description = models.TextField(blank=True, verbose_name="Description")
     ordre = models.PositiveIntegerField(default=1, verbose_name="Ordre")
     score_minimum_deblocage = models.FloatField(
@@ -71,7 +79,12 @@ class Chapitre(models.Model):
         verbose_name = "Chapitre"
         verbose_name_plural = "Chapitres"
         ordering = ["matiere", "niveau", "ordre"]
-        unique_together = [["matiere", "niveau", "ordre"]]
+        unique_together = [["matiere", "niveau", "ordre"], ["matiere", "niveau", "slug"]]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.titre)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"[{self.matiere} – {self.get_niveau_display()}] Ch.{self.ordre} — {self.titre}"
@@ -83,9 +96,11 @@ class Chapitre(models.Model):
 class Lecon(models.Model):
     chapitre = models.ForeignKey(Chapitre, on_delete=models.CASCADE, related_name="lecons", verbose_name="Chapitre")
     titre = models.CharField(max_length=255, verbose_name="Titre")
+    slug = models.SlugField(max_length=255, blank=True, verbose_name="Slug")
     contenu = models.TextField(verbose_name="Contenu (Markdown)", help_text="Rédigez le cours en Markdown. Utilisez $...$ pour les équations LaTeX.")
     ordre = models.PositiveIntegerField(default=1, verbose_name="Ordre")
     duree_estimee = models.PositiveIntegerField(default=15, verbose_name="Durée estimée (min)")
+    gratuit = models.BooleanField(default=False, verbose_name="Leçon gratuite (accessible sans compte)")
     video_youtube_url = models.URLField(
         blank=True,
         default="",
@@ -106,7 +121,12 @@ class Lecon(models.Model):
         verbose_name = "Leçon"
         verbose_name_plural = "Leçons"
         ordering = ["chapitre", "ordre"]
-        unique_together = [["chapitre", "ordre"]]
+        unique_together = [["chapitre", "ordre"], ["chapitre", "slug"]]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.titre)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.chapitre.titre} – L.{self.ordre} {self.titre}"
