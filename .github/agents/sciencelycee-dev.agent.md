@@ -1,5 +1,5 @@
 ---
-description: "ScienceLycée dev agent — use when building features, fixing bugs, adding models, views, templates, or migrations for this Django e-learning app. Use for: new page, new model, new URL, template change, dark mode theme, admin preview mode, Docker/deployment issue, seed data, quiz logic (QCM/vrai-faux/texte libre), progress tracking."
+description: "ScienceLycée dev agent — use when building features, fixing bugs, adding models, views, templates, or migrations for this Django e-learning app. Use for: new page, new model, new URL, template change, dark mode theme, admin preview mode, Docker/deployment issue, seed data, quiz logic (QCM/vrai-faux/texte libre), progress tracking, spaced repetition, Leitner system, chapter quiz, chapter unlock, student dashboard, revision page, streak, score chart."
 tools: [read, edit, search, execute, todo]
 name: "ScienceLycée Dev"
 argument-hint: "Describe the feature or bug to implement"
@@ -14,7 +14,10 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 - The exact model hierarchy: `Matiere → Chapitre → Lecon → Quiz → Question`
   - `Question.type` choices: `qcm`, `vrai_faux`, `texte_libre`
   - `Question.tolerances` (JSONField, optional) — alternative accepted answers for `texte_libre`; comparison is case-insensitive via `_comparer_texte_libre()` in `progress/views.py`
-- Progress tracking: `UserProgression`, `UserQuizResultat`, `ChapitreDebloque`
+- Progress tracking: `UserProgression`, `UserQuizResultat`, `UserChapitreQuizResultat`, `ChapitreDebloque`
+- **Spaced repetition**: `UserQuestionHistorique` (Leitner 5-box system); `_enregistrer_historique_questions()` in `progress/views.py` records answers; `revisions_view` / `soumettre_revisions` in `courses/views.py`
+- **Chapter quiz & unlock**: chapter quiz = 10 random questions from lesson quizzes; ≥80% required; `_verifier_deblocage_chapitre_suivant()` checks `UserChapitreQuizResultat`
+- **Student dashboard**: per-subject progress bars, streak counter, 30-day Chart.js score trend, revision CTA, weak chapters (avg < 70%)
 - Two roles: `admin` (full access) and `eleve` (level-filtered, progress-gated)
 - **Admin Preview Mode**: session key `request.session["preview_niveau"]` lets admins simulate the student view for a specific level; views `preview_niveau_view` / `exit_preview_view` in `users/views.py`; URLs `preview_niveau` / `exit_preview` in `users/urls.py`; `matieres_view` and `lecon_view` respect this key; progress writes are skipped during preview
 - **Dark mode**: toggle button (sun/moon) in header and floating button on auth pages; theme stored in `localStorage`; `<html>` gets/loses `dark` class; anti-flash init script in `<head>` of `base.html`; all dark styles are global CSS overrides in `base.html` — never add `dark:` classes to child templates
@@ -54,11 +57,18 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 | Navigation menu | `templates/components/nav_item.html` + sidebar in `base.html` |
 | Admin preview mode | `users/views.py` (`preview_niveau_view`, `exit_preview_view`) + `users/urls.py` + sidebar section + banner in `base.html` |
 | Quiz question types | `courses/models.py` (`TypeQuestionChoices`, `Question`) + `progress/views.py` (`soumettre_quiz`, `_comparer_texte_libre`) + `templates/courses/quiz.html` + `templates/courses/quiz_resultat.html` |
+| Chapter quiz | `courses/views.py` (`quiz_chapitre_view`) + `progress/views.py` (`soumettre_quiz_chapitre`) + `templates/courses/quiz_chapitre.html` + `quiz_chapitre_resultat.html` |
+| Spaced repetition | `progress/models.py` (`UserQuestionHistorique`, `LEITNER_INTERVALLES`) + `courses/views.py` (`revisions_view`, `soumettre_revisions`) + `templates/courses/revisions.html` + `revisions_resultat.html` |
+| Student dashboard | `users/views.py` (`_dashboard_eleve`) + `templates/dashboard/eleve.html` |
 | Forms | `users/forms.py` (keep Tailwind widget classes consistent) |
 | Admin interface | `*/admin.py` |
 | Seed content | `courses/management/commands/seed_content.py` |
 | Settings | `config/settings/base.py` (or `development.py` / `production.py` for env-specific) |
 | Docker / deploy | `backend/Dockerfile`, `backend/entrypoint.sh`, `docker-compose.yml`, `nginx/nginx.conf` |
+
+## Self-Update Rule
+
+When you make changes that affect the project structure, models, URL routes, features, or conventions documented in this file or in `.github/copilot-instructions.md`, **update both files** to reflect the new state before finishing your task. Keep these files as the single source of truth for the project.
 
 ## Output Format
 

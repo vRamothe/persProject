@@ -7,11 +7,11 @@ ScienceLycée is a French high-school e-learning platform for Physics, Chemistry
 | Layer | Technology |
 |-------|------------|
 | Backend | Python 3.12, Django 5.1, PostgreSQL 16 |
-| Frontend | Tailwind CSS (CDN, `darkMode: 'class'`), HTMX 1.9, Alpine.js 3.14 |
-| Math rendering | KaTeX (auto-render) |
-| Content | Markdown rendered server-side via `python-markdown` |
+| Frontend | Tailwind CSS (CDN, `darkMode: 'class'`), HTMX 1.9, Alpine.js 3.14, Chart.js 4.4 (dashboard) |
+| Math rendering | KaTeX 0.16.9 (auto-render) |
+| Content | Markdown rendered server-side via `python-markdown` with LaTeX protection |
 | Auth | Custom `users.CustomUser` (email-based, `AUTH_USER_MODEL`) |
-| Deploy | Docker Compose — `db` (postgres), `web` (gunicorn), `nginx` |
+| Deploy | Docker Compose — `db` (postgres), `web` (gunicorn + `--reload` in dev), `nginx` |
 | Config | `python-decouple` + `.env`, settings split: `base / development / production` |
 
 ## Django App Structure
@@ -19,24 +19,47 @@ ScienceLycée is a French high-school e-learning platform for Physics, Chemistry
 backend/
   app/           # Unused scaffolding — do not add code here
   config/        # urls.py, wsgi.py, settings/{base,development,production}.py
-  users/         # CustomUser model, managers, forms, views, urls
-  courses/       # Matiere > Chapitre > Lecon > Quiz > Question hierarchy
-  progress/      # UserProgression, UserQuizResultat, ChapitreDebloque
+  users/         # CustomUser, ConnexionLog, managers, forms, views, urls
+  courses/       # Matiere > Chapitre > Lecon > Quiz > Question hierarchy + revision views
+  progress/      # UserProgression, UserQuizResultat, UserChapitreQuizResultat, ChapitreDebloque, UserQuestionHistorique
   templates/     # All HTML — base.html + per-app subdirs
   static/        # Static assets (currently empty beyond README)
 ```
 
 ## Key Models
 - `users.CustomUser` — email login, `role` (admin|eleve), `niveau` (seconde|premiere|terminale)
+- `users.ConnexionLog` — logs each successful login (user, timestamp, ip)
 - `courses.Matiere` — physique / chimie / mathematiques
 - `courses.Chapitre` — belongs to Matiere + niveau, has `ordre` and `score_minimum_deblocage`
-- `courses.Lecon` — belongs to Chapitre, `contenu` in Markdown
+- `courses.Lecon` — belongs to Chapitre, `contenu` in Markdown, optional `video_youtube_url` or `video_fichier`
 - `courses.Quiz` / `courses.Question` — QCM, Vrai/Faux, or **Texte libre** linked to a Lecon
   - `Question.type` choices: `qcm`, `vrai_faux`, `texte_libre`
   - `Question.tolerances` (JSONField, optional) — accepted alternative answers for `texte_libre`, e.g. `["azote", "N2"]`; comparison is case-insensitive
 - `progress.UserProgression` — per (user, lecon) statut: non_commence / en_cours / termine
-- `progress.UserQuizResultat` — best score, nb_tentatives, passe bool
-- `progress.ChapitreDebloque` — unlocking mechanism
+- `progress.UserQuizResultat` — best score, nb_tentatives, passe bool (per lesson quiz)
+- `progress.UserChapitreQuizResultat` — best score, nb_tentatives, passe bool (per chapter quiz, ≥80% to pass)
+- `progress.ChapitreDebloque` — unlocking mechanism (requires passing the chapter quiz at ≥80%)
+- `progress.UserQuestionHistorique` — Leitner spaced-repetition tracking per (user, question): boite (1–5), prochaine_revision, nb_bonnes, nb_total
+
+## Chapter Unlock Flow
+1. Student completes all lessons in a chapter
+2. Chapter quiz becomes available (10 random questions from the chapter's lesson quizzes)
+3. Student must score ≥80% on the chapter quiz to unlock the next chapter
+4. `_verifier_deblocage_chapitre_suivant()` in `progress/views.py` checks for a passing `UserChapitreQuizResultat`
+
+## Spaced Repetition (Leitner System)
+- Every quiz answer (lesson quiz, chapter quiz, revision quiz) creates/updates a `UserQuestionHistorique`
+- 5 boxes with intervals: `{1: 1d, 2: 3d, 3: 7d, 4: 14d, 5: 30d}`
+- Correct → box+1 (max 5); Wrong → box=1
+- "Révisions" page (`revisions_view` in `courses/views.py`) shows due questions, Leitner stats, and a revision quiz form
+- Helper: `_enregistrer_historique_questions()` in `progress/views.py`
+
+## Student Dashboard
+- Per-subject progress bars (lessons done / total, average score)
+- Streak counter (consecutive days with activity from progressions + connexion logs)
+- 30-day score trend chart (Chart.js, inline JS)
+- Revision CTA with count of due questions
+- Weak chapters section (avg score < 70%)
 
 ## Colour System (per subject)
 ```python
@@ -64,9 +87,35 @@ Admins can simulate the exact student view for any level without creating dummy 
 - `matieres_view` and `lecon_view` in `courses/views.py` already respect this session key
 - A yellow banner is shown on every page while preview is active; progress writes are skipped in preview mode
 
+## URL Map
+```
+/                                          → home (redirect to tableau_de_bord)
+/connexion/                                → connexion
+/inscription/                              → inscription
+/deconnexion/                              → deconnexion
+/tableau-de-bord/                          → tableau_de_bord
+/profil/                                   → profil
+/admin-panel/utilisateurs/                 → admin_utilisateurs
+/admin-panel/utilisateurs/<id>/            → admin_eleve_detail
+/admin-panel/utilisateurs/<id>/toggle/     → admin_toggle_actif
+/admin-panel/utilisateurs/<id>/chapitre/<id>/toggle/ → admin_toggle_chapitre
+/admin-panel/preview/<niveau>/             → preview_niveau
+/admin-panel/preview/exit/                 → exit_preview
+/cours/                                    → matieres
+/cours/revisions/                          → revisions
+/cours/revisions/soumettre/                → soumettre_revisions
+/cours/chapitre/<pk>/                      → chapitre
+/cours/chapitre/<pk>/quiz/                 → quiz_chapitre
+/cours/lecon/<pk>/                         → lecon
+/cours/lecon/<pk>/quiz/                    → quiz
+/progression/terminer/<pk>/                → terminer_lecon
+/progression/quiz/<pk>/soumettre/          → soumettre_quiz
+/progression/quiz-chapitre/<pk>/soumettre/ → soumettre_quiz_chapitre
+```
+
 ## Dev Workflow
 ```bash
-# Start everything
+# Start everything (bind-mount + gunicorn --reload for hot reloading)
 docker compose up --build -d
 
 # Check logs
@@ -94,3 +143,6 @@ Admin credentials from `.env`: `FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`.
 - Forms render with custom widgets defined in `users/forms.py` (Tailwind classes baked in)
 - No JavaScript files — all JS lives inline in templates or in Alpine.js `x-data` blocks
 - Migrations: always run `makemigrations` before `migrate`; never edit migration files manually unless fixing a squash
+
+## Self-Update Rule
+When you make changes that affect the project structure, models, URL routes, features, or conventions documented in this file or in `.github/agents/sciencelycee-dev.agent.md`, **update both files** to reflect the new state before finishing your task. Keep these files as the single source of truth for the project.
