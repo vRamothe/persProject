@@ -1,46 +1,82 @@
-# ScienceLycée — Roadmap & Improvement Ideas
+# ScienceLycée — Unified Roadmap
 
-## Priority 1 — Critical
+> **Core rule:** No new "nice-to-have" features until Stripe is live and the first real sale is processed.
 
-1. **Automated tests + CI** — Zero tests exist. Add model tests (Leitner transitions, chapter unlock logic), view tests (access control, quiz scoring, preview mode), and a GitHub Actions pipeline to run them on every push.
-2. **Query optimization** — `_dashboard_eleve` runs 5+ queries per matière in a loop; `matieres_view` has N+1 on progressions. Use `Prefetch`, `annotate()`, and `select_related` before real content (135+ chapters) makes pages slow.
-3. **Password reset flow** — No password reset exists. Students who forget their password are locked out. Add Django's built-in `PasswordResetView` flow with email sending.
+---
 
-## Priority 2 — Security & UX
+## Phase 1 — Product & Proof (Weeks 1–2)
 
-4. **Rate limiting on login & quiz submission** — No throttling on `ConnexionView.post` or `soumettre_quiz`. Add `django-axes` or a simple rate-limit decorator to prevent brute-force and spam.
-5. **Custom error pages (404, 500)** — No custom error templates. Users see Django's default ugly page or a stack trace if DEBUG leaks.
-6. **Email verification on signup** — Anyone can register with a fake email. Add a token-based email verification to prevent dummy accounts.
+*Goal: make the app sellable and prove demand with real users.*
 
-## Priority 3 — Learning Experience
+| # | Task | Type | Detail |
+|---|------|------|--------|
+| 1 | **Open "hook" content (SEO & storefront)** | Business | Remove `@login_required` on the first lesson of every chapter. Add slug-based, SEO-friendly URLs so Googlebot can index free content. |
+| 2 | **Visual paywall** | Business | Premium lessons stay visible with a 🔒 icon. On click → modal paywall ("Unlock the full Bac program") with pricing tiers — not a login redirect. |
+| 3 | **Stripe integration** | Business | Stripe Checkout Sessions or Elements in Django. Two tiers: Monthly (~€19/mo) and Annual (~€119/yr). Webhook to activate/deactivate subscriptions. |
+| 4 | **Password reset flow** | Tech | No reset exists — students are locked out. Add Django's built-in `PasswordResetView` flow with email sending. |
+| 5 | **Custom error pages (404, 500)** | Tech | No custom templates — users see Django's default page. Add branded error pages. |
+| 6 | **Automated tests + CI** | Tech | Zero tests exist. Add model tests (Leitner, chapter unlock), view tests (access control, quiz scoring, preview mode), GitHub Actions pipeline. |
 
-7. **Lesson bookmarks / notes** — Let students highlight or annotate parts of a lesson. Simple `UserNote(user, lecon, texte, position)` model.
-8. **Timed quizzes** — Add an optional timer to simulate exam conditions (bac prep). A `duree_limite` field on Quiz.
-9. **Difficulty levels on questions** — Tag questions as facile/moyen/difficile. The chapter quiz could then guarantee a balanced mix.
-10. **Instant feedback on wrong answers** — Instead of showing all corrections at the end, show instant feedback per question (configurable).
+## Phase 2 — Acquisition & First Revenue (Weeks 3–4)
 
-## Priority 4 — Content & Engagement
+*Goal: get paying users and build trust.*
 
-11. **Interactive exercises** — Beyond QCM: drag-and-drop ordering, fill-in-the-blank in equations, matching columns. Alpine.js `x-data` blocks + new question type.
-12. **Glossary / formula sheet** — Auto-extracted from lesson content. A searchable reference page per matière.
-13. **Full-text search** — PostgreSQL `SearchVector` + `SearchRank`, built into Django, no extra dependency needed.
-14. **PDF export of lessons** — Offline access via `weasyprint` rendering Markdown HTML to PDF.
+| # | Task | Type | Detail |
+|---|------|------|--------|
+| 7 | **Beta test with current students** | Business | Create free accounts for private tutoring students. Onboard parents for feedback and bug hunting. |
+| 8 | **Social proof on landing page** | Business | Collect written testimonials from beta students/parents. Display with trust badge ("Designed by a certified local teacher"). |
+| 9 | **"Hybrid Bac Sprint" upsell** | Business | High-margin package (~€89/month): unlimited app access + 1h/month 1-on-1 video coaching to review analytics and target weak points. |
+| 10 | **Local marketing (Grasse & 06)** | Business | Flyers with QR code to a high-value free lesson. Distribute at Tocqueville, Amiral de Grasse. Post in local Facebook parent groups. |
+| 11 | **Rate limiting on login & quiz** | Tech | No throttling on `ConnexionView.post` or `soumettre_quiz`. Add `django-axes` or rate-limit decorator against brute-force/spam. |
+| 12 | **Email verification on signup** | Tech | Anyone can register with a fake email. Add token-based verification to prevent dummy accounts. |
+| 13 | **Query optimization** | Tech | `_dashboard_eleve` has N+1 per matière; `matieres_view` N+1 on progressions. Use `Prefetch`, `annotate()`, `select_related`. |
 
-## Priority 5 — Social / Gamification
+## Phase 3 — Scaling Traffic (Month 2+)
 
-15. **Leaderboard** — Anonymous or opt-in ranking per classe/niveau.
-16. **Badges / achievements** — "First quiz passed", "10-day streak", "Perfect chapter score". Simple model + display.
-17. **Teacher notifications** — Email or in-app alerts when a student is struggling (3+ failed attempts on a chapter quiz).
+*Goal: grow organic reach and reduce churn.*
 
-## Priority 6 — Architecture / Housekeeping
+| # | Task | Type | Detail |
+|---|------|------|--------|
+| 14 | **Snackable social content** | Business | 60-second TikTok/IG Shorts solving classic exam problems. App link in bio. |
+| 15 | **Technical SEO (sitemaps)** | Tech | `django.contrib.sitemaps` → dynamic `sitemap.xml` with all free lessons. Submit to Google Search Console. |
+| 16 | **Parent retention loop** | Business | Automated weekly email (or dashboard view) for parents summarizing the student's activity ("Leo completed 15 exercises this week"). |
+| 17 | **Mobile responsiveness audit** | Tech | Sidebar is desktop-first; quiz forms with math equations overflow on phones. Focused mobile pass needed. |
 
-18. **Mobile responsiveness audit** — Sidebar is desktop-first; quiz forms with math equations likely overflow on phones. Focused mobile pass needed.
-19. **Content admin UX — bulk import** — CSV/JSON bulk import for questions (with tolerances, options) to speed up real bac-prep content entry.
-20. **Admin content analytics** — Which questions have the lowest success rate? Which lessons have the highest drop-off? Helps improve content quality.
-21. **Accessibility (a11y)** — Add `aria-label` on interactive elements, focus management after HTMX swaps, proper `<fieldset>`/`<legend>` on quiz radio buttons.
-22. **DRY quiz submission logic** — `soumettre_quiz` and `soumettre_quiz_chapitre` share ~80% identical code. Extract a shared `_evaluer_reponses()` helper.
-23. **Logging & monitoring** — Add structured logging, Sentry integration, and a `/health/` endpoint for production visibility.
-24. **Database backups** — Schedule automated Postgres backups (Heroku `pg:backups:schedule` or equivalent).
+## Phase 4 — Learning Experience Improvements
+
+*Goal: make the product stickier and more effective.*
+
+| # | Task | Type | Detail |
+|---|------|------|--------|
+| 18 | **Timed quizzes** | Feature | Optional timer to simulate bac exam conditions. `duree_limite` field on Quiz. |
+| 19 | **Instant feedback on wrong answers** | Feature | Show correction per question immediately instead of all at the end (configurable). |
+| 20 | **Difficulty levels on questions** | Feature | Tag questions facile/moyen/difficile. Chapter quiz guarantees balanced mix. |
+| 21 | **Lesson bookmarks / notes** | Feature | `UserNote(user, lecon, texte, position)` model for student annotations. |
+| 22 | **Glossary / formula sheet** | Feature | Searchable reference page per matière, auto-extracted from lesson content. |
+| 23 | **Interactive exercises** | Feature | Drag-and-drop, fill-in-the-blank, matching columns via Alpine.js `x-data` + new question type. |
+
+## Phase 5 — Social / Gamification
+
+| # | Task | Type | Detail |
+|---|------|------|--------|
+| 24 | **Badges / achievements** | Feature | "First quiz passed", "10-day streak", "Perfect chapter score". Simple model + display. |
+| 25 | **Leaderboard** | Feature | Anonymous or opt-in ranking per classe/niveau. |
+| 26 | **Teacher notifications** | Feature | Email or in-app alert when a student struggles (3+ failed attempts on a chapter quiz). |
+
+## Phase 6 — Architecture & Housekeeping
+
+| # | Task | Type | Detail |
+|---|------|------|--------|
+| 27 | **DRY quiz submission logic** | Refactor | `soumettre_quiz` and `soumettre_quiz_chapitre` share ~80% code. Extract `_evaluer_reponses()`. |
+| 28 | **Content admin UX — bulk import** | Tool | CSV/JSON bulk import for questions (with tolerances, options). |
+| 29 | **Admin content analytics** | Feature | Question success rates, lesson drop-off rates — helps improve content quality. |
+| 30 | **Full-text search** | Feature | PostgreSQL `SearchVector` + `SearchRank`, built into Django. |
+| 31 | **PDF export of lessons** | Feature | Offline access via `weasyprint` rendering Markdown HTML to PDF. |
+| 32 | **Accessibility (a11y)** | Tech | `aria-label`, focus management after HTMX swaps, `<fieldset>`/`<legend>` on quiz radios. |
+| 33 | **Logging & monitoring** | Infra | Structured logging, Sentry, `/health/` endpoint. |
+| 34 | **Database backups** | Infra | Schedule automated Postgres backups (Heroku `pg:backups:schedule` or equivalent). |
+
+---
 
 ## Completed
 
