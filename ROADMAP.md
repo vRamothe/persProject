@@ -13,9 +13,9 @@
 | 1 | ~~**Open "hook" content (SEO & storefront)**~~ ✅ | Business | Slug-based public URLs (`/cours/<matiere>/`, `/cours/<matiere>/<niveau>/<chapitre>/<lecon>/`), `gratuit` BooleanField, catalogue + public lesson templates, SEO meta, data migration. |
 | 2 | **Visual paywall** | Business | Premium lessons stay visible with a 🔒 icon. On click → modal paywall ("Unlock the full Bac program") with pricing tiers — not a login redirect. |
 | 3 | **Stripe integration** | Business | Stripe Checkout Sessions or Elements in Django. Two tiers: Monthly (~€19/mo) and Annual (~€119/yr). Webhook to activate/deactivate subscriptions. |
-| 4 | **Password reset flow** | Tech | No reset exists — students are locked out. Add Django's built-in `PasswordResetView` flow with email sending. |
-| 5 | **Custom error pages (404, 500)** | Tech | No custom templates — users see Django's default page. Add branded error pages. |
-| 6 | **Automated tests + CI** | Tech | Zero tests exist. Add model tests (Leitner, chapter unlock), view tests (access control, quiz scoring, preview mode), GitHub Actions pipeline. |
+| 4 | ~~**Password reset flow**~~ ✅ | Tech | Django built-in `PasswordResetView` flow with French templates, console backend (dev), SMTP/Brevo (prod), "Mot de passe oublié ?" link on login page. |
+| 5 | ~~**Custom error pages (404, 500)**~~ ✅ | Tech | Branded 404 (extends base.html) and 500 (self-contained, no DB) templates. `handler404`/`handler500` in config/urls.py. |
+| 6 | ~~**Automated tests + CI**~~ ✅ | Tech | 33 pytest tests (access control, quiz scoring, chapter unlock, Leitner, slugs, public pages). GitHub Actions CI with PostgreSQL service. |
 
 ## Phase 2 — Acquisition & First Revenue (Weeks 3–4)
 

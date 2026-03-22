@@ -96,6 +96,10 @@ Admins can simulate the exact student view for any level without creating dummy 
 /deconnexion/                              → deconnexion
 /tableau-de-bord/                          → tableau_de_bord
 /profil/                                   → profil
+/mot-de-passe-oublie/                      → password_reset
+/mot-de-passe-oublie/envoye/               → password_reset_done
+/reinitialiser/<uidb64>/<token>/           → password_reset_confirm
+/reinitialiser/termine/                    → password_reset_complete
 /admin-panel/utilisateurs/                 → admin_utilisateurs
 /admin-panel/utilisateurs/<id>/            → admin_eleve_detail
 /admin-panel/utilisateurs/<id>/toggle/     → admin_toggle_actif
@@ -116,6 +120,19 @@ Admins can simulate the exact student view for any level without creating dummy 
 /progression/quiz/<pk>/soumettre/          → soumettre_quiz
 /progression/quiz-chapitre/<pk>/soumettre/ → soumettre_quiz_chapitre
 ```
+
+## Error Pages
+- `handler404` → `config.views.custom_404` renders `templates/404.html` (extends `base.html`)
+- `handler500` → `config.views.custom_500` renders `templates/500.html` (self-contained, no DB or template inheritance)
+
+## Password Reset
+Uses Django's built-in `PasswordResetView` flow with French templates in `templates/registration/`. Console email backend in dev, Brevo SMTP in production. Settings in `config/settings/development.py` and `production.py`.
+
+## Testing
+- **Stack**: `pytest` 8.3 + `pytest-django` 4.9, config in `backend/pytest.ini`
+- **Test files**: `users/tests.py`, `courses/tests.py`, `progress/tests.py`
+- **Run locally**: `docker compose run --rm --entrypoint pytest web -v --tb=short`
+- **CI**: GitHub Actions (`.github/workflows/ci.yml`) — runs on push/PR to `main` with PostgreSQL 16 service container
 
 ## Dev Workflow
 ```bash

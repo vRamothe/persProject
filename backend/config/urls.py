@@ -24,3 +24,6 @@ if settings.DEBUG:
 admin.site.site_header = "ScienceLycée — Administration"
 admin.site.site_title = "ScienceLycée"
 admin.site.index_title = "Panneau d'administration"
+
+handler404 = "config.views.custom_404"
+handler500 = "config.views.custom_500"

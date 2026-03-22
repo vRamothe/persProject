@@ -25,6 +25,10 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 - **Admin Preview Mode**: session key `request.session["preview_niveau"]` lets admins simulate the student view for a specific level; views `preview_niveau_view` / `exit_preview_view` in `users/views.py`; URLs `preview_niveau` / `exit_preview` in `users/urls.py`; `matieres_view` and `lecon_view` respect this key; progress writes are skipped during preview
 - **Dark mode**: toggle button (sun/moon) in header and floating button on auth pages; theme stored in `localStorage`; `<html>` gets/loses `dark` class; anti-flash init script in `<head>` of `base.html`; all dark styles are global CSS overrides in `base.html` — never add `dark:` classes to child templates
 - Docker Compose workflow with the custom entrypoint that runs `migrate → seed_data → collectstatic → gunicorn`
+- **Password reset**: Django built-in `PasswordResetView` flow with French templates in `templates/registration/`; console email backend (dev), Brevo SMTP (prod)
+- **Error pages**: `handler404` → `config.views.custom_404` (extends `base.html`), `handler500` → `config.views.custom_500` (self-contained HTML)
+- **Testing**: `pytest` 8.3 + `pytest-django` 4.9, config in `backend/pytest.ini`; run via `docker compose run --rm --entrypoint pytest web -v --tb=short`
+- **CI**: GitHub Actions (`.github/workflows/ci.yml`) on push/PR to `main` with PostgreSQL 16 service container
 
 ## Constraints
 
@@ -70,6 +74,10 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 | Seed content | `courses/management/commands/seed_content.py` |
 | Settings | `config/settings/base.py` (or `development.py` / `production.py` for env-specific) |
 | Docker / deploy | `backend/Dockerfile`, `backend/entrypoint.sh`, `docker-compose.yml`, `nginx/nginx.conf` |
+| Password reset | `users/urls.py` (4 reset routes), `templates/registration/password_reset*.html`, `config/settings/development.py` + `production.py` |
+| Error pages | `config/views.py` (`custom_404`, `custom_500`), `config/urls.py` (handlers), `templates/404.html`, `templates/500.html` |
+| Tests | `users/tests.py`, `courses/tests.py`, `progress/tests.py`, `backend/pytest.ini` |
+| CI | `.github/workflows/ci.yml` |
 
 ## Self-Update Rule
 

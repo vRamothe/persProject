@@ -25,3 +25,7 @@ else:
 
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+
+# Email — print to console in dev
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "ScienceLycée <noreply@sciencelycee.fr>"
