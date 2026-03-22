@@ -71,7 +71,7 @@
 | 28 | ~~**Content admin UX — bulk import**~~ ✅ | Tool | Sonnet | `import_questions` management command; CSV with `quiz_lecon_slug`, `texte`, `type`, `reponse_correcte`, `options` (JSON), `tolerances` (JSON), `difficulte`; `--dry-run` flag. |
 | 29 | ~~**Admin content analytics**~~ ✅ | Feature | Sonnet | `admin_analytics_view` at `/admin-panel/analytics/`; weak questions (<40% success), lesson completion %, chapter quiz pass rates. |
 | 30 | ~~**Full-text search**~~ ✅ | Feature | Sonnet | `recherche_view` at `/cours/recherche/`; PostgreSQL `SearchVector` + `SearchRank` on `Lecon.titre` + `contenu`; niveau-filtered for students; top 20 results. |
-| 31 | ~~**PDF export of lessons**~~ ✅ | Feature | Sonnet | `lecon_pdf_view` at `/cours/lecon/<pk>/pdf/`; `weasyprint` renders `lecon_pdf.html` (standalone KaTeX + print CSS). |
+| 31 | ~~**PDF export of lessons**~~ ✅ | Feature | Sonnet | `lecon_pdf_view` at `/cours/lecon/<pk>/pdf/`; LaTeX→DVI→dvisvgm→SVG pipeline for native-quality math rendering; WeasyPrint renders `lecon_pdf.html` with inline SVG equations. |
 | 32 | **Accessibility (a11y)** | Tech | **Opus** | `aria-label`, focus management after HTMX swaps, `<fieldset>`/`<legend>` on quiz radios. |
 | 33 | ~~**Logging & monitoring**~~ ✅ | Infra | Sonnet | Full Django `LOGGING` dict in `base.py`; Sentry (`sentry-sdk[django]`) init in `production.py` via `SENTRY_DSN` env var; `health_view` at `/health/` returns `{"status":"ok"}`. |
 | 34 | ~~**Database backups**~~ ✅ | Infra | Sonnet | `heroku pg:backups:schedule DATABASE_URL --at '02:00 UTC'`; restore with `heroku pg:backups:restore`. No code changes needed. |
@@ -93,6 +93,6 @@
 - ~~Bulk import~~ (#28) — `import_questions` management command (CSV + `--dry-run`)
 - ~~Admin analytics~~ (#29) — weak questions, lesson completion, chapter quiz pass rates
 - ~~Full-text search~~ (#30) — PostgreSQL `SearchVector` + `SearchRank` at `/cours/recherche/`
-- ~~PDF export~~ (#31) — WeasyPrint at `/cours/lecon/<pk>/pdf/`
+- ~~PDF export~~ (#31) — WeasyPrint at `/cours/lecon/<pk>/pdf/` with LaTeX→SVG math rendering (TeX Live + dvisvgm)
 - ~~Logging & monitoring~~ (#33) — Django `LOGGING`, Sentry (prod), `/health/` endpoint
 - ~~Database backups~~ (#34) — Heroku `pg:backups:schedule`

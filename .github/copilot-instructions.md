@@ -6,12 +6,12 @@ ScienceLycée is a French high-school e-learning platform for Physics, Chemistry
 ## Stack
 | Layer | Technology |
 |-------|------------|
-| Backend | Python 3.12, Django 5.1, PostgreSQL 16 — `django-axes` (rate limiting), `weasyprint` (PDF), `sentry-sdk[django]` (monitoring) |
+| Backend | Python 3.12, Django 5.1, PostgreSQL 16 — `django-axes` (rate limiting), `weasyprint` (PDF), `sentry-sdk[django]` (monitoring), TeX Live + `dvisvgm` (LaTeX→SVG for PDF math) |
 | Frontend | Tailwind CSS (CDN, `darkMode: 'class'`), HTMX 1.9, Alpine.js 3.14, Chart.js 4.4 (dashboard) |
-| Math rendering | KaTeX 0.16.9 (auto-render) |
+| Math rendering | KaTeX 0.16.9 (auto-render, web) · TeX Live + dvisvgm (LaTeX→SVG, PDF export) |
 | Content | Markdown rendered server-side via `python-markdown` with LaTeX protection |
 | Auth | Custom `users.CustomUser` (email-based, `AUTH_USER_MODEL`) |
-| Deploy | Docker Compose (dev) — `db` (postgres), `web` (gunicorn + `--reload`), `nginx` · Heroku (prod) — `heroku.yml` container deploy |
+| Deploy | Docker Compose (dev) — `db` (postgres), `web` (gunicorn + `--reload`), `nginx` · Heroku (prod) — `heroku.yml` container deploy · Dockerfile includes `texlive-latex-base texlive-latex-recommended texlive-fonts-recommended dvisvgm` for PDF math |
 | Config | `python-decouple` + `.env`, settings split: `base / development / production` |
 
 ## Django App Structure
@@ -196,6 +196,15 @@ Admin credentials from `.env`: `FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`.
 - `python manage.py import_questions <csv_file>` — columns: `quiz_lecon_slug`, `texte`, `type`, `reponse_correcte`, `options` (JSON), `tolerances` (JSON), `explication`, `points`, `ordre`, `difficulte`
 - `--dry-run` flag: validates without writing to DB
 - Rows with missing `reponse_correcte` or unknown `quiz_lecon_slug` are skipped with a warning
+
+## PDF Export & LaTeX Rendering
+- `lecon_pdf_view` at `/cours/lecon/<pk>/pdf/` — login required
+- **Pipeline**: Markdown content → `_proteger_latex()` (replaces `$$...$$` and `$...$` with placeholders) → `python-markdown` → `_restaurer_latex_svg()` (compiles equations via LaTeX engine + dvisvgm, embeds inline SVG) → WeasyPrint renders HTML→PDF
+- **LaTeX compilation**: `_compiler_equations_latex()` generates a single `.tex` file (all equations, one per `\newpage`), runs `latex -interaction=nonstopmode` → DVI, then `dvisvgm --no-fonts --exact-bbox` → one SVG per page with `<path>` glyphs (no font dependency)
+- **SVG cleanup**: `_nettoyer_svg(svg, prefix)` strips XML prologue/comments, prefixes all `id`/`href` attributes with `eq{n}-` to avoid WeasyPrint "Anchor defined twice" collisions
+- **Dockerfile packages**: `texlive-latex-base`, `texlive-latex-recommended`, `texlive-fonts-recommended`, `dvisvgm`, `fonts-stix`
+- **Pinned deps**: `weasyprint==62.3`, `pydyf==0.11.0` (0.12.x breaks WeasyPrint's `super().transform()`)
+- **Template**: `lecon_pdf.html` — CSS classes `.math-inline` (inline SVG, `vertical-align: middle`) and `.math-block` (centred display equations)
 
 ## Self-Update Rule
 When you make changes that affect the project structure, models, URL routes, features, or conventions documented in this file or in `.github/agents/sciencelycee-dev.agent.md`, **update both files** to reflect the new state before finishing your task. Keep these files as the single source of truth for the project.

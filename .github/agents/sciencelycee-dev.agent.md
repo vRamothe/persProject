@@ -27,7 +27,7 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 - **Email verification**: `InscriptionView` sets `is_active=False`; `_envoyer_email_verification()` sends signed token (salt=`email-verification`, max_age=86400); `verifier_email_view` validates, activates, auto-logins; bad/expired tokens → HTTP 400
 - **Sitemaps**: `CatalogueSitemap` + `LeconPubliqueSitemap` (gratuit=True only) in `courses/sitemaps.py`; `/sitemap.xml` registered in `config/urls.py`
 - **Full-text search**: `recherche_view` at `/cours/recherche/`; PostgreSQL `SearchVector` + `SearchRank` on `Lecon.titre` + `contenu`; niveau-filtered for students; up to 20 results
-- **PDF export**: `lecon_pdf_view` at `/cours/lecon/<pk>/pdf/`; WeasyPrint renders standalone `lecon_pdf.html` (KaTeX CDN + print CSS)
+- **PDF export**: `lecon_pdf_view` at `/cours/lecon/<pk>/pdf/`; LaTeX→DVI→dvisvgm→SVG pipeline for native-quality math; WeasyPrint renders `lecon_pdf.html` with inline SVG equations. Helper functions: `_proteger_latex()` (placeholder protection), `_restaurer_latex_svg()` (orchestrator), `_compiler_equations_latex()` (single LaTeX call, one equation per page), `_nettoyer_svg(prefix)` (cleanup + ID prefixing to avoid collisions). Dockerfile includes `texlive-latex-base`, `texlive-latex-recommended`, `texlive-fonts-recommended`, `dvisvgm`
 - **Admin analytics**: `admin_analytics_view` at `/admin-panel/analytics/`; weak questions (<40% success from Leitner), lesson completion %, chapter quiz pass rates; template uses `item.texte` + `item.question_id` (dict, not ORM object)
 - **CSV import**: `python manage.py import_questions <csv_file> [--dry-run]` — columns: `quiz_lecon_slug`, `texte`, `type`, `reponse_correcte`, `options` (JSON), `tolerances` (JSON), `difficulte`
 - **Health check**: `GET /health/` returns `{"status":"ok"}` with no auth required
@@ -85,7 +85,7 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 | Public homepage | `config/urls.py` (`_home_view`) + `courses/views.py` (`accueil_view`) + `templates/courses/accueil.html` |
 | Lesson notes | `progress/models.py` (`UserNote`) + `progress/views.py` (`sauvegarder_note`) + `templates/courses/lecon.html` (notes panel) |
 | Full-text search | `courses/views.py` (`recherche_view`) + `templates/courses/recherche.html` |
-| PDF export | `courses/views.py` (`lecon_pdf_view`) + `templates/courses/lecon_pdf.html` |
+| PDF export | `courses/views.py` (`lecon_pdf_view`, `_proteger_latex`, `_restaurer_latex_svg`, `_compiler_equations_latex`, `_nettoyer_svg`) + `templates/courses/lecon_pdf.html` |
 | Admin analytics | `users/views.py` (`admin_analytics_view`) + `templates/dashboard/admin_analytics.html` |
 | Sitemaps | `courses/sitemaps.py` + `config/urls.py` (sitemaps dict) |
 | Health check | `config/views.py` (`health_view`) + `config/urls.py` |

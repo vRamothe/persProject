@@ -85,7 +85,7 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 | Public homepage | `config/urls.py` (`_home_view`) + `courses/views.py` (`accueil_view`) + `templates/courses/accueil.html` |
 | Lesson notes | `progress/models.py` (`UserNote`) + `progress/views.py` (`sauvegarder_note`) + `templates/courses/lecon.html` (notes panel) |
 | Full-text search | `courses/views.py` (`recherche_view`) + `templates/courses/recherche.html` |
-| PDF export | `courses/views.py` (`lecon_pdf_view`) + `templates/courses/lecon_pdf.html` |
+| PDF export | `courses/views.py` (`lecon_pdf_view`, `_proteger_latex`, `_restaurer_latex_svg`, `_compiler_equations_latex`, `_nettoyer_svg`) + `templates/courses/lecon_pdf.html` |
 | Admin analytics | `users/views.py` (`admin_analytics_view`) + `templates/dashboard/admin_analytics.html` |
 | Sitemaps | `courses/sitemaps.py` + `config/urls.py` (sitemaps dict) |
 | Health check | `config/views.py` (`health_view`) + `config/urls.py` |
