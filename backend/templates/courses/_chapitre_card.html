@@ -1,0 +1,128 @@
+{% with chap=chap_item.chapitre %}
+<div class="px-5 py-4 space-y-3 {% if not chap_item.debloque %}opacity-60{% endif %}"
+     x-data="{ ouvertChapitre: false }">
+
+  <div class="flex items-center gap-4">
+    <!-- Icône statut -->
+    <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-sm font-bold
+                {% if chap_item.nb_terminees == chap_item.nb_lecons and chap_item.nb_lecons > 0 %}
+                  bg-emerald-100 text-emerald-700
+                {% elif chap_item.debloque %}
+                  {% if matiere.nom == 'physique' %}bg-blue-100 text-blue-700
+                  {% elif matiere.nom == 'chimie' %}bg-emerald-100 text-emerald-700
+                  {% else %}bg-purple-100 text-purple-700{% endif %}
+                {% else %}bg-gray-100 text-gray-400{% endif %}">
+      {% if not chap_item.debloque %}
+        🔒
+      {% elif chap_item.nb_terminees == chap_item.nb_lecons and chap_item.nb_lecons > 0 %}
+        ✓
+      {% else %}
+        {{ chap.ordre }}
+      {% endif %}
+    </div>
+
+    <!-- Infos chapitre -->
+    <div class="flex-1 min-w-0">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          {% if chap_item.debloque %}
+          <a href="{% url 'chapitre' chap.pk %}"
+             class="font-semibold text-gray-800 hover:text-indigo-600 transition-colors text-sm">
+            {{ chap.titre }}
+          </a>
+          {% else %}
+          <span class="font-semibold text-gray-500 text-sm">{{ chap.titre }}</span>
+          {% endif %}
+          <p class="text-xs text-gray-500 mt-0.5">
+            {{ chap_item.nb_lecons }} leçon{% if chap_item.nb_lecons > 1 %}s{% endif %}
+            {% if chap_item.debloque and chap_item.nb_lecons > 0 %}
+              &mdash; {{ chap_item.nb_terminees }}/{{ chap_item.nb_lecons }} terminée{% if chap_item.nb_terminees > 1 %}s{% endif %}
+            {% endif %}
+          </p>
+        </div>
+        {% if not chap_item.debloque %}
+        <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full flex-shrink-0">Verrouillé</span>
+        {% elif chap_item.nb_terminees == chap_item.nb_lecons and chap_item.nb_lecons > 0 %}
+        <span class="text-xs text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full flex-shrink-0">Terminé ✓</span>
+        {% endif %}
+      </div>
+
+      <!-- Barre de progression -->
+      {% if chap_item.debloque and chap_item.nb_lecons > 0 %}
+      <div class="mt-2 bg-gray-100 rounded-full h-1.5">
+        <div class="h-1.5 rounded-full transition-all duration-500
+                    {% if matiere.nom == 'physique' %}bg-blue-500
+                    {% elif matiere.nom == 'chimie' %}bg-emerald-500
+                    {% else %}bg-purple-500{% endif %}"
+             style="width: {{ chap_item.progression_pct }}%"></div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Boutons -->
+    <div class="flex-shrink-0 flex items-center gap-2">
+      <button type="button"
+              @click="ouvertChapitre = !ouvertChapitre"
+              {% if chap_item.nb_lecons == 0 %}disabled{% endif %}
+              class="text-xs font-semibold px-3 py-2 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                     {% if matiere.nom == 'physique' %}border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100
+                     {% elif matiere.nom == 'chimie' %}border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100
+                     {% else %}border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100{% endif %}">
+        <span x-text="ouvertChapitre ? 'Masquer les leçons' : 'Voir les leçons'"></span>
+      </button>
+
+      {% if chap_item.debloque %}
+      <a href="{% url 'chapitre' chap.pk %}"
+         class="text-xs font-semibold px-3 py-2 rounded-lg transition-colors
+                {% if matiere.nom == 'physique' %}bg-blue-600 hover:bg-blue-700 text-white
+                {% elif matiere.nom == 'chimie' %}bg-emerald-600 hover:bg-emerald-700 text-white
+                {% else %}bg-purple-600 hover:bg-purple-700 text-white{% endif %}">
+        Ouvrir le cours
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Liste des leçons (dépliable) -->
+  <div x-show="ouvertChapitre" x-transition.duration.200ms class="pl-14 pr-2 pb-1">
+    {% if chap_item.lecons %}
+    <ul class="space-y-2">
+      {% for lecon_item in chap_item.lecons %}
+      {% with lecon=lecon_item.lecon %}
+      <li class="flex items-center justify-between gap-3 rounded-lg border border-gray-100 px-3 py-2 bg-gray-50">
+        <div class="min-w-0">
+          {% if chap_item.debloque %}
+          <a href="{% url 'lecon' lecon.pk %}" class="text-sm font-medium text-gray-800 hover:text-indigo-600 transition-colors">
+            {{ lecon.ordre }}. {{ lecon.titre }}
+          </a>
+          {% else %}
+          <span class="text-sm font-medium text-gray-500">{{ lecon.ordre }}. {{ lecon.titre }}</span>
+          {% endif %}
+          <p class="text-xs text-gray-500 mt-0.5">
+            ≈ {{ lecon.duree_estimee }} min
+            {% if lecon.has_quiz %}&mdash; Quiz{% endif %}
+          </p>
+        </div>
+
+        {% if chap_item.debloque %}
+          {% if lecon_item.statut == 'termine' %}
+          <span class="text-xs text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Terminée</span>
+          {% elif lecon_item.statut == 'en_cours' %}
+          <span class="text-xs text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">En cours</span>
+          {% else %}
+          <span class="text-xs text-gray-600 bg-gray-200 px-2 py-0.5 rounded-full">À faire</span>
+          {% endif %}
+        {% else %}
+        <span class="text-xs text-gray-400 bg-gray-200 px-2 py-0.5 rounded-full">🔒 Verrouillée</span>
+        {% endif %}
+      </li>
+      {% endwith %}
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-xs text-gray-400">Aucune leçon pour ce cours.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endwith %}

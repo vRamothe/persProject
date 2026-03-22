@@ -234,16 +234,9 @@ def matieres_view(request):
         for p in UserProgression.objects.filter(user=user).only("lecon_id", "statut")
     }
 
-    matieres_data = []
-    for matiere in matieres:
-        if user.is_admin and not preview_niveau:
-            chapitres = matiere.chapitres.all()
-        else:
-            niveau_filtre = preview_niveau or user.niveau
-            chapitres = matiere.chapitres.filter(niveau=niveau_filtre)
-
+    def _build_chapitres_data(chapitres_qs):
         chapitres_data = []
-        for chap in chapitres.order_by("ordre"):
+        for chap in chapitres_qs.order_by("ordre"):
             lecons = sorted(chap.lecons.all(), key=lambda lecon: lecon.ordre)
             lecons_data = []
             nb_terminees = 0
@@ -264,13 +257,39 @@ def matieres_view(request):
                 "nb_terminees": nb_terminees,
                 "progression_pct": int(nb_terminees / len(lecons_data) * 100) if lecons_data else 0,
             })
+        return chapitres_data
 
-        matieres_data.append({
-            "matiere": matiere,
-            "chapitres": chapitres_data,
-        })
+    is_admin_browse = user.is_admin and not preview_niveau
+    niveaux_labels = {"seconde": "Seconde", "premiere": "Première", "terminale": "Terminale"}
 
-    return render(request, "courses/matieres.html", {"matieres_data": matieres_data})
+    matieres_data = []
+    for matiere in matieres:
+        if is_admin_browse:
+            niveaux_data = []
+            for niv_val, niv_label in niveaux_labels.items():
+                chapitres_qs = matiere.chapitres.filter(niveau=niv_val)
+                if chapitres_qs.exists():
+                    niveaux_data.append({
+                        "niveau_val": niv_val,
+                        "niveau_label": niv_label,
+                        "chapitres": _build_chapitres_data(chapitres_qs),
+                    })
+            matieres_data.append({
+                "matiere": matiere,
+                "niveaux": niveaux_data,
+            })
+        else:
+            niveau_filtre = preview_niveau or user.niveau
+            chapitres = matiere.chapitres.filter(niveau=niveau_filtre)
+            matieres_data.append({
+                "matiere": matiere,
+                "chapitres": _build_chapitres_data(chapitres),
+            })
+
+    return render(request, "courses/matieres.html", {
+        "matieres_data": matieres_data,
+        "is_admin_browse": is_admin_browse,
+    })
 
 
 @login_required
