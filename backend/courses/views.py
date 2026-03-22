@@ -8,6 +8,36 @@ from django.utils.decorators import method_decorator
 from django.views import View
 
 from .models import Matiere, Chapitre, Lecon, Question
+from collections import defaultdict
+
+
+def _selectionner_questions_chapitre(chapitre, nb_total=10):
+    """Sélectionne questions avec mix équilibré facile/moyen/difficile."""
+    toutes = list(
+        Question.objects.filter(quiz__lecon__chapitre=chapitre).select_related("quiz")
+    )
+    if not toutes:
+        return []
+
+    par_difficulte = defaultdict(list)
+    for q in toutes:
+        par_difficulte[q.difficulte].append(q)
+
+    quotas = {"facile": 4, "moyen": 4, "difficile": 2}
+    selection = []
+    for diff, quota in quotas.items():
+        pool = par_difficulte[diff][:]
+        random.shuffle(pool)
+        selection.extend(pool[:quota])
+
+    if len(selection) < nb_total:
+        already = {q.id for q in selection}
+        reste = [q for q in toutes if q.id not in already]
+        random.shuffle(reste)
+        selection.extend(reste[:nb_total - len(selection)])
+
+    random.shuffle(selection)
+    return selection[:nb_total]
 
 
 def _extraire_youtube_id(url):
@@ -178,7 +208,7 @@ def lecon_view(request, lecon_pk):
     if not user.is_admin and chapitre.niveau != user.niveau:
         return redirect("matieres")
 
-    from progress.models import ChapitreDebloque, UserProgression, StatutLeconChoices
+    from progress.models import ChapitreDebloque, UserProgression, StatutLeconChoices, UserNote
 
     # Vérifier que le chapitre est débloqué
     if not user.is_admin:
@@ -235,6 +265,9 @@ def lecon_view(request, lecon_pk):
         # Marqueur présent mais pas de vidéo configurée — retirer le placeholder
         contenu_html = contenu_html.replace(video_placeholder, "", 1)
 
+    # Note personnelle de l'élève pour cette leçon
+    note = UserNote.objects.filter(user=user, lecon=lecon).first()
+
     context = {
         "lecon": lecon,
         "chapitre": chapitre,
@@ -245,6 +278,7 @@ def lecon_view(request, lecon_pk):
         "est_terminee": est_terminee,
         "youtube_id": youtube_id,
         "video_in_content": video_in_content,
+        "note": note,
     }
     return render(request, "courses/lecon.html", context)
 
@@ -304,16 +338,12 @@ def quiz_chapitre_view(request, chapitre_pk):
         if not ChapitreDebloque.objects.filter(user=user, chapitre=chapitre).exists():
             return redirect("matieres")
 
-    # Rassembler toutes les questions des quiz de ce chapitre
-    toutes_questions = list(
-        Question.objects.filter(quiz__lecon__chapitre=chapitre).select_related("quiz")
-    )
+    # Rassembler les questions avec tirage équilibré facile/moyen/difficile
+    questions = _selectionner_questions_chapitre(chapitre, nb_total=10)
 
-    if not toutes_questions:
+    if not questions:
         return redirect("chapitre", chapitre_pk=chapitre_pk)
 
-    nb_tirage = min(10, len(toutes_questions))
-    questions = random.sample(toutes_questions, nb_tirage)
     question_ids = ",".join(str(q.id) for q in questions)
 
     resultat_existant = UserChapitreQuizResultat.objects.filter(user=user, chapitre=chapitre).first()
@@ -322,7 +352,7 @@ def quiz_chapitre_view(request, chapitre_pk):
         "chapitre": chapitre,
         "questions": questions,
         "question_ids": question_ids,
-        "nb_total_questions": len(toutes_questions),
+        "nb_total_questions": Question.objects.filter(quiz__lecon__chapitre=chapitre).count(),
         "resultat_existant": resultat_existant,
         "score_minimum": 80,
     }
@@ -385,12 +415,17 @@ def revisions_view(request):
 def soumettre_revisions(request):
     """Soumission du quiz de révision espacée."""
     from datetime import date
+    from django.http import HttpResponse
     from progress.models import UserQuestionHistorique
+    from progress.views import _check_quiz_rate_limit, _evaluer_reponses
 
     if request.method != "POST":
         return redirect("revisions")
 
     user = request.user
+
+    if _check_quiz_rate_limit(user.id):
+        return HttpResponse("Trop de soumissions. Veuillez patienter une minute.", status=429)
 
     question_ids_raw = request.POST.get("question_ids", "")
     if not question_ids_raw:
@@ -403,47 +438,16 @@ def soumettre_revisions(request):
 
     questions = list(Question.objects.filter(id__in=question_ids).select_related("quiz__lecon__chapitre__matiere"))
 
-    corrections = []
-    for question in questions:
-        cle = f"question_{question.id}"
-        reponse = request.POST.get(cle, "").strip()
+    corrections, _, _ = _evaluer_reponses(questions, request.POST)
 
-        correct = reponse.lower() == str(question.reponse_correcte).strip().lower()
-        if not correct and question.type == "texte_libre" and question.tolerances:
-            normalized = reponse.strip().lower()
-            for alt in question.tolerances:
-                if normalized == str(alt).strip().lower():
-                    correct = True
-                    break
-
-        # Mettre à jour le Leitner
+    # Mettre à jour le Leitner pour chaque question
+    for c in corrections:
         hist, _ = UserQuestionHistorique.objects.get_or_create(
             user=user,
-            question=question,
+            question=c["question"],
             defaults={"prochaine_revision": date.today()},
         )
-        hist.enregistrer_reponse(correct)
-
-        if question.type == "qcm" and question.options:
-            try:
-                reponse_donnee_texte = question.options[int(reponse)] if reponse.isdigit() else reponse
-            except (IndexError, ValueError):
-                reponse_donnee_texte = reponse
-            try:
-                reponse_correcte_texte = question.options[int(question.reponse_correcte)]
-            except (IndexError, ValueError):
-                reponse_correcte_texte = question.reponse_correcte
-        else:
-            reponse_donnee_texte = reponse if reponse else "—"
-            reponse_correcte_texte = question.reponse_correcte
-
-        corrections.append({
-            "question": question,
-            "reponse_donnee": reponse,
-            "reponse_donnee_texte": reponse_donnee_texte,
-            "reponse_correcte_texte": reponse_correcte_texte,
-            "correct": correct,
-        })
+        hist.enregistrer_reponse(c["correct"])
 
     nb_bonnes_reponses = sum(1 for c in corrections if c["correct"])
     score = round(nb_bonnes_reponses / len(corrections) * 100, 1) if corrections else 0
@@ -604,3 +608,66 @@ def accueil_view(request):
     return render(request, "courses/accueil.html", {
         "matieres_data": matieres_data,
     })
+
+
+@login_required
+def recherche_view(request):
+    """Recherche plein-texte dans les leçons (titre + contenu) — PostgreSQL SearchVector."""
+    from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+
+    query_str = request.GET.get("q", "").strip()
+    results = []
+
+    if len(query_str) >= 2:
+        user = request.user
+        query = SearchQuery(query_str, config="french")
+        vector = SearchVector("titre", weight="A", config="french") + SearchVector("contenu", weight="B", config="french")
+        lecons_qs = (
+            Lecon.objects.select_related("chapitre__matiere")
+            .annotate(rank=SearchRank(vector, query))
+            .filter(rank__gt=0)
+            .order_by("-rank")
+        )
+        # Filtrer selon le niveau si l'utilisateur est un élève
+        if not user.is_admin:
+            lecons_qs = lecons_qs.filter(chapitre__niveau=user.niveau)
+        results = lecons_qs[:20]
+
+    return render(request, "courses/recherche.html", {
+        "results": results,
+        "query": query_str,
+    })
+
+
+@login_required
+def lecon_pdf_view(request, lecon_pk):
+    """Génère et renvoie la leçon en PDF via WeasyPrint."""
+    from weasyprint import HTML
+    from django.http import HttpResponse
+    from django.template.loader import render_to_string
+
+    lecon = get_object_or_404(Lecon.objects.select_related("chapitre__matiere"), pk=lecon_pk)
+    user = request.user
+
+    # Vérification d'accès niveau
+    if not user.is_admin and lecon.chapitre.niveau != user.niveau:
+        return redirect("matieres")
+
+    contenu_protege, placeholders_latex = _proteger_latex(lecon.contenu)
+    md = markdown.Markdown(extensions=["extra", "tables", "toc", "nl2br"])
+    contenu_html = md.convert(contenu_protege)
+    contenu_html = _restaurer_latex(contenu_html, placeholders_latex)
+
+    html_string = render_to_string("courses/lecon_pdf.html", {
+        "lecon": lecon,
+        "chapitre": lecon.chapitre,
+        "contenu_html": contenu_html,
+        "request": request,
+    })
+
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri("/")).write_pdf()
+
+    response = HttpResponse(pdf_file, content_type="application/pdf")
+    safe_titre = lecon.titre.replace(" ", "_")[:50]
+    response["Content-Disposition"] = f'attachment; filename="{safe_titre}.pdf"'
+    return response

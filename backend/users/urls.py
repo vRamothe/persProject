@@ -6,6 +6,8 @@ from . import views
 urlpatterns = [
     path("connexion/", views.ConnexionView.as_view(), name="connexion"),
     path("inscription/", views.InscriptionView.as_view(), name="inscription"),
+    path("inscription/confirmation/", views.inscription_confirmation_view, name="inscription_confirmation"),
+    path("verifier-email/<str:token>/", views.verifier_email_view, name="verifier_email"),
     path("deconnexion/", views.deconnexion_view, name="deconnexion"),
     path("tableau-de-bord/", views.TableauDeBordView.as_view(), name="tableau_de_bord"),
     path("profil/", views.ProfilView.as_view(), name="profil"),
@@ -33,4 +35,5 @@ urlpatterns = [
     path("admin-panel/utilisateurs/<int:user_id>/chapitre/<int:chapitre_id>/toggle/", views.admin_toggle_chapitre, name="admin_toggle_chapitre"),
     path("admin-panel/preview/<str:niveau>/", views.preview_niveau_view, name="preview_niveau"),
     path("admin-panel/preview/exit/", views.exit_preview_view, name="exit_preview"),
+    path("admin-panel/analytics/", views.admin_analytics_view, name="admin_analytics"),
 ]

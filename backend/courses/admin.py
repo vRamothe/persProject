@@ -79,11 +79,11 @@ class QuizAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ["texte_court", "quiz", "type", "points", "ordre"]
-    list_filter = ["type"]
+    list_display = ["texte_court", "quiz", "type", "difficulte", "points", "ordre"]
+    list_filter = ["type", "difficulte"]
     search_fields = ["texte", "quiz__lecon__titre"]
     fieldsets = [
-        (None, {"fields": ["quiz", "ordre", "type", "texte", "points"]}),
+        (None, {"fields": ["quiz", "ordre", "type", "texte", "difficulte", "points"]}),
         ("Réponse", {"fields": ["options", "reponse_correcte", "tolerances", "explication"],
                      "description": "Pour Texte libre : laissez «&nbsp;Options&nbsp;» vide. "
                                     "«&nbsp;Réponses alternatives&nbsp;» accepte d'autres formulations, ex: [\"azote\", \"N₂\"]."}),

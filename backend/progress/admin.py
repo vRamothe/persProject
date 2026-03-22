@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserProgression, UserQuizResultat, ChapitreDebloque, UserChapitreQuizResultat, UserQuestionHistorique
+from .models import UserProgression, UserQuizResultat, ChapitreDebloque, UserChapitreQuizResultat, UserQuestionHistorique, UserNote
 
 
 @admin.register(UserProgression)
@@ -34,3 +34,10 @@ class UserQuestionHistoriqueAdmin(admin.ModelAdmin):
     list_display = ["user", "question", "boite", "prochaine_revision", "derniere_reponse_correcte", "nb_bonnes", "nb_total"]
     list_filter = ["boite", "derniere_reponse_correcte"]
     raw_id_fields = ["user", "question"]
+
+
+@admin.register(UserNote)
+class UserNoteAdmin(admin.ModelAdmin):
+    list_display = ["user", "lecon", "updated_at"]
+    search_fields = ["user__email", "lecon__titre"]
+    raw_id_fields = ["user", "lecon"]

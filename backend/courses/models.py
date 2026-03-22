@@ -20,6 +20,12 @@ class TypeQuestionChoices(models.TextChoices):
     TEXTE_LIBRE = "texte_libre", "Réponse texte libre"
 
 
+class DifficulteChoices(models.TextChoices):
+    FACILE = "facile", "Facile"
+    MOYEN = "moyen", "Moyen"
+    DIFFICILE = "difficile", "Difficile"
+
+
 MATIERE_COULEURS = {
     "physique": {"bg": "bg-blue-600", "light": "bg-blue-50", "text": "text-blue-600", "border": "border-blue-200", "hex": "#2563eb"},
     "chimie": {"bg": "bg-emerald-600", "light": "bg-emerald-50", "text": "text-emerald-600", "border": "border-emerald-200", "hex": "#059669"},
@@ -184,6 +190,12 @@ class Question(models.Model):
         help_text='Texte libre uniquement — liste de variantes acceptées : ["réponse alt 1", "réponse alt 2"]',
     )
     explication = models.TextField(blank=True, verbose_name="Explication de la réponse")
+    difficulte = models.CharField(
+        max_length=20,
+        choices=DifficulteChoices.choices,
+        default=DifficulteChoices.MOYEN,
+        verbose_name="Difficulté",
+    )
     points = models.PositiveIntegerField(default=1, verbose_name="Points")
     ordre = models.PositiveIntegerField(default=1, verbose_name="Ordre")
 

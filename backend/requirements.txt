@@ -9,3 +9,6 @@ python-decouple==3.8
 Pillow==11.0.0
 pytest==8.3.4
 pytest-django==4.9.0
+django-axes==7.0.0
+weasyprint==62.3
+sentry-sdk[django]==2.19.0

@@ -6,7 +6,7 @@ ScienceLycée is a French high-school e-learning platform for Physics, Chemistry
 ## Stack
 | Layer | Technology |
 |-------|------------|
-| Backend | Python 3.12, Django 5.1, PostgreSQL 16 |
+| Backend | Python 3.12, Django 5.1, PostgreSQL 16 — `django-axes` (rate limiting), `weasyprint` (PDF), `sentry-sdk[django]` (monitoring) |
 | Frontend | Tailwind CSS (CDN, `darkMode: 'class'`), HTMX 1.9, Alpine.js 3.14, Chart.js 4.4 (dashboard) |
 | Math rendering | KaTeX 0.16.9 (auto-render) |
 | Content | Markdown rendered server-side via `python-markdown` with LaTeX protection |
@@ -35,6 +35,8 @@ backend/
 - `courses.Quiz` / `courses.Question` — QCM, Vrai/Faux, or **Texte libre** linked to a Lecon
   - `Question.type` choices: `qcm`, `vrai_faux`, `texte_libre`
   - `Question.tolerances` (JSONField, optional) — accepted alternative answers for `texte_libre`, e.g. `["azote", "N2"]`; comparison is case-insensitive
+  - `Question.difficulte` — `DifficulteChoices` (FACILE/MOYEN/DIFFICILE), default MOYEN
+- `progress.UserNote` — per (user, lecon) student annotation: `contenu` (max 2000 chars), `created_at`, `updated_at`; `unique_together = [("user", "lecon")]`
 - `progress.UserProgression` — per (user, lecon) statut: non_commence / en_cours / termine
 - `progress.UserQuizResultat` — best score, nb_tentatives, passe bool (per lesson quiz)
 - `progress.UserChapitreQuizResultat` — best score, nb_tentatives, passe bool (per chapter quiz, ≥80% to pass)
@@ -43,7 +45,7 @@ backend/
 
 ## Chapter Unlock Flow
 1. Student completes all lessons in a chapter
-2. Chapter quiz becomes available (10 random questions from the chapter's lesson quizzes)
+2. Chapter quiz becomes available — 10 questions selected by `_selectionner_questions_chapitre()` in `courses/views.py` (proportional difficulty: 4 facile + 4 moyen + 2 difficile; falls back to available pool if smaller)
 3. Student must score ≥80% on the chapter quiz to unlock the next chapter
 4. `_verifier_deblocage_chapitre_suivant()` in `progress/views.py` checks for a passing `UserChapitreQuizResultat`
 
@@ -91,8 +93,12 @@ Admins can simulate the exact student view for any level without creating dummy 
 ## URL Map
 ```
 /                                          → home (public accueil for anon, redirect to tableau_de_bord for auth)
+/health/                                   → health_check (JSON {"status":"ok"}, no login required)
+/sitemap.xml                               → sitemap (public, catalogue + free lessons)
 /connexion/                                → connexion
 /inscription/                              → inscription
+/inscription/confirmation/                 → inscription_confirmation
+/verifier-email/<str:token>/               → verifier_email (activates account from signed token)
 /deconnexion/                              → deconnexion
 /tableau-de-bord/                          → tableau_de_bord
 /profil/                                   → profil
@@ -106,19 +112,23 @@ Admins can simulate the exact student view for any level without creating dummy 
 /admin-panel/utilisateurs/<id>/chapitre/<id>/toggle/ → admin_toggle_chapitre
 /admin-panel/preview/<niveau>/             → preview_niveau
 /admin-panel/preview/exit/                 → exit_preview
+/admin-panel/analytics/                    → admin_analytics (admin only)
 /cours/                                    → matieres
+/cours/recherche/                          → recherche (login required; PostgreSQL full-text)
 /cours/revisions/                          → revisions
 /cours/revisions/soumettre/                → soumettre_revisions
 /cours/chapitre/<pk>/                      → chapitre
 /cours/chapitre/<pk>/quiz/                 → quiz_chapitre
 /cours/lecon/<pk>/                         → lecon
 /cours/lecon/<pk>/quiz/                    → quiz
+/cours/lecon/<pk>/pdf/                     → lecon_pdf (WeasyPrint, login required)
 /cours/<matiere_slug>/                     → catalogue_matiere (public, no login)
 /cours/<matiere_slug>/<niveau>/<chapitre_slug>/<lecon_slug>/
                                            → lecon_publique (public if gratuit=True, else redirect to login)
 /progression/terminer/<pk>/                → terminer_lecon
 /progression/quiz/<pk>/soumettre/          → soumettre_quiz
 /progression/quiz-chapitre/<pk>/soumettre/ → soumettre_quiz_chapitre
+/progression/note/<lecon_pk>/sauvegarder/  → sauvegarder_note (HTMX POST, upsert UserNote)
 ```
 
 ## Error Pages
@@ -129,10 +139,11 @@ Admins can simulate the exact student view for any level without creating dummy 
 Uses Django's built-in `PasswordResetView` flow with French templates in `templates/registration/`. Console email backend in dev, Brevo SMTP in production. Settings in `config/settings/development.py` and `production.py`.
 
 ## Testing
-- **Stack**: `pytest` 8.3 + `pytest-django` 4.9, config in `backend/pytest.ini`
+- **Stack**: `pytest` 8.3 + `pytest-django` 4.9, config in `backend/pytest.ini`; 80 tests
 - **Test files**: `users/tests.py`, `courses/tests.py`, `progress/tests.py`
 - **Run locally**: `docker compose run --rm --entrypoint pytest web -v --tb=short`
 - **CI**: GitHub Actions (`.github/workflows/ci.yml`) — runs on push/PR to `main` with PostgreSQL 16 service container
+- **⚠️ Important**: always use `client.force_login(user)` in tests — `client.login(email=, password=)` fails with `AxesBackendRequestParameterRequired` because `django-axes` requires a request object in `authenticate()`
 
 ## Dev Workflow
 ```bash
@@ -164,6 +175,27 @@ Admin credentials from `.env`: `FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`.
 - Forms render with custom widgets defined in `users/forms.py` (Tailwind classes baked in)
 - No JavaScript files — all JS lives inline in templates or in Alpine.js `x-data` blocks
 - Migrations: always run `makemigrations` before `migrate`; never edit migration files manually unless fixing a squash
+
+## Rate Limiting
+- Login: `django-axes` (AXES_FAILURE_LIMIT=5, AXES_COOLOFF_TIME=0.5h, AXES_LOCKOUT_CALLABLE configured)
+- Quiz endpoints: cache-based `_check_quiz_rate_limit(user_id)` — 30 requests/min; returns HTTP 429 if exceeded
+- Middleware: `axes.middleware.AxesMiddleware` in MIDDLEWARE; backend: `axes.backends.AxesStandaloneBackend`
+
+## Email Verification
+- New users are created with `is_active=False`
+- `_envoyer_email_verification(request, user)` signs the user PK with `django.core.signing` (salt=`email-verification`, max_age=86400)
+- `verifier_email_view` validates the token, sets `is_active=True`, logs in the user
+- Tampered/expired tokens return HTTP 400 and render `registration/email_verification_invalid.html`
+
+## Admin Analytics
+- `admin_analytics_view` at `/admin-panel/analytics/` (admin-only, `is_admin` check)
+- Context: `weak_questions` (list of dicts with `question_id`, `texte`, `lecon`, `taux`), `lecon_completion` (dict by lecon PK), `chapitre_pass_rate` (dict by chapitre PK)
+- Template: `templates/dashboard/admin_analytics.html` — uses `item.texte` and `item.question_id` (NOT `item.question.texte`)
+
+## Content Import
+- `python manage.py import_questions <csv_file>` — columns: `quiz_lecon_slug`, `texte`, `type`, `reponse_correcte`, `options` (JSON), `tolerances` (JSON), `explication`, `points`, `ordre`, `difficulte`
+- `--dry-run` flag: validates without writing to DB
+- Rows with missing `reponse_correcte` or unknown `quiz_lecon_slug` are skipped with a warning
 
 ## Self-Update Rule
 When you make changes that affect the project structure, models, URL routes, features, or conventions documented in this file or in `.github/agents/sciencelycee-dev.agent.md`, **update both files** to reflect the new state before finishing your task. Keep these files as the single source of truth for the project.

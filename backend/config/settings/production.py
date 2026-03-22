@@ -29,6 +29,17 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="ScienceLycée <noreply@sciencelycee.fr>")
 
+# Sentry — error tracking
+from decouple import config as _config_sentry
+_sentry_dsn = _config_sentry("SENTRY_DSN", default="")
+if _sentry_dsn:
+    import sentry_sdk
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        traces_sample_rate=0.2,
+        profiles_sample_rate=0.1,
+    )
+
 # Force SSL on Heroku Postgres (DYNO is only set on real Heroku dynos, not local Docker)
 import os as _os
 if _os.environ.get("DYNO") and DATABASES.get("default"):

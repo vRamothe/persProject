@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block full_content %}
+<div class="min-h-screen bg-gradient-to-br from-indigo-950 via-indigo-900 to-purple-900 flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 text-center">
+      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="text-3xl">⚠️</span>
+      </div>
+      <h2 class="text-xl font-bold text-gray-900 mb-3">Lien de vérification invalide</h2>
+      <p class="text-gray-600 text-sm mb-6">
+        Ce lien est expiré ou invalide. Veuillez vous réinscrire ou contacter le support.
+      </p>
+      <a href="{% url 'inscription' %}"
+         class="inline-block px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-colors">
+        Retour à l'inscription
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

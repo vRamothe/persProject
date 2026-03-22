@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Recherche{% endblock %}
+{% block page_title %}Recherche{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+
+  <!-- Barre de recherche -->
+  <form method="get" action="{% url 'recherche' %}" class="flex gap-3">
+    <input type="text" name="q" value="{{ query|default:'' }}"
+           placeholder="Rechercher une leçon, un concept…"
+           class="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"
+           autofocus>
+    <button type="submit"
+            class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-colors">
+      Rechercher
+    </button>
+  </form>
+
+  <!-- Résultats -->
+  {% if query %}
+    {% if results %}
+    <p class="text-sm text-gray-500">{{ results|length }} résultat{% if results|length > 1 %}s{% endif %} pour « <strong class="text-gray-800">{{ query }}</strong> »</p>
+    <div class="space-y-3">
+      {% for lecon in results %}
+      {% with couleurs=lecon.chapitre.matiere.couleurs %}
+      <a href="{% url 'lecon' lecon.pk %}"
+         class="block bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-shadow">
+        <div class="flex items-start gap-3">
+          <span class="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-lg {{ couleurs.bg }} text-white text-sm font-bold">
+            {{ lecon.chapitre.matiere.icone_svg }}
+          </span>
+          <div>
+            <p class="font-semibold text-gray-900 text-sm">{{ lecon.titre }}</p>
+            <p class="text-xs text-gray-500 mt-0.5">
+              {{ lecon.chapitre.matiere.get_nom_display }} · {{ lecon.chapitre.titre }}
+            </p>
+          </div>
+        </div>
+      </a>
+      {% endwith %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 text-gray-400">
+      <span class="text-4xl block mb-3">🔍</span>
+      <p class="text-sm">Aucun résultat pour « {{ query }} ».</p>
+    </div>
+    {% endif %}
+  {% else %}
+  <div class="text-center py-12 text-gray-400">
+    <span class="text-4xl block mb-3">🔍</span>
+    <p class="text-sm">Entrez un mot-clé pour rechercher une leçon.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

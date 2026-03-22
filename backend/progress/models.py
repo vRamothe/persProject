@@ -166,3 +166,30 @@ class UserQuestionHistorique(models.Model):
         intervalle = LEITNER_INTERVALLES[self.boite]
         self.prochaine_revision = date.today() + timedelta(days=intervalle)
         self.save()
+
+
+class UserNote(models.Model):
+    """Note personnelle d'un élève pour une leçon."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notes",
+        verbose_name="Élève",
+    )
+    lecon = models.ForeignKey(
+        "courses.Lecon",
+        on_delete=models.CASCADE,
+        related_name="notes",
+        verbose_name="Leçon",
+    )
+    contenu = models.TextField(blank=True, max_length=2000, verbose_name="Contenu")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Note personnelle"
+        verbose_name_plural = "Notes personnelles"
+        unique_together = [["user", "lecon"]]
+
+    def __str__(self):
+        return f"{self.user.email} — {self.lecon.titre} (note)"

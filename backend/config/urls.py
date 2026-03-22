@@ -3,6 +3,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
+from django.contrib.sitemaps.views import sitemap
+from courses.sitemaps import CatalogueSitemap, LeconPubliqueSitemap
+from . import views
+
+sitemaps = {
+    "catalogue": CatalogueSitemap,
+    "lecons": LeconPubliqueSitemap,
+}
 
 def _home_view(request):
     if request.user.is_authenticated:
@@ -16,6 +24,8 @@ urlpatterns = [
     path("", include("users.urls")),
     path("cours/", include("courses.urls")),
     path("progression/", include("progress.urls")),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
+    path("health/", views.health_view, name="health"),
 ]
 
 if settings.DEBUG:

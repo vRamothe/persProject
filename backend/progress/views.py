@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.core.cache import cache
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 
@@ -39,42 +40,30 @@ def terminer_lecon(request, lecon_pk):
     return redirect(redirect_url)
 
 
-@require_POST
-@login_required
-def soumettre_quiz(request, lecon_pk):
-    """Soumission d'un quiz, calcul du score, mise à jour de la progression."""
-    user = request.user
-    lecon = get_object_or_404(Lecon, pk=lecon_pk)
+def _check_quiz_rate_limit(user_id):
+    """Retourne True si l'utilisateur a dépassé 30 soumissions de quiz par minute."""
+    key = f"quiz_rate_{user_id}"
+    count = cache.get(key, 0)
+    if count >= 30:
+        return True
+    cache.set(key, count + 1, timeout=60)
+    return False
 
-    if not lecon.has_quiz:
-        return redirect("lecon", lecon_pk=lecon_pk)
 
-    if not user.is_admin and lecon.chapitre.niveau != user.niveau:
-        return redirect("matieres")
+def _evaluer_reponses(questions, post_data):
+    """Évalue les réponses soumises pour une liste de questions.
 
-    quiz = lecon.quiz
-
-    # Récupérer les IDs des questions tirées au sort depuis le formulaire
-    question_ids_raw = request.POST.get("question_ids", "")
-    if question_ids_raw:
-        try:
-            question_ids = [int(qid) for qid in question_ids_raw.split(",") if qid.strip()]
-        except ValueError:
-            question_ids = []
-        questions = list(quiz.questions.filter(id__in=question_ids))
-    else:
-        questions = list(quiz.questions.order_by("ordre"))
-
+    Retourne (corrections, points_obtenus, total_points).
+    `corrections` est une liste de dicts avec les clés :
+    question, reponse_donnee, reponse_donnee_texte, reponse_correcte_texte, correct.
+    """
     total_points = sum(q.points for q in questions)
-
     points_obtenus = 0
-    reponses_soumises = {}
     corrections = []
 
     for question in questions:
         cle = f"question_{question.id}"
-        reponse = request.POST.get(cle, "").strip()
-        reponses_soumises[str(question.id)] = reponse
+        reponse = post_data.get(cle, "").strip()
 
         correct = reponse.lower() == str(question.reponse_correcte).strip().lower()
         if not correct and question.type == "texte_libre":
@@ -82,7 +71,6 @@ def soumettre_quiz(request, lecon_pk):
         if correct:
             points_obtenus += question.points
 
-        # Libellés lisibles pour l'affichage dans les corrections
         if question.type == "qcm" and question.options:
             try:
                 reponse_donnee_texte = question.options[int(reponse)] if reponse.isdigit() else reponse
@@ -106,6 +94,42 @@ def soumettre_quiz(request, lecon_pk):
             "reponse_correcte_texte": reponse_correcte_texte,
             "correct": correct,
         })
+
+    return corrections, points_obtenus, total_points
+
+
+@require_POST
+@login_required
+def soumettre_quiz(request, lecon_pk):
+    """Soumission d'un quiz, calcul du score, mise à jour de la progression."""
+    user = request.user
+
+    if _check_quiz_rate_limit(user.id):
+        return HttpResponse("Trop de soumissions. Veuillez patienter une minute.", status=429)
+
+    lecon = get_object_or_404(Lecon, pk=lecon_pk)
+
+    if not lecon.has_quiz:
+        return redirect("lecon", lecon_pk=lecon_pk)
+
+    if not user.is_admin and lecon.chapitre.niveau != user.niveau:
+        return redirect("matieres")
+
+    quiz = lecon.quiz
+
+    # Récupérer les IDs des questions tirées au sort depuis le formulaire
+    question_ids_raw = request.POST.get("question_ids", "")
+    if question_ids_raw:
+        try:
+            question_ids = [int(qid) for qid in question_ids_raw.split(",") if qid.strip()]
+        except ValueError:
+            question_ids = []
+        questions = list(quiz.questions.filter(id__in=question_ids))
+    else:
+        questions = list(quiz.questions.order_by("ordre"))
+
+    corrections, points_obtenus, total_points = _evaluer_reponses(questions, request.POST)
+    reponses_soumises = {str(c["question"].id): c["reponse_donnee"] for c in corrections}
 
     score = (points_obtenus / total_points * 100) if total_points > 0 else 0.0
     passe = score >= quiz.score_minimum
@@ -195,6 +219,10 @@ def _comparer_texte_libre(reponse, question):
 def soumettre_quiz_chapitre(request, chapitre_pk):
     """Soumission du quiz de fin de chapitre, calcul du score, déblocage du suivant."""
     user = request.user
+
+    if _check_quiz_rate_limit(user.id):
+        return HttpResponse("Trop de soumissions. Veuillez patienter une minute.", status=429)
+
     chapitre = get_object_or_404(Chapitre, pk=chapitre_pk)
 
     if not user.is_admin and chapitre.niveau != user.niveau:
@@ -211,45 +239,8 @@ def soumettre_quiz_chapitre(request, chapitre_pk):
     else:
         return redirect("quiz_chapitre", chapitre_pk=chapitre_pk)
 
-    total_points = sum(q.points for q in questions)
-    points_obtenus = 0
-    reponses_soumises = {}
-    corrections = []
-
-    for question in questions:
-        cle = f"question_{question.id}"
-        reponse = request.POST.get(cle, "").strip()
-        reponses_soumises[str(question.id)] = reponse
-
-        correct = reponse.lower() == str(question.reponse_correcte).strip().lower()
-        if not correct and question.type == "texte_libre":
-            correct = _comparer_texte_libre(reponse, question)
-        if correct:
-            points_obtenus += question.points
-
-        if question.type == "qcm" and question.options:
-            try:
-                reponse_donnee_texte = question.options[int(reponse)] if reponse.isdigit() else reponse
-            except (IndexError, ValueError):
-                reponse_donnee_texte = reponse
-            try:
-                reponse_correcte_texte = question.options[int(question.reponse_correcte)]
-            except (IndexError, ValueError):
-                reponse_correcte_texte = question.reponse_correcte
-        elif question.type == "texte_libre":
-            reponse_donnee_texte = reponse if reponse else "—"
-            reponse_correcte_texte = question.reponse_correcte
-        else:
-            reponse_donnee_texte = reponse.capitalize() if reponse else "—"
-            reponse_correcte_texte = str(question.reponse_correcte).capitalize()
-
-        corrections.append({
-            "question": question,
-            "reponse_donnee": reponse,
-            "reponse_donnee_texte": reponse_donnee_texte,
-            "reponse_correcte_texte": reponse_correcte_texte,
-            "correct": correct,
-        })
+    corrections, points_obtenus, total_points = _evaluer_reponses(questions, request.POST)
+    reponses_soumises = {str(c["question"].id): c["reponse_donnee"] for c in corrections}
 
     score = (points_obtenus / total_points * 100) if total_points > 0 else 0.0
     score_minimum = 80.0
@@ -301,3 +292,19 @@ def _enregistrer_historique_questions(user, corrections):
             defaults={"prochaine_revision": date.today() + timedelta(days=1)},
         )
         hist.enregistrer_reponse(c["correct"])
+
+
+@require_POST
+@login_required
+def sauvegarder_note(request, lecon_pk):
+    """Sauvegarde la note personnelle d'un élève pour une leçon (création ou mise à jour)."""
+    from .models import UserNote
+
+    lecon = get_object_or_404(Lecon, pk=lecon_pk)
+    contenu = request.POST.get("contenu", "").strip()[:2000]
+    UserNote.objects.update_or_create(
+        user=request.user,
+        lecon=lecon,
+        defaults={"contenu": contenu},
+    )
+    return HttpResponse('<span class="text-green-600 text-xs">✓ Sauvegardé</span>')

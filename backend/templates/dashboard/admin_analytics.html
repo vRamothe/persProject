@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Analytics — Admin{% endblock %}
+{% block page_title %}Analytics plateforme{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-8">
+
+  <!-- Questions difficiles -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-bold text-gray-900 mb-4">⚠️ Questions difficiles (taux de réussite &lt; 40 %)</h2>
+    {% if weak_questions %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-100">
+            <th class="text-left py-2 px-3 font-semibold text-gray-600">Question</th>
+            <th class="text-left py-2 px-3 font-semibold text-gray-600">Leçon</th>
+            <th class="text-right py-2 px-3 font-semibold text-gray-600">Bonnes / Total</th>
+            <th class="text-right py-2 px-3 font-semibold text-gray-600">Taux</th>
+            <th class="py-2 px-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in weak_questions %}
+          <tr class="border-b border-gray-50 hover:bg-red-50 transition-colors">
+            <td class="py-2 px-3 text-gray-800">{{ item.texte|truncatechars:60 }}</td>
+            <td class="py-2 px-3 text-gray-500">{{ item.lecon|truncatechars:40 }}</td>
+            <td class="py-2 px-3 text-right">{{ item.nb_bonnes }} / {{ item.nb_total }}</td>
+            <td class="py-2 px-3 text-right font-semibold text-red-600">{{ item.taux|floatformat:0 }} %</td>
+            <td class="py-2 px-3 text-right">
+              <a href="{% url 'admin:courses_question_change' item.question_id %}"
+                 class="text-xs text-indigo-600 hover:underline">Modifier</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-sm text-gray-400">Aucune question difficile pour l'instant.</p>
+    {% endif %}
+  </div>
+
+  <!-- Taux de complétion des leçons -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-bold text-gray-900 mb-4">📚 Taux de complétion des leçons</h2>
+    {% if lecon_completion %}
+    <div class="space-y-2">
+      {% for item in lecon_completion %}
+      <div class="flex items-center gap-3 text-sm">
+        <span class="w-64 truncate text-gray-700">{{ item.lecon.titre }}</span>
+        <div class="flex-1 bg-gray-100 rounded-full h-2">
+          <div class="bg-indigo-500 h-2 rounded-full" style="width: {{ item.taux|floatformat:0 }}%"></div>
+        </div>
+        <span class="text-gray-500 w-12 text-right">{{ item.taux|floatformat:0 }} %</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-gray-400">Aucune donnée de progression disponible.</p>
+    {% endif %}
+  </div>
+
+  <!-- Taux de réussite quiz chapitres -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-bold text-gray-900 mb-4">🏆 Taux de réussite — Quiz de chapitre</h2>
+    {% if chapitre_pass_rates %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-100">
+            <th class="text-left py-2 px-3 font-semibold text-gray-600">Chapitre</th>
+            <th class="text-right py-2 px-3 font-semibold text-gray-600">Reçus / Tentatives</th>
+            <th class="text-right py-2 px-3 font-semibold text-gray-600">Taux</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in chapitre_pass_rates %}
+          <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+            <td class="py-2 px-3 text-gray-800">{{ item.chapitre.titre|truncatechars:50 }}</td>
+            <td class="py-2 px-3 text-right">{{ item.nb_passes }} / {{ item.nb_total }}</td>
+            <td class="py-2 px-3 text-right font-semibold {% if item.taux >= 60 %}text-emerald-600{% else %}text-orange-500{% endif %}">
+              {{ item.taux|floatformat:0 }} %
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-sm text-gray-400">Aucun quiz de chapitre effectué pour l'instant.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

@@ -19,6 +19,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     "django_htmx",
+    "axes",
 ]
 
 LOCAL_APPS = [
@@ -27,7 +28,10 @@ LOCAL_APPS = [
     "progress",
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS + [
+    "django.contrib.sitemaps",
+    "django.contrib.postgres",
+]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -36,10 +40,23 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "axes.middleware.AxesMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
 ]
+
+AUTHENTICATION_BACKENDS = [
+    "axes.backends.AxesStandaloneBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+# django-axes : protection brute-force sur la page de connexion
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = 1  # 1 heure
+AXES_RESET_ON_SUCCESS = True
+AXES_BEHIND_REVERSE_PROXY = True
+AXES_LOCKOUT_CALLABLE = "axes.helpers.get_lockout_response"
 
 ROOT_URLCONF = "config.urls"
 
@@ -117,3 +134,35 @@ FIRST_ADMIN_EMAIL = config("FIRST_ADMIN_EMAIL", default="admin@sciencelycee.fr")
 FIRST_ADMIN_PASSWORD = config("FIRST_ADMIN_PASSWORD", default="Admin1234!")
 FIRST_ADMIN_PRENOM = config("FIRST_ADMIN_PRENOM", default="Administrateur")
 FIRST_ADMIN_NOM = config("FIRST_ADMIN_NOM", default="Principal")
+
+# Logging structuré (stdout pour Heroku log drains)
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": config("DJANGO_LOG_LEVEL", default="WARNING"),
+            "propagate": False,
+        },
+        "courses": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "progress": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "users": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
+}

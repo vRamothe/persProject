@@ -1,6 +1,9 @@
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core import signing
+from django.core.mail import send_mail
+from django.db import models
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.utils.decorators import method_decorator
@@ -45,12 +48,13 @@ class InscriptionView(View):
     def post(self, request):
         form = InscriptionForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_active = False  # attend la confirmation email
+            user.save()
             # Débloquer le 1er chapitre de chaque matière pour le niveau de l'élève
             _debloquer_premiers_chapitres(user)
-            login(request, user)
-            messages.success(request, f"Bienvenue {user.prenom} ! Votre compte a été créé avec succès.")
-            return redirect("tableau_de_bord")
+            _envoyer_email_verification(request, user)
+            return redirect("inscription_confirmation")
         return render(request, self.template_name, {"form": form})
 
 
@@ -490,6 +494,46 @@ def exit_preview_view(request):
 
 # ---- Helpers ----
 
+def _envoyer_email_verification(request, user):
+    """Envoie un email de vérification avec un lien signé valable 24h."""
+    from django.urls import reverse
+    token = signing.dumps(user.pk, salt="email-verification")
+    url = request.build_absolute_uri(
+        reverse("verifier_email", kwargs={"token": token})
+    )
+    send_mail(
+        subject="ScienceLycée — Confirmez votre adresse email",
+        message=f"Bonjour {user.prenom},\n\nCliquez sur ce lien pour activer votre compte :\n{url}\n\nCe lien est valable 24 heures.",
+        from_email=None,  # utilise DEFAULT_FROM_EMAIL
+        recipient_list=[user.email],
+    )
+
+
+def inscription_confirmation_view(request):
+    """Page affichée après l'inscription, invitant à vérifier l'email."""
+    return render(request, "registration/inscription_confirmation.html")
+
+
+def verifier_email_view(request, token):
+    """Active le compte de l'utilisateur via le lien de vérification signé."""
+    try:
+        user_pk = signing.loads(token, salt="email-verification", max_age=86400)
+    except signing.SignatureExpired:
+        return render(request, "registration/email_verification_invalid.html",
+                      {"raison": "expiré"}, status=400)
+    except signing.BadSignature:
+        return render(request, "registration/email_verification_invalid.html",
+                      {"raison": "invalide"}, status=400)
+
+    user = get_object_or_404(CustomUser, pk=user_pk)
+    if not user.is_active:
+        user.is_active = True
+        user.save(update_fields=["is_active"])
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    messages.success(request, "Votre compte a été activé avec succès. Bienvenue !")
+    return redirect("tableau_de_bord")
+
+
 def _debloquer_premiers_chapitres(user):
     from courses.models import Chapitre
     from progress.models import ChapitreDebloque
@@ -497,3 +541,84 @@ def _debloquer_premiers_chapitres(user):
     premiers = Chapitre.objects.filter(niveau=user.niveau, ordre=1)
     for chap in premiers:
         ChapitreDebloque.objects.get_or_create(user=user, chapitre=chap)
+
+
+# ---- Admin analytics ----
+
+@login_required
+def admin_analytics_view(request):
+    """Tableau de bord analytique : taux de réussite, complétion, questions difficiles."""
+    if not request.user.is_admin:
+        return redirect("tableau_de_bord")
+
+    from progress.models import UserQuestionHistorique, UserProgression, UserChapitreQuizResultat, StatutLeconChoices
+    from courses.models import Lecon, Chapitre
+    from django.db.models import Avg, Count as DbCount, Sum, FloatField, ExpressionWrapper
+
+    # Taux de réussite par question (depuis Leitner)
+    questions_stats = (
+        UserQuestionHistorique.objects.values(
+            "question__id", "question__texte", "question__quiz__lecon__titre"
+        )
+        .annotate(
+            nb_bonnes=Sum("nb_bonnes"),
+            nb_total=Sum("nb_total"),
+        )
+        .filter(nb_total__gt=0)
+    )
+    weak_questions = []
+    for qs in questions_stats:
+        taux = qs["nb_bonnes"] / qs["nb_total"] * 100
+        if taux < 40:
+            weak_questions.append({
+                "question_id": qs["question__id"],
+                "texte": qs["question__texte"],
+                "lecon": qs["question__quiz__lecon__titre"],
+                "taux": round(taux, 1),
+                "nb_bonnes": qs["nb_bonnes"],
+                "nb_total": qs["nb_total"],
+            })
+    weak_questions.sort(key=lambda x: x["taux"])
+
+    # Taux de complétion par leçon
+    total_eleves = CustomUser.objects.filter(role="eleve", is_active=True).count()
+    if total_eleves > 0:
+        lecon_completion = {}
+        for prog in (
+            UserProgression.objects.filter(statut=StatutLeconChoices.TERMINE)
+            .values("lecon__id", "lecon__titre", "lecon__chapitre__niveau")
+            .annotate(nb=DbCount("user", distinct=True))
+        ):
+            total_niveau = CustomUser.objects.filter(
+                role="eleve", is_active=True, niveau=prog["lecon__chapitre__niveau"]
+            ).count()
+            pct = round(prog["nb"] / total_niveau * 100, 1) if total_niveau > 0 else 0
+            lecon_completion[prog["lecon__id"]] = {
+                "titre": prog["lecon__titre"],
+                "pct": pct,
+                "nb": prog["nb"],
+                "total": total_niveau,
+            }
+    else:
+        lecon_completion = {}
+
+    # Taux de passage du quiz de chapitre
+    chapitre_pass_rate = {}
+    for res in (
+        UserChapitreQuizResultat.objects.values("chapitre__id", "chapitre__titre")
+        .annotate(nb_total=DbCount("id"), nb_passes=DbCount("id", filter=models.Q(passe=True)))
+    ):
+        pct = round(res["nb_passes"] / res["nb_total"] * 100, 1) if res["nb_total"] > 0 else 0
+        chapitre_pass_rate[res["chapitre__id"]] = {
+            "titre": res["chapitre__titre"],
+            "pct": pct,
+            "nb_passes": res["nb_passes"],
+            "nb_total": res["nb_total"],
+        }
+
+    return render(request, "dashboard/admin_analytics.html", {
+        "weak_questions": weak_questions,
+        "lecon_completion": lecon_completion,
+        "chapitre_pass_rate": chapitre_pass_rate,
+        "total_eleves": total_eleves,
+    })

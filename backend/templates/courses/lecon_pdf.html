@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ lecon.titre }} — ScienceLycée</title>
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 12pt;
+      line-height: 1.7;
+      color: #1a1a1a;
+      padding: 2cm 2.5cm;
+      max-width: 100%;
+    }
+    header { border-bottom: 2px solid #3730a3; padding-bottom: 12px; margin-bottom: 24px; }
+    header .matiere { font-size: 10pt; color: #6366f1; font-family: sans-serif; text-transform: uppercase; letter-spacing: .05em; }
+    header h1 { font-size: 20pt; font-weight: bold; color: #1e1b4b; margin-top: 4px; }
+    header .meta { font-size: 9pt; color: #6b7280; margin-top: 4px; font-family: sans-serif; }
+    .content h1, .content h2, .content h3, .content h4 {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-weight: bold;
+      color: #1e1b4b;
+      margin-top: 1.5em;
+      margin-bottom: .5em;
+    }
+    .content h2 { font-size: 14pt; }
+    .content h3 { font-size: 12pt; }
+    .content p { margin-bottom: .8em; }
+    .content ul, .content ol { margin: .5em 0 .8em 1.5em; }
+    .content li { margin-bottom: .3em; }
+    .content code {
+      background: #f1f5f9;
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 10pt;
+    }
+    .content pre {
+      background: #f1f5f9;
+      border-radius: 6px;
+      padding: 12px;
+      overflow: auto;
+      margin: 1em 0;
+      font-size: 10pt;
+    }
+    .content blockquote {
+      border-left: 3px solid #6366f1;
+      padding: 6px 12px;
+      margin: 1em 0;
+      color: #374151;
+      background: #f5f3ff;
+    }
+    .content table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 10pt; }
+    .content th, .content td { border: 1px solid #d1d5db; padding: 6px 10px; }
+    .content th { background: #f5f3ff; font-weight: bold; }
+    footer { margin-top: 2cm; border-top: 1px solid #e5e7eb; padding-top: 8px; font-size: 9pt; color: #9ca3af; font-family: sans-serif; text-align: right; }
+    @media print {
+      body { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="matiere">{{ lecon.chapitre.matiere.get_nom_display }} · {{ lecon.chapitre.get_niveau_display }} · Ch.{{ lecon.chapitre.ordre }}</p>
+    <h1>{{ lecon.titre }}</h1>
+    <p class="meta">Chapitre : {{ lecon.chapitre.titre }} · Durée estimée : {{ lecon.duree_estimee }} min</p>
+  </header>
+
+  <main class="content">
+    {{ contenu_html|safe }}
+  </main>
+
+  <footer>
+    ScienceLycée — {{ lecon.titre }} — Exporté le {% now "d/m/Y" %}
+  </footer>
+</body>
+</html>
