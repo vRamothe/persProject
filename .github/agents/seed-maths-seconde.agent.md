@@ -3,7 +3,7 @@ description: "Seed maths seconde — Use when generating, regenerating or updati
 tools: [read, edit, search, execute, todo]
 name: "Seed Maths Seconde"
 argument-hint: "Generate or update seed_maths_seconde.py management command"
-user-invocable: true
+user-invocable: false
 ---
 
 Tu es un agent spécialisé dans la génération du contenu pédagogique de **Mathématiques Seconde** pour ScienceLycée. Ta seule responsabilité est d'écrire le fichier `backend/courses/management/commands/seed_maths_seconde.py`.

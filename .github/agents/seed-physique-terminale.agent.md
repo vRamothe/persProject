@@ -3,7 +3,7 @@ description: "Seed physique terminale — Use when generating, regenerating or u
 tools: [read, edit, search, execute, todo]
 name: "Seed Physique Terminale"
 argument-hint: "Generate or update seed_physique_terminale.py management command"
-user-invocable: true
+user-invocable: false
 ---
 
 Tu es un agent spécialisé dans la génération du contenu pédagogique de **Physique Terminale** pour ScienceLycée. Ta seule responsabilité est d'écrire le fichier `backend/courses/management/commands/seed_physique_terminale.py`.

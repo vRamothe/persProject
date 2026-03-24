@@ -1,0 +1,16 @@
+---
+description: "Use when editing or creating Django views in ScienceLycée. Covers function-based views, @login_required, HTMX patterns, admin checks, preview mode, rate limiting, and quiz helpers."
+applyTo: "**/views.py"
+---
+# Django Views — ScienceLycée Conventions
+
+- Function-based views with `@login_required` (CBV only when clearly justified)
+- Admin-only views: check `request.user.role == 'admin'` and return 403 otherwise
+- Student views: filter by `request.user.niveau` (or `request.session["preview_niveau"]` if set)
+- Preview mode: when `request.session.get("preview_niveau")` is set, skip all progress writes (`UserProgression`, `UserQuizResultat`, etc.)
+- HTMX responses: return `HttpResponse` with HTML fragment, no full page render
+- Rate limiting on quiz endpoints: call `_check_quiz_rate_limit(request.user.id)` — returns `True` if exceeded → return `HttpResponse(status=429)`
+- Quiz helpers: use `_evaluer_reponses(questions, post_data)` for answer evaluation; `_enregistrer_historique_questions()` for Leitner tracking
+- Chapter quiz selection: `_selectionner_questions_chapitre(chapitre)` — proportional difficulty (4 facile + 4 moyen + 2 difficile)
+- Named URLs only: `{% url 'name' %}` in templates, `reverse('name')` in views
+- French naming: view functions, variables, and URL names in French
