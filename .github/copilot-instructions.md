@@ -207,4 +207,4 @@ Admin credentials from `.env`: `FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`.
 - **Template**: `lecon_pdf.html` — CSS classes `.math-inline` (inline SVG, `vertical-align: middle`) and `.math-block` (centred display equations)
 
 ## Self-Update Rule
-When you make changes that affect the project structure, models, URL routes, features, or conventions documented in this file or in `.github/agents/sciencelycee-dev.agent.md`, **update both files** to reflect the new state before finishing your task. Keep these files as the single source of truth for the project.
+When you make changes that affect the project structure, models, URL routes, features, or conventions documented in this file or in `.github/agents/implementer.agent.md`, **update both files** to reflect the new state before finishing your task. Keep these files as the single source of truth for the project.

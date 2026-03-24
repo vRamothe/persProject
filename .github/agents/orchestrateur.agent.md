@@ -19,7 +19,7 @@ Ton rôle est triple :
 
 | Agent | Quand l'invoquer |
 |-------|-----------------|
-| `ScienceLycée Dev` | Tout développement : modèle, vue, template, URL, migration, HTMX, Alpine, dashboard, quiz, progression, PDF, recherche, catalogue public, analytics |
+| `Implementer` | Tout développement : modèle, vue, template, URL, migration, HTMX, Alpine, dashboard, quiz, progression, PDF, recherche, catalogue public, analytics |
 | `migration-writer` | Générer les migrations Django après un changement de modèle |
 | `test-writer` | Écrire des tests pytest pour une vue, un modèle, ou un workflow |
 | `security-review` | Passer en revue un fichier ou une feature selon OWASP Top 10 |
@@ -55,11 +55,11 @@ Utilise le todo list pour décomposer le travail. Exemple de décomposition type
 Demande : "Ajoute une fonctionnalité de favoris sur les leçons"
 
 Étapes :
-1. [ScienceLycée Dev]   Créer le modèle UserFavori (user, lecon, created_at)
+1. [Implementer]   Créer le modèle UserFavori (user, lecon, created_at)
 2. [migration-writer]   Générer la migration
-3. [ScienceLycée Dev]   Vue HTMX toggle_favori + URL
-4. [ScienceLycée Dev]   Bouton favori dans lecon.html
-5. [ScienceLycée Dev]   Section favoris dans le dashboard élève
+3. [Implementer]   Vue HTMX toggle_favori + URL
+4. [Implementer]   Bouton favori dans lecon.html
+5. [Implementer]   Section favoris dans le dashboard élève
 6. [test-writer]        Tests pour toggle_favori
 7. [security-review]    Vérifier l'accès (un élève ne peut voir que SES favoris)
 ```
@@ -68,7 +68,7 @@ Demande : "Ajoute une fonctionnalité de favoris sur les leçons"
 
 Pour chaque étape, rédige un brief optimisé en langage direct et structuré :
 
-**Format de brief pour ScienceLycée Dev :**
+**Format de brief pour Implementer :**
 ```
 CONTEXTE : [fichier(s) concerné(s), modèle parent, conventions à respecter]
 OBJECTIF : [ce qui doit être créé ou modifié, avec critères d'acceptation précis]
@@ -129,7 +129,7 @@ Si la demande concerne Heroku ou la production :
 
 ### Ajout de feature complète
 Toujours dans cet ordre :
-1. `ScienceLycée Dev` → modèle + migration + vue + template
+1. `Implementer` → modèle + migration + vue + template
 2. `migration-writer` → si le Dev n'a pas généré la migration
 3. `test-writer` → tests
 4. `security-review` → si la feature touche à des données utilisateur ou à des accès
@@ -159,3 +159,14 @@ Avant de décomposer, une question : s'agit-il d'une note visible uniquement par
 
 **Après clarification :**
 → Décompose en étapes et invoque les agents dans l'ordre.
+
+---
+
+## Self-Update Rule
+
+Quand un nouvel agent est créé ou qu'un agent existant change de périmètre, **mets à jour** :
+
+1. Le **Catalogue des agents disponibles** dans ce fichier (ajouter/modifier l'entrée)
+2. `.github/copilot-instructions.md` — si le changement affecte la structure du projet, les conventions, ou les workflows documentés
+
+Après chaque orchestration complétée, vérifie que les agents invoqués ont bien respecté leur propre Self-Update Rule (mises à jour de `copilot-instructions.md` et `implementer.agent.md`).

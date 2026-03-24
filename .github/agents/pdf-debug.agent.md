@@ -301,3 +301,14 @@ Dans `docker compose logs -f web`, rechercher :
 - `WARNING LaTeX : pas de DVI produit` → `latex` a planté
 - `Anchor defined twice` → problème de préfixage des id SVG
 - `Error rendering PDF` → erreur WeasyPrint (souvent ressource manquante)
+
+---
+
+## Self-Update Rule
+
+Quand tu modifies le pipeline PDF (fonctions helpers, template `lecon_pdf.html`, versions de dépendances, packages Dockerfile), **mets à jour** les fichiers de documentation du projet :
+
+1. `.github/copilot-instructions.md` — section **PDF Export & LaTeX Rendering**
+2. `.github/agents/implementer.agent.md` — section **PDF export** dans Your Expertise et le File Map
+
+Mets aussi à jour ce fichier (`pdf-debug.agent.md`) si l'architecture du pipeline, les numéros de ligne de référence, ou les versions épinglées changent.

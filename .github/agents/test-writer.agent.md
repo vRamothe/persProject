@@ -347,3 +347,14 @@ def test_lecon_non_gratuite_redirige_connexion(client, matiere, lecon):
 - Classes : `TestXxxView`, `TestXxxModel`, `TestXxxForm`
 - Découper en méthodes courtes et lisibles
 - Toujours annoter avec `@pytest.mark.django_db`
+
+---
+
+## Self-Update Rule
+
+Après avoir écrit de nouveaux tests, **mets à jour le compteur de tests** dans les fichiers de documentation du projet :
+
+1. `.github/copilot-instructions.md` — section **Testing** (mettre à jour le nombre de tests, ex: "80 tests" → "85 tests")
+2. `.github/agents/implementer.agent.md` — section **Testing** (même compteur)
+
+Si tes tests couvrent un nouveau pattern ou une nouvelle fixture réutilisable, mets aussi à jour la section **Fixtures standard du projet** dans ce fichier.

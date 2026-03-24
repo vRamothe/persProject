@@ -298,3 +298,14 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 X_FRAME_OPTIONS = "DENY"
 ```
+
+---
+
+## Self-Update Rule
+
+Quand tu implémentes un correctif de sécurité (ajout de `@login_required`, modification de settings, changement de middleware, validation d'input), **mets à jour** les fichiers de documentation du projet :
+
+1. `.github/copilot-instructions.md` — sections impactées (Rate Limiting, Auth, Conventions, etc.)
+2. `.github/agents/implementer.agent.md` — sections correspondantes dans Your Expertise
+
+Si le correctif modifie la checklist de sécurité elle-même (nouveau point de vérification, changement de convention), mets aussi à jour ce fichier (`security-review.agent.md`).

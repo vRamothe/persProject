@@ -246,3 +246,14 @@ EMAIL_USE_TLS = True
 import sentry_sdk
 sentry_sdk.init(dsn=config("SENTRY_DSN", default=""), ...)
 ```
+
+---
+
+## Self-Update Rule
+
+Quand tu modifies la configuration de déploiement (Dockerfile, `heroku.yml`, `entrypoint.sh`, `heroku-release.sh`, variables d'environnement requises, settings de production), **mets à jour** les fichiers de documentation du projet :
+
+1. `.github/copilot-instructions.md` — sections **Stack** (Deploy) et **Dev Workflow**
+2. `.github/agents/implementer.agent.md` — File Map (Docker / deploy)
+
+Mets aussi à jour ce fichier (`heroku-deploy.agent.md`) si les variables d'environnement, la phase de release, ou les commandes de diagnostic changent.

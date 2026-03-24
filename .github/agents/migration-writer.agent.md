@@ -206,3 +206,14 @@ docker compose up --build -d
 heroku run python manage.py showmigrations --app sciencelycee
 heroku run python manage.py migrate --app sciencelycee
 ```
+
+---
+
+## Self-Update Rule
+
+Quand tu ajoutes ou modifies un modèle, un champ, ou une contrainte (`unique_together`, `Meta`, etc.), **mets à jour** les fichiers de documentation du projet pour refléter le nouvel état :
+
+1. `.github/copilot-instructions.md` — section **Key Models** et toute autre section impactée
+2. `.github/agents/implementer.agent.md` — section **Your Expertise** (hiérarchie modèles, champs, contraintes)
+
+Ces deux fichiers sont la source de vérité du projet. Ne termine jamais ta tâche sans les avoir mis à jour si tes changements affectent la structure des modèles.
