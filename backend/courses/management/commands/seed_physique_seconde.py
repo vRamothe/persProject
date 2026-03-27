@@ -1,5 +1,5 @@
 """
-Seed Physique Seconde — 7 chapitres, leçons uniquement (sans quiz).
+Seed Physique Seconde — 8 chapitres, leçons uniquement (sans quiz).
 Usage : python manage.py seed_physique_seconde
 """
 
@@ -5493,11 +5493,808 @@ Le passage du courant dans le corps humain peut provoquer :
             },
         ],
     },
+    # ──────────────────────────────────────────────
+    # CHAPITRE 8 — Émission et perception d'un son
+    # ──────────────────────────────────────────────
+    {
+        'ordre': 8,
+        'titre': "Émission et perception d'un son",
+        'description': "Comprendre comment un son est émis par la vibration d'un objet, se propage dans un milieu matériel et est perçu par l'oreille humaine.",
+        'score_minimum': 60.0,
+        'lecons': [
+            {
+                'ordre': 1,
+                'titre': "Émission et propagation d'un son",
+                'duree': 30,
+                'contenu': """# Émission et propagation d'un son
+
+## Introduction
+
+Le **son** fait partie de notre quotidien : musique, parole, bruit de la circulation… Mais d'où vient un son ? Comment se propage-t-il ? Pourquoi n'entend-on rien dans l'espace ? Cette leçon répond à ces questions en étudiant les mécanismes d'**émission** et de **propagation** du son.
+
+---
+
+## Émission d'un son
+
+### La vibration, source du son
+
+Un son est produit par la **vibration d'un objet** appelé **source sonore**. Cette vibration met en mouvement les couches d'air (ou du milieu environnant) qui entourent l'objet.
+
+> **Exemples de sources sonores :**
+> - La membrane d'un haut-parleur vibre d'avant en arrière.
+> - Les cordes d'une guitare vibrent lorsqu'on les pince.
+> - Les cordes vocales vibrent lors de la phonation.
+> - Un diapason vibre lorsqu'on le frappe.
+
+### Mise en évidence expérimentale
+
+On peut visualiser la vibration d'une source sonore de plusieurs façons :
+
+- **Diapason + eau** : un diapason en vibration plongé dans l'eau projette des gouttelettes.
+- **Haut-parleur + billes de polystyrène** : les billes sautent sur la membrane du haut-parleur en fonctionnement.
+- **Corde de guitare** : on voit la corde "floue" lorsqu'elle vibre.
+
+Dans tous les cas, **arrêter la vibration** revient à **arrêter le son**.
+
+---
+
+## Propagation du son
+
+### Nécessité d'un milieu matériel
+
+Contrairement à la lumière, le son **ne se propage pas dans le vide**. Il a besoin d'un **milieu matériel** (gaz, liquide ou solide) pour se propager.
+
+> **Expérience de la cloche à vide** : une sonnerie placée sous une cloche de verre émet un son audible. Lorsqu'on fait le vide dans la cloche (on retire l'air), le son disparaît progressivement, bien que la sonnerie continue de fonctionner. En laissant l'air revenir, le son réapparaît.
+
+Cette expérience montre que **l'air est nécessaire** à la propagation du son.
+
+> **Conséquence** : dans l'**espace** (vide spatial), aucun son ne peut se propager. Les explosions dans les films de science-fiction sont donc silencieuses en réalité !
+
+### Mécanisme : une onde longitudinale
+
+Le son est une **onde mécanique longitudinale**. Cela signifie que :
+
+- **Onde mécanique** : elle a besoin d'un milieu matériel pour se propager.
+- **Longitudinale** : les particules du milieu vibrent dans la **même direction** que la propagation de l'onde.
+
+Concrètement, la source sonore crée des **zones de compression** (les molécules se rapprochent) et des **zones de dilatation** (les molécules s'éloignent) qui se propagent de proche en proche.
+
+> **Analogie** : imaginez une file de dominos très rapprochés. Si vous poussez le premier, l'impulsion se transmet de l'un à l'autre. Chaque domino ne se déplace que très peu, mais la perturbation, elle, parcourt toute la file.
+
+**Important** : lors de la propagation du son, ce sont les **vibrations** qui se déplacent, **pas la matière** elle-même. Les molécules d'air oscillent autour de leur position d'équilibre.
+
+---
+
+## Vitesse de propagation du son
+
+### Définition
+
+La **vitesse de propagation** (ou **célérité**) du son, notée $v$, est la distance parcourue par l'onde sonore par unité de temps :
+
+$$v = \\frac{d}{t}$$
+
+avec :
+- $v$ : vitesse du son (en m/s ou m·s⁻¹)
+- $d$ : distance parcourue (en m)
+- $t$ : durée de propagation (en s)
+
+### Vitesse du son dans l'air
+
+Dans l'**air**, à **20 °C**, la vitesse du son est d'environ :
+
+$$v_{air} \\approx 340 \\text{ m/s}$$
+
+Soit environ **1 224 km/h**.
+
+> **Application** : c'est ce qui explique le décalage entre l'**éclair** (lumière, quasi instantanée) et le **tonnerre** (son, plus lent). En comptant les secondes entre l'éclair et le tonnerre, on peut estimer la distance de l'orage :
+>
+> $$d = v \\times t = 340 \\times t$$
+>
+> Ainsi, **3 secondes** d'écart correspondent à environ $340 \\times 3 = 1\\,020$ m, soit environ **1 km**.
+
+### Influence du milieu sur la vitesse
+
+La vitesse du son **dépend du milieu** dans lequel il se propage. En général :
+
+$$v_{gaz} < v_{liquide} < v_{solide}$$
+
+| Milieu | Vitesse du son (m/s) |
+|---|---|
+| Air (20 °C) | ≈ 340 |
+| Hélium (20 °C) | ≈ 1 007 |
+| Eau (25 °C) | ≈ 1 500 |
+| Eau de mer (25 °C) | ≈ 1 530 |
+| Bois (chêne) | ≈ 3 800 |
+| Béton | ≈ 3 100 |
+| Acier | ≈ 5 900 |
+| Verre | ≈ 5 300 |
+
+> **Explication** : plus le milieu est **dense et rigide**, plus les interactions entre particules sont fortes, et plus la vibration se transmet rapidement.
+
+### Influence de la température
+
+Dans un gaz, la vitesse du son **augmente avec la température**. Par exemple, dans l'air :
+
+| Température | Vitesse du son dans l'air |
+|---|---|
+| 0 °C | ≈ 331 m/s |
+| 15 °C | ≈ 340 m/s |
+| 20 °C | ≈ 343 m/s |
+| 30 °C | ≈ 349 m/s |
+
+---
+
+## Exercices d'application
+
+### Exercice 1
+Un élève voit un éclair et entend le tonnerre **4 secondes** plus tard. À quelle distance se trouve l'orage ?
+
+**Méthode** : $d = v \\times t = 340 \\times 4 = 1\\,360$ m ≈ **1,4 km**.
+
+### Exercice 2
+Un plongeur frappe deux pierres l'une contre l'autre sous l'eau. Son partenaire, situé à **600 m**, perçoit le son. Quel est le temps mis par le son pour parcourir cette distance dans l'eau ?
+
+**Méthode** : $t = \\frac{d}{v} = \\frac{600}{1\\,500} = 0,4$ s.
+
+### Exercice 3
+Un son se propage dans une barre d'acier longue de **2 950 m**. Combien de temps met-il pour parcourir cette distance ?
+
+**Méthode** : $t = \\frac{d}{v} = \\frac{2\\,950}{5\\,900} = 0,5$ s.
+
+---
+
+## L'essentiel
+
+- Un **son** est produit par la **vibration** d'une source sonore.
+- Le son est une **onde mécanique longitudinale** : il nécessite un **milieu matériel** pour se propager.
+- Le son **ne se propage pas dans le vide**.
+- La vitesse du son dans l'air à 20 °C est d'environ **340 m/s**.
+- La relation fondamentale est : $v = \\frac{d}{t}$.
+- La vitesse du son est plus grande dans les **solides** que dans les **liquides**, et plus grande dans les liquides que dans les **gaz**.
+- La vitesse du son dans un gaz **augmente avec la température**.
+""",
+                'quiz': {
+                    'titre': "Quiz — Émission et propagation d'un son",
+                    'questions': [
+                        {
+                            'ordre': 1,
+                            'type': 'qcm',
+                            'texte': "Qu'est-ce qui est à l'origine de tout son ?",
+                            'options': ["La vibration d'un objet", "Un courant d'air", "Une variation de température", "Un changement de pression atmosphérique"],
+                            'reponse_correcte': '0',
+                            'explication': "Un son est toujours produit par la vibration d'un objet appelé source sonore.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 2,
+                            'type': 'qcm',
+                            'texte': "Le son est une onde :",
+                            'options': ["Électromagnétique transversale", "Mécanique longitudinale", "Mécanique transversale", "Électromagnétique longitudinale"],
+                            'reponse_correcte': '1',
+                            'explication': "Le son est une onde mécanique longitudinale : il a besoin d'un milieu matériel et les particules vibrent dans la direction de propagation.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 3,
+                            'type': 'qcm',
+                            'texte': "Dans quel milieu le son ne peut-il pas se propager ?",
+                            'options': ["L'eau", "L'acier", "Le vide", "L'hélium"],
+                            'reponse_correcte': '2',
+                            'explication': "Le son est une onde mécanique : il ne se propage pas dans le vide car il a besoin d'un milieu matériel.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 4,
+                            'type': 'qcm',
+                            'texte': "Quelle est la vitesse approximative du son dans l'air à 20 °C ?",
+                            'options': ["34 m/s", "340 m/s", "3 400 m/s", "34 000 m/s"],
+                            'reponse_correcte': '1',
+                            'explication': "La vitesse du son dans l'air à 20 °C est d'environ 340 m/s, soit environ 1 224 km/h.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 5,
+                            'type': 'qcm',
+                            'texte': "Que montre l'expérience de la cloche à vide ?",
+                            'options': ["Le son se propage plus vite dans le vide", "Le son ne se propage pas dans le vide", "Le son change de fréquence dans le vide", "Le son devient plus aigu dans le vide"],
+                            'reponse_correcte': '1',
+                            'explication': "Lorsqu'on fait le vide sous la cloche, le son de la sonnerie disparaît, prouvant que le son a besoin d'air (milieu matériel) pour se propager.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 6,
+                            'type': 'qcm',
+                            'texte': "Quelle formule relie la vitesse du son v, la distance d et la durée t ?",
+                            'options': ["v = d × t", "v = d / t", "v = t / d", "v = d + t"],
+                            'reponse_correcte': '1',
+                            'explication': "La vitesse de propagation est le rapport de la distance parcourue par la durée : v = d / t.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 7,
+                            'type': 'qcm',
+                            'texte': "Dans quel type de milieu le son se propage-t-il le plus vite ?",
+                            'options': ["Les gaz", "Les liquides", "Les solides", "Le vide"],
+                            'reponse_correcte': '2',
+                            'explication': "En général, la vitesse du son suit l'ordre : v_gaz < v_liquide < v_solide. Plus le milieu est dense et rigide, plus le son se propage vite.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 8,
+                            'type': 'qcm',
+                            'texte': "Pourquoi n'entend-on aucun son dans l'espace ?",
+                            'options': ["Parce que la température est trop basse", "Parce qu'il n'y a pas de milieu matériel", "Parce que les sons sont trop graves", "Parce que la gravité est trop faible"],
+                            'reponse_correcte': '1',
+                            'explication': "L'espace est constitué de vide (quasi-absence de matière). Le son, onde mécanique, ne peut donc pas s'y propager.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 9,
+                            'type': 'qcm',
+                            'texte': "Un élève voit un éclair et entend le tonnerre 4 secondes plus tard. À quelle distance approximative se trouve l'orage ?",
+                            'options': ["340 m", "680 m", "1 020 m", "1 360 m"],
+                            'reponse_correcte': '3',
+                            'explication': "d = v × t = 340 × 4 = 1 360 m. La lumière étant quasi instantanée, le décalage temporel est dû à la propagation du son.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 10,
+                            'type': 'qcm',
+                            'texte': "Quelle est la vitesse approximative du son dans l'eau à 25 °C ?",
+                            'options': ["340 m/s", "1 000 m/s", "1 500 m/s", "5 900 m/s"],
+                            'reponse_correcte': '2',
+                            'explication': "La vitesse du son dans l'eau à 25 °C est d'environ 1 500 m/s, soit environ 4,4 fois plus rapide que dans l'air.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 11,
+                            'type': 'qcm',
+                            'texte': "De quel paramètre dépend principalement la vitesse du son dans un gaz ?",
+                            'options': ["La pression", "La température", "La luminosité", "L'humidité"],
+                            'reponse_correcte': '1',
+                            'explication': "Dans un gaz, la vitesse du son augmente avec la température. Par exemple, dans l'air : ≈ 331 m/s à 0 °C et ≈ 349 m/s à 30 °C.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 12,
+                            'type': 'qcm',
+                            'texte': "Quel classement de vitesses du son est correct ?",
+                            'options': ["v_solide < v_liquide < v_gaz", "v_liquide < v_gaz < v_solide", "v_gaz < v_liquide < v_solide", "v_gaz < v_solide < v_liquide"],
+                            'reponse_correcte': '2',
+                            'explication': "En général : v_gaz < v_liquide < v_solide. Par exemple : air ≈ 340 m/s, eau ≈ 1 500 m/s, acier ≈ 5 900 m/s.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 13,
+                            'type': 'qcm',
+                            'texte': "Pourquoi dit-on que le son est une onde longitudinale ?",
+                            'options': ["Les particules vibrent perpendiculairement à la direction de propagation", "Les particules vibrent dans la même direction que la propagation", "L'onde se propage uniquement en ligne droite", "L'onde ne transporte pas d'énergie"],
+                            'reponse_correcte': '1',
+                            'explication': "Dans une onde longitudinale, les particules du milieu vibrent dans la même direction que la propagation de l'onde, créant des zones de compression et de dilatation.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 14,
+                            'type': 'qcm',
+                            'texte': "Si la température de l'air augmente, que se passe-t-il pour la vitesse du son ?",
+                            'options': ["Elle diminue", "Elle augmente", "Elle reste constante", "Elle devient nulle"],
+                            'reponse_correcte': '1',
+                            'explication': "Dans un gaz, la vitesse du son augmente avec la température car l'agitation thermique des molécules facilite la transmission des vibrations.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 15,
+                            'type': 'vrai_faux',
+                            'texte': "Le son peut se propager dans le vide.",
+                            'options': ['Vrai', 'Faux'],
+                            'reponse_correcte': 'faux',
+                            'explication': "Faux. Le son est une onde mécanique qui a besoin d'un milieu matériel (gaz, liquide ou solide) pour se propager. Il ne se propage pas dans le vide.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 16,
+                            'type': 'vrai_faux',
+                            'texte': "Lors de la propagation du son, les molécules d'air se déplacent de la source jusqu'à l'oreille.",
+                            'options': ['Vrai', 'Faux'],
+                            'reponse_correcte': 'faux',
+                            'explication': "Faux. Ce sont les vibrations (l'énergie) qui se propagent, pas la matière. Les molécules oscillent autour de leur position d'équilibre.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 17,
+                            'type': 'vrai_faux',
+                            'texte': "La vitesse du son dans l'air augmente lorsque la température augmente.",
+                            'options': ['Vrai', 'Faux'],
+                            'reponse_correcte': 'vrai',
+                            'explication': "Vrai. Dans un gaz, la vitesse du son croît avec la température. Par exemple, elle passe de ≈ 331 m/s à 0 °C à ≈ 349 m/s à 30 °C.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 18,
+                            'type': 'texte_libre',
+                            'texte': "Quelle est la vitesse approximative du son dans l'air à 20 °C ? (Répondre en m/s)",
+                            'options': None,
+                            'reponse_correcte': '340 m/s',
+                            'tolerances': ['340', '340 m/s', '340m/s', '≈340 m/s'],
+                            'explication': "La vitesse du son dans l'air à 20 °C est d'environ 340 m/s (plus précisément ≈ 343 m/s).",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 19,
+                            'type': 'texte_libre',
+                            'texte': "Comment qualifie-t-on le type d'onde que constitue le son ? (Deux mots attendus : ... ...)",
+                            'options': None,
+                            'reponse_correcte': 'onde mécanique',
+                            'tolerances': ['onde mécanique', 'onde mecanique', 'mécanique', 'mecanique'],
+                            'explication': "Le son est une onde mécanique (il nécessite un milieu matériel pour se propager). Plus précisément, c'est une onde mécanique longitudinale.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 20,
+                            'type': 'texte_libre',
+                            'texte': "Un plongeur frappe deux pierres sous l'eau. Son partenaire, situé à 600 m, perçoit le son. Sachant que la vitesse du son dans l'eau est de 1 500 m/s, calculer le temps de propagation en secondes.",
+                            'options': None,
+                            'reponse_correcte': '0,4 s',
+                            'tolerances': ['0.4', '0,4', '0.4 s', '0,4 s', '0.4s', '0,4s'],
+                            'explication': "t = d / v = 600 / 1 500 = 0,4 s.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                    ],
+                },
+            },
+            {
+                'ordre': 2,
+                'titre': "Caractéristiques d'un son",
+                'duree': 30,
+                'contenu': """# Caractéristiques d'un son
+
+## Introduction
+
+Tous les sons ne se ressemblent pas : certains sont **aigus**, d'autres **graves** ; certains sont **forts**, d'autres **faibles** ; on reconnaît un piano d'une guitare même s'ils jouent la même note. Comment caractériser un son d'un point de vue physique ? Cette leçon présente les grandeurs qui permettent de **décrire et différencier les sons**.
+
+---
+
+## Fréquence et période
+
+### La période $T$
+
+La **période** d'un son est la **durée d'un motif élémentaire** qui se répète. Elle est notée $T$ et s'exprime en **secondes** (s).
+
+Sur un oscillogramme (graphe de la tension du microphone en fonction du temps), la période correspond à la **durée entre deux motifs identiques consécutifs**.
+
+### La fréquence $f$
+
+La **fréquence** est le **nombre de vibrations par seconde**. Elle est notée $f$ et s'exprime en **hertz** (Hz).
+
+La fréquence et la période sont liées par la relation :
+
+$$f = \\frac{1}{T}$$
+
+avec :
+- $f$ : fréquence (en Hz)
+- $T$ : période (en s)
+
+> **Exemples** :
+> - Un son de période $T = 0,002$ s a une fréquence $f = \\frac{1}{0,002} = 500$ Hz.
+> - Le La3 du diapason a une fréquence de **440 Hz**, soit une période de $T = \\frac{1}{440} \\approx 0,00227$ s.
+
+### Lecture de la période sur un oscillogramme
+
+Pour mesurer la période sur un oscillogramme :
+
+1. Repérer un **motif élémentaire** (une forme qui se répète).
+2. Mesurer la **durée** de ce motif sur l'axe horizontal.
+3. Si la base de temps est $b$ (en ms/div ou s/div), alors : $T = n \\times b$, où $n$ est le nombre de divisions pour un motif.
+
+---
+
+## Domaine audible
+
+### L'oreille humaine
+
+L'oreille humaine peut percevoir les sons dont la fréquence est comprise entre **20 Hz** et **20 000 Hz** (20 kHz). C'est le **domaine audible** :
+
+$$20 \\text{ Hz} \\leq f \\leq 20\\,000 \\text{ Hz}$$
+
+### Au-delà du domaine audible
+
+| Domaine | Fréquence | Exemples |
+|---|---|---|
+| **Infrasons** | $f < 20$ Hz | Séismes, éléphants, éoliennes |
+| **Sons audibles** | $20$ Hz $\\leq f \\leq 20\\,000$ Hz | Voix humaine, musique, bruits du quotidien |
+| **Ultrasons** | $f > 20\\,000$ Hz | Échographie médicale, sonar des chauves-souris, nettoyage par ultrasons |
+
+> **Remarque** : la sensibilité de l'oreille diminue avec l'âge, surtout pour les hautes fréquences. Un adolescent entend généralement des sons plus aigus qu'un adulte.
+
+### Applications des ultrasons
+
+- **Échographie** : les ultrasons sont envoyés dans le corps et réfléchis par les organes. Le temps de retour permet de localiser les structures internes.
+- **Sonar** : les sous-marins émettent des ultrasons et analysent l'écho pour détecter des obstacles.
+- **Nettoyage** : les vibrations ultrasonores permettent de décoller les impuretés dans des bains de nettoyage.
+
+---
+
+## Hauteur d'un son
+
+### Définition
+
+La **hauteur** d'un son est la sensation auditive liée à sa **fréquence** :
+
+- Un son de **haute fréquence** est perçu comme **aigu** (ex : sifflement, flûte piccolo).
+- Un son de **basse fréquence** est perçu comme **grave** (ex : contrebasse, grondement de tonnerre).
+
+### Exemples de fréquences
+
+| Instrument / Son | Fréquence approximative |
+|---|---|
+| Contrebasse (note la plus grave) | ≈ 41 Hz |
+| Voix masculine (conversation) | 100 – 200 Hz |
+| Voix féminine (conversation) | 200 – 400 Hz |
+| La3 (diapason) | 440 Hz |
+| Flûte piccolo (note aiguë) | ≈ 4 000 Hz |
+| Sifflement humain | 1 000 – 4 000 Hz |
+
+> **Règle** : deux sons de **même hauteur** ont la **même fréquence fondamentale** $f$.
+
+---
+
+## Niveau sonore
+
+### L'intensité sonore
+
+L'**intensité sonore** correspond à la **puissance acoustique** reçue par unité de surface. Plus la source vibre avec une grande amplitude, plus l'intensité sonore est élevée.
+
+### Le niveau sonore $L$
+
+Le **niveau sonore**, noté $L$, permet de quantifier la "force" d'un son telle qu'elle est perçue. Il s'exprime en **décibels** (dB).
+
+L'échelle des décibels est **logarithmique** : une augmentation de **10 dB** correspond à une intensité sonore multipliée par **10** et une sensation sonore environ **doublée**.
+
+### Échelle de niveaux sonores
+
+| Niveau sonore $L$ (dB) | Exemple | Perception |
+|---|---|---|
+| 0 | Seuil d'audibilité | Silence |
+| 20 | Chuchotement | Très faible |
+| 40 | Bibliothèque | Faible |
+| 60 | Conversation normale | Modéré |
+| 80 | Rue à fort trafic | Fort |
+| 85 | Seuil de danger (exposition prolongée) | Attention |
+| 100 | Concert, discothèque | Très fort |
+| 110 | Marteau-piqueur | Douloureux |
+| 120 | Seuil de douleur | Limite |
+| 130+ | Décollage d'avion à proximité | Risque de lésion immédiate |
+
+> **Important** : au-delà de **85 dB**, une exposition prolongée peut entraîner des **lésions irréversibles** de l'oreille interne.
+
+---
+
+## Timbre d'un son
+
+### Définition
+
+Le **timbre** est la qualité qui permet de **distinguer deux sons** de même hauteur et de même niveau sonore, produits par des sources différentes.
+
+> **Exemple** : un La3 (440 Hz) joué au piano sonne différemment du même La3 joué à la guitare. Pourtant, ils ont la même fréquence fondamentale et peuvent avoir le même niveau sonore.
+
+### Le spectre en fréquences
+
+Le timbre est lié au **spectre** du son, c'est-à-dire à l'ensemble des fréquences qui le composent :
+
+- **Fréquence fondamentale** $f_1$ : c'est la fréquence la plus basse, celle qui détermine la **hauteur** du son.
+- **Harmoniques** : fréquences multiples de la fondamentale ($f_2 = 2f_1$, $f_3 = 3f_1$, etc.).
+
+Chaque instrument produit des harmoniques d'**amplitudes différentes**, ce qui donne à chacun son timbre caractéristique.
+
+### Son pur vs son complexe
+
+| Type de son | Spectre | Oscillogramme | Exemple |
+|---|---|---|---|
+| **Son pur** | Une seule fréquence | Sinusoïde parfaite | Diapason, signal d'un GBF |
+| **Son complexe** | Fondamentale + harmoniques | Signal périodique non sinusoïdal | Voix, instruments de musique |
+
+> **Remarque** : un **bruit** n'est pas un son périodique ; son spectre est continu et irrégulier.
+
+---
+
+## Risques auditifs et protection
+
+### Les risques
+
+L'exposition à des niveaux sonores élevés peut provoquer :
+
+- **Fatigue auditive** : sensation d'oreille "bouchée" après un concert, réversible avec du repos.
+- **Acouphènes** : bourdonnements ou sifflements permanents dans l'oreille, souvent irréversibles.
+- **Surdité partielle ou totale** : destruction des **cellules ciliées** de l'oreille interne, irréversible (ces cellules ne se régénèrent pas).
+
+### Deux facteurs de risque
+
+- Le **niveau sonore** : plus il est élevé, plus le risque est grand.
+- La **durée d'exposition** : même à un niveau modéré (85 dB), une exposition prolongée (plusieurs heures) est dangereuse.
+
+| Niveau sonore | Durée maximale d'exposition recommandée |
+|---|---|
+| 85 dB | 8 heures |
+| 88 dB | 4 heures |
+| 91 dB | 2 heures |
+| 100 dB | 15 minutes |
+| 110 dB | Quelques secondes |
+
+### Comment se protéger ?
+
+- **Bouchons d'oreilles** : atténuation de 20 à 35 dB, idéal pour les concerts.
+- **Casques anti-bruit** : atténuation de 25 à 40 dB, utilisés dans l'industrie.
+- **S'éloigner de la source** : le niveau sonore diminue quand on s'éloigne.
+- **Limiter la durée d'exposition** : faire des pauses dans un environnement calme.
+- **Régler le volume** du casque ou des écouteurs à un niveau raisonnable (règle : si on n'entend plus les bruits extérieurs, c'est trop fort).
+
+---
+
+## Exercices d'application
+
+### Exercice 1
+Un son a une période $T = 0,005$ s. Quelle est sa fréquence ? Est-il audible ?
+
+**Méthode** : $f = \\frac{1}{T} = \\frac{1}{0,005} = 200$ Hz. Comme $20 \\leq 200 \\leq 20\\,000$, ce son est **audible**.
+
+### Exercice 2
+Un ultrason a une fréquence $f = 40\\,000$ Hz. Quelle est sa période ?
+
+**Méthode** : $T = \\frac{1}{f} = \\frac{1}{40\\,000} = 2,5 \\times 10^{-5}$ s = **25 µs**.
+
+### Exercice 3
+Un son est émis à un niveau de **95 dB** lors d'un concert. Ce niveau est-il dangereux ? Quelle durée d'exposition maximale recommanderiez-vous ?
+
+**Réponse** : Oui, 95 dB dépasse le seuil de danger de 85 dB. D'après le tableau, entre 91 dB (2 h) et 100 dB (15 min), on recommande une exposition **inférieure à 1 heure** environ.
+
+---
+
+## L'essentiel
+
+- La **fréquence** $f$ (en Hz) est le nombre de vibrations par seconde ; la **période** $T$ (en s) est la durée d'une vibration : $f = \\frac{1}{T}$.
+- Le **domaine audible** de l'oreille humaine va de **20 Hz à 20 000 Hz**.
+- En dessous : **infrasons** ; au-dessus : **ultrasons**.
+- La **hauteur** d'un son est liée à sa fréquence : aigu = haute fréquence, grave = basse fréquence.
+- Le **niveau sonore** $L$ (en dB) mesure la "force" d'un son. Au-delà de **85 dB**, l'exposition prolongée est dangereuse.
+- Le **timbre** distingue deux sons de même hauteur ; il dépend du **spectre en fréquences** (fondamentale + harmoniques).
+- Les **risques auditifs** (acouphènes, surdité) sont **irréversibles** : il faut se protéger !
+""",
+                'quiz': {
+                    'titre': "Quiz — Caractéristiques d'un son",
+                    'questions': [
+                        {
+                            'ordre': 1,
+                            'type': 'qcm',
+                            'texte': "Quelle est l'unité de la fréquence ?",
+                            'options': ["Le décibel (dB)", "Le hertz (Hz)", "Le mètre par seconde (m/s)", "La seconde (s)"],
+                            'reponse_correcte': '1',
+                            'explication': "La fréquence s'exprime en hertz (Hz). Elle représente le nombre de vibrations par seconde.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 2,
+                            'type': 'qcm',
+                            'texte': "Quelle relation lie la fréquence f et la période T ?",
+                            'options': ["f = T", "f = 1 / T", "f = T × 2", "f = T²"],
+                            'reponse_correcte': '1',
+                            'explication': "La fréquence et la période sont inverses l'une de l'autre : f = 1 / T.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 3,
+                            'type': 'qcm',
+                            'texte': "Quelle est la plage de fréquences audibles par l'oreille humaine ?",
+                            'options': ["0 Hz à 10 000 Hz", "20 Hz à 20 000 Hz", "100 Hz à 10 000 Hz", "50 Hz à 50 000 Hz"],
+                            'reponse_correcte': '1',
+                            'explication': "Le domaine audible de l'oreille humaine s'étend de 20 Hz à 20 000 Hz (20 kHz).",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 4,
+                            'type': 'qcm',
+                            'texte': "Un son aigu a une fréquence :",
+                            'options': ["Basse", "Élevée", "Nulle", "Négative"],
+                            'reponse_correcte': '1',
+                            'explication': "La hauteur d'un son est liée à sa fréquence : un son aigu correspond à une haute fréquence, un son grave à une basse fréquence.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 5,
+                            'type': 'qcm',
+                            'texte': "En quelle unité s'exprime le niveau sonore ?",
+                            'options': ["En hertz (Hz)", "En décibels (dB)", "En watts (W)", "En pascals (Pa)"],
+                            'reponse_correcte': '1',
+                            'explication': "Le niveau sonore L s'exprime en décibels (dB). C'est une échelle logarithmique qui quantifie la 'force' perçue d'un son.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 6,
+                            'type': 'qcm',
+                            'texte': "À partir de quel niveau sonore une exposition prolongée devient-elle dangereuse pour l'audition ?",
+                            'options': ["60 dB", "75 dB", "85 dB", "100 dB"],
+                            'reponse_correcte': '2',
+                            'explication': "Au-delà de 85 dB, une exposition prolongée peut provoquer des lésions irréversibles de l'oreille interne.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 7,
+                            'type': 'qcm',
+                            'texte': "Un son pur est caractérisé par :",
+                            'options': ["Plusieurs fréquences", "Une seule fréquence", "Aucune fréquence", "Un spectre continu"],
+                            'reponse_correcte': '1',
+                            'explication': "Un son pur est composé d'une seule fréquence. Son oscillogramme est une sinusoïde parfaite. Exemple : le son d'un diapason.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 8,
+                            'type': 'qcm',
+                            'texte': "Quelle est la fréquence du La3 du diapason ?",
+                            'options': ["220 Hz", "330 Hz", "440 Hz", "880 Hz"],
+                            'reponse_correcte': '2',
+                            'explication': "Le La3 du diapason, utilisé comme référence pour accorder les instruments, a une fréquence de 440 Hz.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 9,
+                            'type': 'qcm',
+                            'texte': "Qu'est-ce que le timbre d'un son ?",
+                            'options': ["Sa fréquence fondamentale", "Son niveau sonore", "La qualité qui distingue deux sons de même hauteur et même intensité", "Sa vitesse de propagation"],
+                            'reponse_correcte': '2',
+                            'explication': "Le timbre est la qualité qui permet de distinguer deux sons de même hauteur et de même niveau sonore, produits par des sources différentes. Il dépend du spectre en fréquences.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 10,
+                            'type': 'qcm',
+                            'texte': "Les ultrasons ont une fréquence :",
+                            'options': ["Inférieure à 20 Hz", "Entre 20 Hz et 20 000 Hz", "Supérieure à 20 000 Hz", "Exactement égale à 20 000 Hz"],
+                            'reponse_correcte': '2',
+                            'explication': "Les ultrasons sont des sons dont la fréquence est supérieure à 20 000 Hz (20 kHz), au-delà du domaine audible humain.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 11,
+                            'type': 'qcm',
+                            'texte': "Un son a une période T = 0,005 s. Quelle est sa fréquence ?",
+                            'options': ["50 Hz", "100 Hz", "200 Hz", "500 Hz"],
+                            'reponse_correcte': '2',
+                            'explication': "f = 1 / T = 1 / 0,005 = 200 Hz.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 12,
+                            'type': 'qcm',
+                            'texte': "Les harmoniques d'un son sont des fréquences :",
+                            'options': ["Quelconques", "Inférieures à la fondamentale", "Multiples entiers de la fréquence fondamentale", "Toujours égales à la fondamentale"],
+                            'reponse_correcte': '2',
+                            'explication': "Les harmoniques sont des fréquences multiples de la fondamentale : f₂ = 2f₁, f₃ = 3f₁, etc. Elles déterminent le timbre du son.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 13,
+                            'type': 'qcm',
+                            'texte': "L'échelle des décibels est :",
+                            'options': ["Linéaire", "Logarithmique", "Exponentielle", "Quadratique"],
+                            'reponse_correcte': '1',
+                            'explication': "L'échelle des décibels est logarithmique : une augmentation de 10 dB correspond à une intensité sonore multipliée par 10.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 14,
+                            'type': 'qcm',
+                            'texte': "Quelle application médicale utilise les ultrasons ?",
+                            'options': ["La radiographie", "L'IRM", "L'échographie", "Le scanner"],
+                            'reponse_correcte': '2',
+                            'explication': "L'échographie utilise des ultrasons envoyés dans le corps et réfléchis par les organes. Le temps de retour permet de localiser les structures internes.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 15,
+                            'type': 'vrai_faux',
+                            'texte': "Les cellules ciliées de l'oreille interne peuvent se régénérer après une lésion auditive.",
+                            'options': ['Vrai', 'Faux'],
+                            'reponse_correcte': 'faux',
+                            'explication': "Faux. Les cellules ciliées de l'oreille interne ne se régénèrent pas. Leur destruction entraîne une surdité irréversible.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 16,
+                            'type': 'vrai_faux',
+                            'texte': "Un son complexe est composé uniquement de sa fréquence fondamentale.",
+                            'options': ['Vrai', 'Faux'],
+                            'reponse_correcte': 'faux',
+                            'explication': "Faux. Un son complexe est composé de sa fréquence fondamentale et de ses harmoniques (multiples de la fondamentale).",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 17,
+                            'type': 'vrai_faux',
+                            'texte': "Les infrasons ont une fréquence inférieure à 20 Hz.",
+                            'options': ['Vrai', 'Faux'],
+                            'reponse_correcte': 'vrai',
+                            'explication': "Vrai. Les infrasons sont des sons de fréquence inférieure à 20 Hz, en dessous du seuil d'audibilité humain. Ils sont produits par les séismes, les éléphants, etc.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 18,
+                            'type': 'texte_libre',
+                            'texte': "Quelle est la fréquence, en hertz, du La3 produit par un diapason ?",
+                            'options': None,
+                            'reponse_correcte': '440 Hz',
+                            'tolerances': ['440', '440 Hz', '440Hz', '440 hz'],
+                            'explication': "Le La3 du diapason a une fréquence de 440 Hz. C'est la note de référence utilisée pour accorder les instruments de musique.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 19,
+                            'type': 'texte_libre',
+                            'texte': "Comment appelle-t-on les sons dont la fréquence est supérieure à 20 000 Hz ?",
+                            'options': None,
+                            'reponse_correcte': 'ultrasons',
+                            'tolerances': ['ultrasons', 'ultrason', 'ultra-sons', 'ultra sons'],
+                            'explication': "Les sons de fréquence supérieure à 20 000 Hz (20 kHz) sont appelés ultrasons. Ils sont utilisés en échographie, sonar et nettoyage industriel.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 20,
+                            'type': 'texte_libre',
+                            'texte': "Un son a une fréquence f = 500 Hz. Calculer sa période T en secondes.",
+                            'options': None,
+                            'reponse_correcte': '0,002 s',
+                            'tolerances': ['0.002', '0,002', '0.002 s', '0,002 s', '0.002s', '0,002s', '2e-3'],
+                            'explication': "T = 1 / f = 1 / 500 = 0,002 s (soit 2 ms).",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                    ],
+                },
+            },
+        ],
+    },
 ]
 
 
 class Command(BaseCommand):
-    help = "Seed Physique Seconde — 7 chapitres, leçons uniquement (sans quiz)."
+    help = "Seed Physique Seconde — 8 chapitres, leçons uniquement (sans quiz)."
 
     def handle(self, *args, **options):
         matiere, created = Matiere.objects.get_or_create(

@@ -1,5 +1,5 @@
 """
-Seed Mathématiques Seconde — 12 chapitres, leçons uniquement (sans quiz).
+Seed Mathématiques Seconde — 13 chapitres, leçons uniquement (sans quiz).
 Usage : python manage.py seed_maths_seconde
 """
 
@@ -8820,11 +8820,921 @@ $$\\ell = 5 \\times \\frac{\\pi}{3} = \\frac{5\\pi}{3} \\approx 5{,}24 \\text{ c
             },
         ],
     },
+    # ──────────────────────────────────────────────
+    # CHAPITRE 13 — Équation du second degré
+    # ──────────────────────────────────────────────
+    {
+        'ordre': 13,
+        'titre': 'Équation du second degré',
+        'description': "Introduction aux équations du second degré : forme canonique, résolution graphique, discriminant et factorisation.",
+        'score_minimum': 60.0,
+        'lecons': [
+            {
+                'ordre': 1,
+                'titre': 'Forme canonique et résolution graphique',
+                'duree': 30,
+                'contenu': """# Forme canonique et résolution graphique
+
+## Introduction
+
+Une **équation du second degré** est une équation de la forme :
+
+$$ax^2 + bx + c = 0$$
+
+où $a$, $b$ et $c$ sont des nombres réels avec $a \\neq 0$.
+
+Cette équation est fondamentale en mathématiques car elle apparaît dans de nombreux problèmes : trajectoires de projectiles, optimisation d'aires, modélisation de phénomènes physiques…
+
+---
+
+## Les trois formes d'un polynôme du second degré
+
+Un polynôme du second degré $f(x) = ax^2 + bx + c$ peut s'écrire sous trois formes différentes.
+
+### 1. Forme développée
+
+C'est la forme la plus courante :
+
+$$f(x) = ax^2 + bx + c$$
+
+On lit directement les coefficients $a$, $b$ et $c$.
+
+**Exemples :**
+
+- $f(x) = 2x^2 - 3x + 1$ → ici $a = 2$, $b = -3$, $c = 1$
+- $g(x) = -x^2 + 4x - 4$ → ici $a = -1$, $b = 4$, $c = -4$
+- $h(x) = x^2 - 9$ → ici $a = 1$, $b = 0$, $c = -9$
+
+### 2. Forme canonique
+
+Tout polynôme du second degré peut s'écrire sous la forme :
+
+$$f(x) = a(x - \\alpha)^2 + \\beta$$
+
+où $\\alpha$ et $\\beta$ sont calculés à partir de $a$, $b$ et $c$ :
+
+$$\\alpha = -\\frac{b}{2a} \\qquad \\text{et} \\qquad \\beta = f(\\alpha) = c - \\frac{b^2}{4a}$$
+
+Le point $(\\alpha ;\; \\beta)$ est le **sommet** de la parabole.
+
+> **Pourquoi cette forme est utile ?** Elle permet de lire directement le sommet de la parabole et de déduire les variations de la fonction.
+
+**Exemple détaillé :** Mettre $f(x) = 2x^2 - 8x + 6$ sous forme canonique.
+
+**Étape 1 :** Calculer $\\alpha$ :
+$$\\alpha = -\\frac{b}{2a} = -\\frac{-8}{2 \\times 2} = \\frac{8}{4} = 2$$
+
+**Étape 2 :** Calculer $\\beta$ :
+$$\\beta = f(2) = 2 \\times 2^2 - 8 \\times 2 + 6 = 8 - 16 + 6 = -2$$
+
+**Étape 3 :** Écrire la forme canonique :
+$$f(x) = 2(x - 2)^2 - 2$$
+
+**Vérification** en développant :
+$$2(x - 2)^2 - 2 = 2(x^2 - 4x + 4) - 2 = 2x^2 - 8x + 8 - 2 = 2x^2 - 8x + 6 \\; ✓$$
+
+---
+
+**Exemple 2 :** Mettre $g(x) = -x^2 + 6x - 5$ sous forme canonique.
+
+$$\\alpha = -\\frac{6}{2 \\times (-1)} = -\\frac{6}{-2} = 3$$
+
+$$\\beta = g(3) = -(3)^2 + 6 \\times 3 - 5 = -9 + 18 - 5 = 4$$
+
+$$g(x) = -(x - 3)^2 + 4$$
+
+### 3. Forme factorisée
+
+Lorsque le polynôme admet deux racines $x_1$ et $x_2$, on peut écrire :
+
+$$f(x) = a(x - x_1)(x - x_2)$$
+
+Cette forme est très utile pour résoudre $f(x) = 0$ et pour étudier le signe de $f(x)$.
+
+**Exemple :** $f(x) = 2(x - 1)(x - 3)$
+
+Les racines sont $x_1 = 1$ et $x_2 = 3$.
+
+Développons : $2(x-1)(x-3) = 2(x^2 - 4x + 3) = 2x^2 - 8x + 6$ → on retrouve la forme développée.
+
+---
+
+## La parabole : représentation graphique
+
+La courbe représentative de $f(x) = ax^2 + bx + c$ est une **parabole**.
+
+### Orientation de la parabole
+
+| Signe de $a$ | Orientation | Sommet |
+|:---:|:---:|:---:|
+| $a > 0$ | Parabole tournée vers le **haut** (∪) | Point **minimum** |
+| $a < 0$ | Parabole tournée vers le **bas** (∩) | Point **maximum** |
+
+### Axe de symétrie
+
+La parabole admet un **axe de symétrie** vertical d'équation :
+
+$$x = \\alpha = -\\frac{b}{2a}$$
+
+### Sommet de la parabole
+
+Le sommet a pour coordonnées $S(\\alpha ;\; \\beta)$.
+
+---
+
+## Résolution graphique de $ax^2 + bx + c = 0$
+
+Résoudre $f(x) = 0$ revient à chercher les **points d'intersection** de la parabole $y = f(x)$ avec l'**axe des abscisses** ($y = 0$).
+
+### Les trois cas possibles
+
+**Cas 1 : Deux points d'intersection**
+
+La parabole coupe l'axe des $x$ en deux points. L'équation $f(x) = 0$ a **deux solutions distinctes** $x_1$ et $x_2$.
+
+*Exemple :* $f(x) = x^2 - 5x + 6$
+
+Le sommet est en $\\alpha = \\frac{5}{2} = 2{,}5$ et $\\beta = (2{,}5)^2 - 5 \\times 2{,}5 + 6 = -0{,}25 < 0$.
+
+Comme $a = 1 > 0$ et $\\beta < 0$, la parabole coupe l'axe des $x$ en deux points → deux solutions.
+
+**Cas 2 : Un seul point d'intersection**
+
+La parabole est **tangente** à l'axe des $x$. L'équation a **une solution double** $x_0 = \\alpha$.
+
+*Exemple :* $f(x) = x^2 - 4x + 4 = (x - 2)^2$
+
+Le sommet est en $(2 ;\; 0)$, qui est sur l'axe des $x$ → une solution double $x = 2$.
+
+**Cas 3 : Aucun point d'intersection**
+
+La parabole ne coupe **pas** l'axe des $x$. L'équation n'a **aucune solution** réelle.
+
+*Exemple :* $f(x) = x^2 + 1$
+
+Le sommet est en $(0 ;\; 1)$. Comme $a > 0$ et $\\beta = 1 > 0$, la parabole est entièrement au-dessus de l'axe des $x$ → aucune solution.
+
+---
+
+## Lien entre les racines et la parabole
+
+Si $f(x) = a(x - x_1)(x - x_2)$, alors :
+
+- Les racines $x_1$ et $x_2$ sont les **abscisses des points d'intersection** avec l'axe des $x$.
+- L'axe de symétrie passe par le **milieu** des deux racines :
+
+$$\\alpha = \\frac{x_1 + x_2}{2}$$
+
+**Exemple :** Pour $f(x) = 2(x-1)(x-3)$, les racines sont $1$ et $3$.
+
+L'axe de symétrie est $x = \\frac{1+3}{2} = 2$, et le sommet est $S(2 ;\; f(2)) = S(2 ;\; -2)$.
+
+---
+
+## Exercices résolus
+
+### Exercice 1
+Mettre $f(x) = 3x^2 + 12x + 9$ sous forme canonique.
+
+**Solution :**
+
+$$\\alpha = -\\frac{12}{2 \\times 3} = -\\frac{12}{6} = -2$$
+
+$$\\beta = f(-2) = 3 \\times (-2)^2 + 12 \\times (-2) + 9 = 12 - 24 + 9 = -3$$
+
+$$f(x) = 3(x + 2)^2 - 3$$
+
+### Exercice 2
+Sans calculer, combien de solutions a $-2x^2 + 3x - 5 = 0$ ?
+
+**Solution :** On a $a = -2 < 0$ (parabole tournée vers le bas). Calculons $\\beta$ :
+
+$$\\alpha = -\\frac{3}{2 \\times (-2)} = \\frac{3}{4}$$
+
+$$\\beta = f\\left(\\frac{3}{4}\\right) = -2 \\times \\frac{9}{16} + 3 \\times \\frac{3}{4} - 5 = -\\frac{9}{8} + \\frac{9}{4} - 5 = -\\frac{9}{8} + \\frac{18}{8} - \\frac{40}{8} = -\\frac{31}{8} < 0$$
+
+Comme $a < 0$ et $\\beta < 0$, le sommet est en dessous de l'axe des $x$ et la parabole est tournée vers le bas : la parabole est entièrement **en dessous** de l'axe des $x$ → **aucune solution**.
+
+### Exercice 3
+La parabole $y = x^2 - 2x - 3$ coupe-t-elle l'axe des $x$ ? Si oui, en quels points ?
+
+**Solution :** Cherchons le sommet :
+$$\\alpha = -\\frac{-2}{2 \\times 1} = 1, \\quad \\beta = 1 - 2 - 3 = -4$$
+
+Comme $a = 1 > 0$ et $\\beta = -4 < 0$, la parabole coupe l'axe des $x$ en **deux points**.
+
+On factorise : $x^2 - 2x - 3 = (x - 3)(x + 1)$ (on vérifie : $(x-3)(x+1) = x^2 + x - 3x - 3 = x^2 - 2x - 3$ ✓).
+
+Les solutions sont $x = 3$ et $x = -1$.""",
+                'quiz': {
+                    'titre': 'Quiz — Forme canonique et résolution graphique',
+                    'questions': [
+                        {
+                            'ordre': 1,
+                            'type': 'qcm',
+                            'texte': "Quel est le coefficient $a$ dans le polynôme $f(x) = 3x^2 - 5x + 2$ ?",
+                            'options': ["$a = 3$", "$a = -5$", "$a = 2$", "$a = -3$"],
+                            'reponse_correcte': '0',
+                            'explication': "Dans $f(x) = ax^2 + bx + c$, le coefficient $a$ est celui devant $x^2$. Ici $a = 3$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 2,
+                            'type': 'qcm',
+                            'texte': "La parabole d'équation $y = 2x^2 + 1$ est tournée vers :",
+                            'options': ["Le haut", "Le bas", "La droite", "La gauche"],
+                            'reponse_correcte': '0',
+                            'explication': "Le coefficient $a = 2 > 0$, donc la parabole est tournée vers le haut (forme ∪).",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 3,
+                            'type': 'qcm',
+                            'texte': "Quelle est l'abscisse du sommet de la parabole $f(x) = x^2 - 4x + 3$ ?",
+                            'options': ["$2$", "$-2$", "$4$", "$3$"],
+                            'reponse_correcte': '0',
+                            'explication': "L'abscisse du sommet est $\\alpha = -\\frac{b}{2a} = -\\frac{-4}{2 \\times 1} = 2$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 4,
+                            'type': 'qcm',
+                            'texte': "Le sommet de la parabole $y = -x^2 + 6x - 5$ est un point :",
+                            'options': ["Maximum", "Minimum", "D'inflexion", "Quelconque"],
+                            'reponse_correcte': '0',
+                            'explication': "Comme $a = -1 < 0$, la parabole est tournée vers le bas : le sommet est un maximum.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 5,
+                            'type': 'qcm',
+                            'texte': "Quelle est la forme canonique de $f(x) = x^2 - 6x + 9$ ?",
+                            'options': ["$(x - 3)^2$", "$(x + 3)^2$", "$(x - 3)^2 + 9$", "$(x - 6)^2$"],
+                            'reponse_correcte': '0',
+                            'explication': "$\\alpha = 3$ et $\\beta = 9 - 18 + 9 = 0$. Donc $f(x) = (x - 3)^2$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 6,
+                            'type': 'qcm',
+                            'texte': "L'axe de symétrie de la parabole $y = x^2 + 2x + 1$ a pour équation :",
+                            'options': ["$x = -1$", "$x = 1$", "$x = 0$", "$x = 2$"],
+                            'reponse_correcte': '0',
+                            'explication': "L'axe de symétrie est $x = \\alpha = -\\frac{2}{2 \\times 1} = -1$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 7,
+                            'type': 'qcm',
+                            'texte': "Le polynôme $f(x) = 5x^2 - 10x + 3$ est de degré :",
+                            'options': ["2", "1", "3", "5"],
+                            'reponse_correcte': '0',
+                            'explication': "Le terme de plus haut degré est $5x^2$ : le polynôme est de degré 2.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 8,
+                            'type': 'qcm',
+                            'texte': "Dans la forme canonique $f(x) = a(x - \\alpha)^2 + \\beta$, le point $(\\alpha ;\\ \\beta)$ représente :",
+                            'options': ["Le sommet de la parabole", "L'intersection avec l'axe des ordonnées", "L'intersection avec l'axe des abscisses", "Le point d'inflexion"],
+                            'reponse_correcte': '0',
+                            'explication': "Le point $(\\alpha ;\\ \\beta)$ est le sommet de la parabole, c'est-à-dire son extremum.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 9,
+                            'type': 'qcm',
+                            'texte': "Quelle est la forme canonique de $f(x) = 2x^2 - 8x + 6$ ?",
+                            'options': ["$2(x - 2)^2 - 2$", "$2(x + 2)^2 - 2$", "$2(x - 2)^2 + 6$", "$2(x - 4)^2 - 2$"],
+                            'reponse_correcte': '0',
+                            'explication': "$\\alpha = \\frac{8}{4} = 2$ et $\\beta = 2(4) - 16 + 6 = -2$. Donc $f(x) = 2(x - 2)^2 - 2$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 10,
+                            'type': 'qcm',
+                            'texte': "Le sommet de la parabole $y = -3x^2 + 12x - 7$ a pour coordonnées :",
+                            'options': ["$(2 ;\\ 5)$", "$(-2 ;\\ 5)$", "$(2 ;\\ -5)$", "$(4 ;\\ 5)$"],
+                            'reponse_correcte': '0',
+                            'explication': "$\\alpha = -\\frac{12}{2 \\times (-3)} = 2$ et $\\beta = -3(4) + 24 - 7 = 5$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 11,
+                            'type': 'qcm',
+                            'texte': "La parabole $y = x^2 - 4x + 5$ coupe l'axe des abscisses :",
+                            'options': ["En aucun point", "En deux points", "En un seul point", "On ne peut pas savoir"],
+                            'reponse_correcte': '0',
+                            'explication': "$\\alpha = 2$ et $\\beta = 4 - 8 + 5 = 1 > 0$. Comme $a > 0$ et $\\beta > 0$, la parabole est entièrement au-dessus de l'axe des abscisses.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 12,
+                            'type': 'qcm',
+                            'texte': "Si $f(x) = a(x - 1)(x - 5)$, l'axe de symétrie de la parabole a pour équation :",
+                            'options': ["$x = 3$", "$x = 1$", "$x = 5$", "$x = -3$"],
+                            'reponse_correcte': '0',
+                            'explication': "L'axe de symétrie passe par le milieu des racines : $x = \\frac{1 + 5}{2} = 3$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 13,
+                            'type': 'qcm',
+                            'texte': "On sait que $f(x) = -(x - 3)^2 + 4$. Quelle est la valeur maximale de $f$ ?",
+                            'options': ["$4$", "$3$", "$-4$", "$9$"],
+                            'reponse_correcte': '0',
+                            'explication': "Comme $a = -1 < 0$, le sommet $(3 ;\\ 4)$ est un maximum. La valeur maximale est $\\beta = 4$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 14,
+                            'type': 'qcm',
+                            'texte': "La parabole $y = x^2 + 2x - 3$ coupe l'axe des abscisses en $x = -3$ et $x = 1$. L'abscisse du sommet est :",
+                            'options': ["$-1$", "$1$", "$0$", "$-2$"],
+                            'reponse_correcte': '0',
+                            'explication': "Le sommet est au milieu des racines : $\\alpha = \\frac{-3 + 1}{2} = -1$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 15,
+                            'type': 'vrai_faux',
+                            'texte': "Si $a > 0$, la fonction $f(x) = ax^2 + bx + c$ admet un minimum.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "Quand $a > 0$, la parabole est tournée vers le haut : le sommet est un minimum.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 16,
+                            'type': 'vrai_faux',
+                            'texte': "La parabole $y = x^2 - 2x + 5$ coupe l'axe des abscisses.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "$\\alpha = 1$ et $\\beta = 1 - 2 + 5 = 4 > 0$. Comme $a > 0$ et le sommet est au-dessus de l'axe des $x$, la parabole ne le coupe pas.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 17,
+                            'type': 'vrai_faux',
+                            'texte': "Le sommet d'une parabole $y = ax^2 + bx + c$ est toujours situé sur l'axe des ordonnées.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "Le sommet est sur l'axe des ordonnées uniquement si $\\alpha = -\\frac{b}{2a} = 0$, c'est-à-dire si $b = 0$. Ce n'est pas toujours le cas.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 18,
+                            'type': 'texte_libre',
+                            'texte': "Soit $f(x) = 2x^2 + 12x + 10$. Calculer l'ordonnée $\\beta$ du sommet de la parabole.",
+                            'options': None,
+                            'reponse_correcte': '-8',
+                            'tolerances': ['-8', 'β = -8', 'beta = -8'],
+                            'explication': "$\\alpha = -\\frac{12}{4} = -3$. $\\beta = f(-3) = 2(9) + 12(-3) + 10 = 18 - 36 + 10 = -8$.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 19,
+                            'type': 'texte_libre',
+                            'texte': "La parabole $y = x^2 - 8x + 15$ coupe l'axe des abscisses en deux points. Donner la plus grande des deux abscisses.",
+                            'options': None,
+                            'reponse_correcte': '5',
+                            'tolerances': ['5', 'x = 5', 'x=5'],
+                            'explication': "On factorise : $x^2 - 8x + 15 = (x - 3)(x - 5) = 0$. Les solutions sont $3$ et $5$, la plus grande est $5$.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 20,
+                            'type': 'texte_libre',
+                            'texte': "Mettre $f(x) = x^2 + 4x + 1$ sous forme canonique. Quelle est la valeur de $\\beta$ ?",
+                            'options': None,
+                            'reponse_correcte': '-3',
+                            'tolerances': ['-3', 'β = -3', 'beta = -3'],
+                            'explication': "$\\alpha = -\\frac{4}{2} = -2$ et $\\beta = f(-2) = 4 - 8 + 1 = -3$. Forme canonique : $(x + 2)^2 - 3$.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                    ],
+                },
+            },
+            {
+                'ordre': 2,
+                'titre': 'Résolution algébrique et factorisation',
+                'duree': 30,
+                'contenu': """# Résolution algébrique et factorisation
+
+## Introduction
+
+Dans la leçon précédente, nous avons vu comment résoudre graphiquement une équation du second degré. Nous allons maintenant apprendre les **méthodes algébriques** qui permettent de trouver les solutions exactes de $ax^2 + bx + c = 0$.
+
+---
+
+## Cas particuliers simples
+
+Avant d'utiliser la formule générale, il est important de repérer les cas où la résolution est immédiate.
+
+### Cas 1 : Équation sans terme constant ($c = 0$)
+
+Si $c = 0$, l'équation devient :
+
+$$ax^2 + bx = 0$$
+
+On **factorise par $x$** :
+
+$$x(ax + b) = 0$$
+
+Un produit est nul si et seulement si l'un de ses facteurs est nul :
+
+$$x = 0 \\quad \\text{ou} \\quad ax + b = 0 \\iff x = -\\frac{b}{a}$$
+
+**Exemple :** Résoudre $3x^2 - 6x = 0$.
+
+$$3x^2 - 6x = 0 \\iff 3x(x - 2) = 0$$
+
+Donc $x = 0$ ou $x = 2$. L'ensemble des solutions est $\\mathcal{S} = \\{0 ;\; 2\\}$.
+
+### Cas 2 : Équation sans terme en $x$ ($b = 0$)
+
+Si $b = 0$, l'équation devient :
+
+$$ax^2 + c = 0 \\iff ax^2 = -c \\iff x^2 = -\\frac{c}{a}$$
+
+- Si $-\\frac{c}{a} > 0$ : deux solutions $x = \\pm\\sqrt{-\\frac{c}{a}}$
+- Si $-\\frac{c}{a} = 0$ : une solution $x = 0$
+- Si $-\\frac{c}{a} < 0$ : aucune solution (un carré ne peut pas être négatif)
+
+**Exemple :** Résoudre $2x^2 - 18 = 0$.
+
+$$2x^2 = 18 \\iff x^2 = 9 \\iff x = 3 \\text{ ou } x = -3$$
+
+$\\mathcal{S} = \\{-3 ;\; 3\\}$.
+
+**Exemple :** Résoudre $x^2 + 4 = 0$.
+
+$$x^2 = -4$$
+
+Un carré est toujours positif ou nul, donc cette équation n'a **aucune solution** réelle. $\\mathcal{S} = \\emptyset$.
+
+### Cas 3 : Identités remarquables
+
+Parfois on reconnaît une identité remarquable :
+
+- $a^2 - b^2 = (a-b)(a+b)$
+- $a^2 + 2ab + b^2 = (a+b)^2$
+- $a^2 - 2ab + b^2 = (a-b)^2$
+
+**Exemple :** Résoudre $x^2 - 16 = 0$.
+
+On reconnaît $a^2 - b^2$ avec $a = x$ et $b = 4$ :
+
+$$x^2 - 16 = (x-4)(x+4) = 0$$
+
+Donc $x = 4$ ou $x = -4$. $\\mathcal{S} = \\{-4 ;\; 4\\}$.
+
+**Exemple :** Résoudre $4x^2 - 12x + 9 = 0$.
+
+On reconnaît $(2x)^2 - 2 \\times 2x \\times 3 + 3^2 = (2x - 3)^2$ :
+
+$$4x^2 - 12x + 9 = (2x - 3)^2 = 0 \\iff 2x - 3 = 0 \\iff x = \\frac{3}{2}$$
+
+$\\mathcal{S} = \\left\\{\\frac{3}{2}\\right\\}$.
+
+---
+
+## Le discriminant $\\Delta$
+
+Pour résoudre le cas général $ax^2 + bx + c = 0$ (avec $a \\neq 0$), on utilise le **discriminant**.
+
+### Définition
+
+Le discriminant de l'équation $ax^2 + bx + c = 0$ est le nombre :
+
+$$\\Delta = b^2 - 4ac$$
+
+### Le signe de $\\Delta$ détermine le nombre de solutions
+
+| Signe de $\\Delta$ | Nombre de solutions | Interprétation graphique |
+|:---:|:---:|:---:|
+| $\\Delta > 0$ | **2 solutions distinctes** | La parabole coupe l'axe des $x$ en 2 points |
+| $\\Delta = 0$ | **1 solution double** | La parabole est tangente à l'axe des $x$ |
+| $\\Delta < 0$ | **Aucune solution** réelle | La parabole ne coupe pas l'axe des $x$ |
+
+---
+
+## Les formules des racines
+
+### Quand $\\Delta > 0$ : deux solutions
+
+$$x_1 = \\frac{-b - \\sqrt{\\Delta}}{2a} \\qquad \\text{et} \\qquad x_2 = \\frac{-b + \\sqrt{\\Delta}}{2a}$$
+
+Ou de manière compacte :
+
+$$x = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}$$
+
+### Quand $\\Delta = 0$ : une solution double
+
+$$x_0 = -\\frac{b}{2a}$$
+
+### Quand $\\Delta < 0$
+
+Aucune solution réelle.
+
+---
+
+## Méthode complète de résolution
+
+Pour résoudre $ax^2 + bx + c = 0$ :
+
+1. **Identifier** $a$, $b$ et $c$
+2. **Calculer** $\\Delta = b^2 - 4ac$
+3. **Conclure** selon le signe de $\\Delta$
+
+### Exemple détaillé 1
+
+Résoudre $2x^2 - 7x + 3 = 0$.
+
+**Étape 1 :** $a = 2$, $b = -7$, $c = 3$.
+
+**Étape 2 :** $\\Delta = (-7)^2 - 4 \\times 2 \\times 3 = 49 - 24 = 25$.
+
+**Étape 3 :** $\\Delta = 25 > 0$ → deux solutions.
+
+$$x_1 = \\frac{-(-7) - \\sqrt{25}}{2 \\times 2} = \\frac{7 - 5}{4} = \\frac{2}{4} = \\frac{1}{2}$$
+
+$$x_2 = \\frac{-(-7) + \\sqrt{25}}{2 \\times 2} = \\frac{7 + 5}{4} = \\frac{12}{4} = 3$$
+
+$\\mathcal{S} = \\left\\{\\frac{1}{2} ;\; 3\\right\\}$.
+
+### Exemple détaillé 2
+
+Résoudre $x^2 - 6x + 9 = 0$.
+
+**Étape 1 :** $a = 1$, $b = -6$, $c = 9$.
+
+**Étape 2 :** $\\Delta = (-6)^2 - 4 \\times 1 \\times 9 = 36 - 36 = 0$.
+
+**Étape 3 :** $\\Delta = 0$ → une solution double.
+
+$$x_0 = -\\frac{-6}{2 \\times 1} = \\frac{6}{2} = 3$$
+
+$\\mathcal{S} = \\{3\\}$.
+
+On vérifie : $x^2 - 6x + 9 = (x - 3)^2$ ✓.
+
+### Exemple détaillé 3
+
+Résoudre $3x^2 + 2x + 1 = 0$.
+
+**Étape 1 :** $a = 3$, $b = 2$, $c = 1$.
+
+**Étape 2 :** $\\Delta = 2^2 - 4 \\times 3 \\times 1 = 4 - 12 = -8$.
+
+**Étape 3 :** $\\Delta = -8 < 0$ → **aucune solution** réelle.
+
+$\\mathcal{S} = \\emptyset$.
+
+---
+
+## Factorisation d'un polynôme du second degré
+
+Le discriminant permet aussi de factoriser le polynôme.
+
+### Si $\\Delta > 0$
+
+$$ax^2 + bx + c = a(x - x_1)(x - x_2)$$
+
+**Exemple :** $2x^2 - 7x + 3$ avec $x_1 = \\frac{1}{2}$ et $x_2 = 3$ :
+
+$$2x^2 - 7x + 3 = 2\\left(x - \\frac{1}{2}\\right)(x - 3)$$
+
+### Si $\\Delta = 0$
+
+$$ax^2 + bx + c = a(x - x_0)^2$$
+
+**Exemple :** $x^2 - 6x + 9 = (x - 3)^2$.
+
+### Si $\\Delta < 0$
+
+Le polynôme **ne se factorise pas** dans $\\mathbb{R}$ (il garde un signe constant).
+
+---
+
+## Somme et produit des racines
+
+Lorsque $\\Delta \\geq 0$, les racines $x_1$ et $x_2$ vérifient des relations remarquables :
+
+$$x_1 + x_2 = -\\frac{b}{a}$$
+
+$$x_1 \\times x_2 = \\frac{c}{a}$$
+
+Ces formules sont très utiles pour **vérifier** un résultat ou pour reconstituer une équation à partir de ses racines.
+
+**Exemple :** Pour $2x^2 - 7x + 3 = 0$, on a trouvé $x_1 = \\frac{1}{2}$ et $x_2 = 3$.
+
+Vérification :
+- $x_1 + x_2 = \\frac{1}{2} + 3 = \\frac{7}{2} = -\\frac{b}{a} = -\\frac{-7}{2} = \\frac{7}{2}$ ✓
+- $x_1 \\times x_2 = \\frac{1}{2} \\times 3 = \\frac{3}{2} = \\frac{c}{a} = \\frac{3}{2}$ ✓
+
+**Application :** Trouver une équation du second degré dont les racines sont $4$ et $-1$.
+
+- Somme : $4 + (-1) = 3 = -\\frac{b}{a}$
+- Produit : $4 \\times (-1) = -4 = \\frac{c}{a}$
+
+En prenant $a = 1$ : $b = -3$ et $c = -4$.
+
+L'équation est $x^2 - 3x - 4 = 0$.
+
+Vérification : $\\Delta = 9 + 16 = 25$, $x = \\frac{3 \\pm 5}{2}$ → $x = 4$ ou $x = -1$ ✓.
+
+---
+
+## Exercices résolus
+
+### Exercice 1
+Résoudre $5x^2 + 3x - 2 = 0$.
+
+**Solution :**
+
+$a = 5$, $b = 3$, $c = -2$.
+
+$\\Delta = 3^2 - 4 \\times 5 \\times (-2) = 9 + 40 = 49 > 0$.
+
+$$x_1 = \\frac{-3 - 7}{10} = \\frac{-10}{10} = -1 \\qquad x_2 = \\frac{-3 + 7}{10} = \\frac{4}{10} = \\frac{2}{5}$$
+
+$\\mathcal{S} = \\left\\{-1 ;\; \\frac{2}{5}\\right\\}$.
+
+### Exercice 2
+Résoudre $-x^2 + 4x - 4 = 0$.
+
+**Solution :**
+
+$a = -1$, $b = 4$, $c = -4$.
+
+$\\Delta = 16 - 4 \\times (-1) \\times (-4) = 16 - 16 = 0$.
+
+Solution double : $x_0 = -\\frac{4}{2 \\times (-1)} = 2$.
+
+$\\mathcal{S} = \\{2\\}$.
+
+### Exercice 3
+Factoriser $P(x) = 6x^2 - x - 2$.
+
+**Solution :**
+
+$\\Delta = (-1)^2 - 4 \\times 6 \\times (-2) = 1 + 48 = 49$.
+
+$x_1 = \\frac{1 - 7}{12} = \\frac{-6}{12} = -\\frac{1}{2}$ et $x_2 = \\frac{1 + 7}{12} = \\frac{8}{12} = \\frac{2}{3}$.
+
+$$P(x) = 6\\left(x + \\frac{1}{2}\\right)\\left(x - \\frac{2}{3}\\right)$$
+
+Ou encore : $P(x) = (2x + 1)(3x - 2)$.
+
+### Exercice 4
+Sans résoudre, déterminer la somme et le produit des racines de $4x^2 + 8x - 5 = 0$, puis vérifier.
+
+**Solution :**
+
+$S = x_1 + x_2 = -\\frac{8}{4} = -2$ et $P = x_1 \\times x_2 = \\frac{-5}{4}$.
+
+Vérification : $\\Delta = 64 + 80 = 144$, $\\sqrt{\\Delta} = 12$.
+
+$x_1 = \\frac{-8 - 12}{8} = -\\frac{20}{8} = -\\frac{5}{2}$ et $x_2 = \\frac{-8 + 12}{8} = \\frac{4}{8} = \\frac{1}{2}$.
+
+$S = -\\frac{5}{2} + \\frac{1}{2} = -2$ ✓ et $P = -\\frac{5}{2} \\times \\frac{1}{2} = -\\frac{5}{4}$ ✓.""",
+                'quiz': {
+                    'titre': 'Quiz — Résolution algébrique et factorisation',
+                    'questions': [
+                        {
+                            'ordre': 1,
+                            'type': 'qcm',
+                            'texte': "Quelle est la formule du discriminant de $ax^2 + bx + c = 0$ ?",
+                            'options': ["$\\Delta = b^2 - 4ac$", "$\\Delta = b^2 + 4ac$", "$\\Delta = 4ac - b^2$", "$\\Delta = a^2 - 4bc$"],
+                            'reponse_correcte': '0',
+                            'explication': "Le discriminant est $\\Delta = b^2 - 4ac$. C'est la formule de base pour résoudre une équation du second degré.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 2,
+                            'type': 'qcm',
+                            'texte': "Si $\\Delta > 0$, l'équation $ax^2 + bx + c = 0$ admet :",
+                            'options': ["Deux solutions distinctes", "Une solution double", "Aucune solution réelle", "Une infinité de solutions"],
+                            'reponse_correcte': '0',
+                            'explication': "Quand $\\Delta > 0$, la parabole coupe l'axe des abscisses en deux points : il y a deux solutions distinctes.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 3,
+                            'type': 'qcm',
+                            'texte': "Quelles sont les solutions de $x^2 - 9 = 0$ ?",
+                            'options': ["$x = 3$ ou $x = -3$", "$x = 9$", "$x = 3$", "Aucune solution"],
+                            'reponse_correcte': '0',
+                            'explication': "$x^2 = 9$ donne $x = \\sqrt{9} = 3$ ou $x = -\\sqrt{9} = -3$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 4,
+                            'type': 'qcm',
+                            'texte': "Quelles sont les solutions de $x(x - 5) = 0$ ?",
+                            'options': ["$x = 0$ ou $x = 5$", "$x = 5$ uniquement", "$x = 0$ uniquement", "$x = -5$ ou $x = 0$"],
+                            'reponse_correcte': '0',
+                            'explication': "Un produit est nul si et seulement si l'un de ses facteurs est nul : $x = 0$ ou $x - 5 = 0$, soit $x = 5$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 5,
+                            'type': 'qcm',
+                            'texte': "Le discriminant de $x^2 + 4x + 4 = 0$ vaut :",
+                            'options': ["$0$", "$16$", "$-16$", "$32$"],
+                            'reponse_correcte': '0',
+                            'explication': "$\\Delta = 4^2 - 4 \\times 1 \\times 4 = 16 - 16 = 0$. L'équation a une solution double.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 6,
+                            'type': 'qcm',
+                            'texte': "Si $\\Delta = 0$, l'équation $ax^2 + bx + c = 0$ admet :",
+                            'options': ["Une solution double", "Deux solutions distinctes", "Aucune solution réelle", "Trois solutions"],
+                            'reponse_correcte': '0',
+                            'explication': "Quand $\\Delta = 0$, la parabole est tangente à l'axe des abscisses : il y a une solution double $x_0 = -\\frac{b}{2a}$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 7,
+                            'type': 'qcm',
+                            'texte': "Les solutions de $x^2 - 5x = 0$ sont :",
+                            'options': ["$x = 0$ et $x = 5$", "$x = 5$ uniquement", "$x = 0$ uniquement", "$x = -5$ et $x = 0$"],
+                            'reponse_correcte': '0',
+                            'explication': "On factorise : $x(x - 5) = 0$, donc $x = 0$ ou $x = 5$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 8,
+                            'type': 'qcm',
+                            'texte': "Les solutions de $x^2 = 25$ sont :",
+                            'options': ["$x = 5$ ou $x = -5$", "$x = 5$", "$x = 25$", "$x = \\pm\\sqrt{5}$"],
+                            'reponse_correcte': '0',
+                            'explication': "$x^2 = 25$ implique $x = \\sqrt{25} = 5$ ou $x = -\\sqrt{25} = -5$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 9,
+                            'type': 'qcm',
+                            'texte': "Quel est le discriminant de $2x^2 - 3x - 2 = 0$ ?",
+                            'options': ["$25$", "$-7$", "$9$", "$7$"],
+                            'reponse_correcte': '0',
+                            'explication': "$\\Delta = (-3)^2 - 4 \\times 2 \\times (-2) = 9 + 16 = 25$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 10,
+                            'type': 'qcm',
+                            'texte': "Les solutions de $2x^2 - 7x + 3 = 0$ sont :",
+                            'options': ["$x = \\frac{1}{2}$ et $x = 3$", "$x = -\\frac{1}{2}$ et $x = -3$", "$x = 1$ et $x = 3$", "$x = \\frac{7}{4}$"],
+                            'reponse_correcte': '0',
+                            'explication': "$\\Delta = 49 - 24 = 25$. $x_1 = \\frac{7 - 5}{4} = \\frac{1}{2}$ et $x_2 = \\frac{7 + 5}{4} = 3$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 11,
+                            'type': 'qcm',
+                            'texte': "La factorisation de $x^2 - 5x + 6$ est :",
+                            'options': ["$(x - 2)(x - 3)$", "$(x + 2)(x + 3)$", "$(x - 1)(x - 6)$", "$(x - 2)(x + 3)$"],
+                            'reponse_correcte': '0',
+                            'explication': "$\\Delta = 25 - 24 = 1$. $x_1 = \\frac{5 - 1}{2} = 2$ et $x_2 = \\frac{5 + 1}{2} = 3$. Donc $x^2 - 5x + 6 = (x - 2)(x - 3)$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 12,
+                            'type': 'qcm',
+                            'texte': "Si les racines d'une équation du second degré sont $x_1 = 2$ et $x_2 = -3$, leur somme vaut :",
+                            'options': ["$-1$", "$5$", "$1$", "$-6$"],
+                            'reponse_correcte': '0',
+                            'explication': "$x_1 + x_2 = 2 + (-3) = -1$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 13,
+                            'type': 'qcm',
+                            'texte': "Le polynôme $3x^2 + 2x + 1$ avec $\\Delta = 4 - 12 = -8$ :",
+                            'options': ["Ne se factorise pas dans $\\mathbb{R}$", "A deux racines réelles", "A une racine double", "Se factorise en $3(x + 1)^2$"],
+                            'reponse_correcte': '0',
+                            'explication': "$\\Delta = -8 < 0$ : le polynôme n'a pas de racine réelle et ne se factorise pas dans $\\mathbb{R}$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 14,
+                            'type': 'qcm',
+                            'texte': "Pour l'équation $x^2 - x - 12 = 0$, le produit des racines vaut :",
+                            'options': ["$-12$", "$12$", "$1$", "$-1$"],
+                            'reponse_correcte': '0',
+                            'explication': "Le produit des racines est $\\frac{c}{a} = \\frac{-12}{1} = -12$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 15,
+                            'type': 'vrai_faux',
+                            'texte': "L'équation $x^2 + 1 = 0$ n'a aucune solution réelle.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "$\\Delta = 0 - 4 = -4 < 0$. L'équation n'a aucune solution réelle car un carré est toujours positif ou nul.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 16,
+                            'type': 'vrai_faux',
+                            'texte': "Si $\\Delta = 0$, le polynôme $ax^2 + bx + c$ peut s'écrire $a(x - x_0)^2$.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "Quand $\\Delta = 0$, il y a une racine double $x_0 = -\\frac{b}{2a}$ et le polynôme se factorise en $a(x - x_0)^2$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 17,
+                            'type': 'vrai_faux',
+                            'texte': "La somme des racines de $ax^2 + bx + c = 0$ est toujours positive.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "La somme des racines vaut $-\\frac{b}{a}$, qui peut être positive, négative ou nulle selon les valeurs de $a$ et $b$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 18,
+                            'type': 'texte_libre',
+                            'texte': "Calculer le discriminant de l'équation $3x^2 - 4x - 4 = 0$.",
+                            'options': None,
+                            'reponse_correcte': '64',
+                            'tolerances': ['64', 'Δ = 64', 'delta = 64'],
+                            'explication': "$\\Delta = (-4)^2 - 4 \\times 3 \\times (-4) = 16 + 48 = 64$.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 19,
+                            'type': 'texte_libre',
+                            'texte': "Résoudre $x^2 - 4x - 5 = 0$. Donner la plus grande racine.",
+                            'options': None,
+                            'reponse_correcte': '5',
+                            'tolerances': ['5', 'x = 5', 'x=5'],
+                            'explication': "$\\Delta = 16 + 20 = 36$. $x = \\frac{4 \\pm 6}{2}$, donc $x = 5$ ou $x = -1$. La plus grande est $5$.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 20,
+                            'type': 'texte_libre',
+                            'texte': "Les racines de $x^2 + bx + 10 = 0$ sont $2$ et $5$. Quelle est la valeur de $b$ ?",
+                            'options': None,
+                            'reponse_correcte': '-7',
+                            'tolerances': ['-7', 'b = -7', 'b=-7'],
+                            'explication': "La somme des racines vaut $2 + 5 = 7 = -\\frac{b}{1}$, donc $b = -7$.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                    ],
+                },
+            },
+        ],
+    },
 ]
 
 
 class Command(BaseCommand):
-    help = "Seed Mathématiques Seconde — 12 chapitres, leçons (sans quiz)."
+    help = "Seed Mathématiques Seconde — 13 chapitres, leçons (sans quiz)."
 
     def handle(self, *args, **options):
         matiere, created = Matiere.objects.get_or_create(

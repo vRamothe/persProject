@@ -1,5 +1,5 @@
 """
-Seed Mathématiques Première — 8 chapitres, leçons uniquement (sans quiz).
+Seed Mathématiques Première — 9 chapitres, leçons uniquement (sans quiz).
 Usage : python manage.py seed_maths_premiere
 """
 
@@ -7838,11 +7838,841 @@ C'est le **cercle de diamètre $[AB]$**, de centre $(2 ; 0)$ et de rayon 2. ✓
             },
         ],
     },
+    # ──────────────────────────────────────────────
+    # CHAPITRE 9 — Généralités sur les fonctions
+    # ──────────────────────────────────────────────
+    {
+        'ordre': 9,
+        'titre': 'Généralités sur les fonctions',
+        'description': "Ensemble de définition, parité, monotonie, composition de fonctions et valeur absolue.",
+        'score_minimum': 60.0,
+        'lecons': [
+            {
+                'ordre': 1,
+                'titre': 'Ensemble de définition, parité et monotonie',
+                'duree': 30,
+                'contenu': """# Ensemble de définition, parité et monotonie
+
+## Introduction
+
+Avant d'étudier une fonction en détail (dérivation, limites…), il est essentiel de connaître ses **propriétés générales** : sur quel ensemble est-elle définie ? Présente-t-elle des symétries ? Comment varie-t-elle ? Ce chapitre pose les bases de l'analyse de fonctions en classe de Première.
+
+---
+
+## 1. Ensemble de définition
+
+### Définition
+
+L'**ensemble de définition** d'une fonction $f$, noté $D_f$, est l'ensemble de toutes les valeurs de $x$ pour lesquelles $f(x)$ existe.
+
+> Autrement dit, $D_f = \\{x \\in \\mathbb{R} \\mid f(x) \\text{ est défini}\\}$.
+
+### Cas classiques
+
+| Expression | Condition d'existence | Ensemble de définition |
+|------------|----------------------|-----------------------|
+| $\\frac{1}{g(x)}$ | $g(x) \\neq 0$ | $\\mathbb{R} \\setminus \\{x \\mid g(x) = 0\\}$ |
+| $\\sqrt{g(x)}$ | $g(x) \\geq 0$ | $\\{x \\mid g(x) \\geq 0\\}$ |
+| $\\ln(g(x))$ | $g(x) > 0$ | $\\{x \\mid g(x) > 0\\}$ |
+
+### Exemple
+
+Soit $f(x) = \\frac{1}{x^2 - 4}$.
+
+Le dénominateur s'annule lorsque $x^2 - 4 = 0$, soit $x = -2$ ou $x = 2$.
+
+Donc $D_f = \\mathbb{R} \\setminus \\{-2 ; 2\\}$.
+
+---
+
+## 2. Image et antécédent
+
+### Définitions
+
+- L'**image** de $x$ par $f$ est le nombre $f(x)$.
+- Un **antécédent** de $y$ par $f$ est tout nombre $x$ tel que $f(x) = y$.
+
+> Un nombre peut avoir **zéro, un ou plusieurs antécédents**, mais chaque $x$ de $D_f$ a **exactement une image**.
+
+### Exemple
+
+Soit $f(x) = x^2$.
+
+- L'image de $3$ est $f(3) = 9$.
+- Les antécédents de $4$ sont $x = 2$ et $x = -2$ car $f(2) = f(-2) = 4$.
+- Le nombre $-1$ n'a **aucun antécédent** car $x^2 \\geq 0$ pour tout $x$.
+
+---
+
+## 3. Courbe représentative
+
+La **courbe représentative** de $f$, notée $\\mathcal{C}_f$, est l'ensemble des points $M(x ; f(x))$ pour $x \\in D_f$.
+
+- Dire que $M(a ; b) \\in \\mathcal{C}_f$ signifie que $b = f(a)$.
+- Lire l'image de $a$ revient à lire l'ordonnée du point d'abscisse $a$ sur $\\mathcal{C}_f$.
+- Trouver les antécédents de $b$ revient à tracer la droite $y = b$ et lire les abscisses des points d'intersection.
+
+---
+
+## 4. Parité d'une fonction
+
+### Prérequis
+
+Pour étudier la parité, il faut d'abord que $D_f$ soit **symétrique par rapport à $0$** : pour tout $x \\in D_f$, on a aussi $-x \\in D_f$.
+
+### Définitions
+
+- $f$ est **paire** si pour tout $x \\in D_f$ : $f(-x) = f(x)$.
+- $f$ est **impaire** si pour tout $x \\in D_f$ : $f(-x) = -f(x)$.
+
+### Interprétation graphique
+
+| Propriété | Symétrie de $\\mathcal{C}_f$ |
+|-----------|-----------------------------|
+| $f$ paire | Symétrie par rapport à l'**axe des ordonnées** $(Oy)$ |
+| $f$ impaire | Symétrie par rapport à l'**origine** $O$ |
+
+### Exemples
+
+**Fonction paire :** $f(x) = x^2$
+
+$f(-x) = (-x)^2 = x^2 = f(x)$ pour tout $x \\in \\mathbb{R}$.
+
+La parabole est bien symétrique par rapport à l'axe $(Oy)$.
+
+**Fonction impaire :** $g(x) = x^3$
+
+$g(-x) = (-x)^3 = -x^3 = -g(x)$ pour tout $x \\in \\mathbb{R}$.
+
+La courbe est symétrique par rapport à l'origine.
+
+**Ni paire, ni impaire :** $h(x) = x^2 + x$
+
+$h(-x) = x^2 - x \\neq h(x)$ et $h(-x) \\neq -h(x)$.
+
+### Méthode : étudier la parité
+
+1. Vérifier que $D_f$ est symétrique par rapport à $0$.
+2. Calculer $f(-x)$.
+3. Comparer $f(-x)$ avec $f(x)$ et $-f(x)$.
+
+---
+
+## 5. Monotonie
+
+### Définitions
+
+Soit $f$ définie sur un intervalle $I$ :
+
+- $f$ est **croissante** sur $I$ si pour tous $x_1, x_2 \\in I$ : $x_1 < x_2 \\Rightarrow f(x_1) \\leq f(x_2)$.
+- $f$ est **strictement croissante** sur $I$ si : $x_1 < x_2 \\Rightarrow f(x_1) < f(x_2)$.
+- $f$ est **décroissante** sur $I$ si : $x_1 < x_2 \\Rightarrow f(x_1) \\geq f(x_2)$.
+- $f$ est **strictement décroissante** sur $I$ si : $x_1 < x_2 \\Rightarrow f(x_1) > f(x_2)$.
+
+> Une fonction croissante **conserve l'ordre**, une fonction décroissante **renverse l'ordre**.
+
+### Tableau de variations
+
+On résume la monotonie d'une fonction dans un **tableau de variations** :
+
+- On indique les valeurs remarquables de $x$ (bornes, extremums).
+- Des flèches montantes ($\\nearrow$) indiquent une croissance.
+- Des flèches descendantes ($\\searrow$) indiquent une décroissance.
+
+### Exemple
+
+Soit $f(x) = x^2$ sur $\\mathbb{R}$.
+
+- $f$ est **strictement décroissante** sur $]-\\infty ; 0]$.
+- $f$ est **strictement croissante** sur $[0 ; +\\infty[$.
+- Le **minimum** de $f$ est atteint en $x = 0$ et vaut $f(0) = 0$.
+
+---
+
+## 6. Extremum local
+
+### Définition
+
+- $f$ admet un **maximum local** en $a$ s'il existe un intervalle ouvert $I$ contenant $a$ tel que $f(x) \\leq f(a)$ pour tout $x \\in I \\cap D_f$.
+- $f$ admet un **minimum local** en $a$ s'il existe un intervalle ouvert $I$ contenant $a$ tel que $f(x) \\geq f(a)$ pour tout $x \\in I \\cap D_f$.
+
+> Un extremum local correspond à un « sommet » ou un « creux » de la courbe.
+
+### Lien avec la monotonie
+
+Si $f$ est croissante puis décroissante autour de $a$, alors $f$ admet un **maximum local** en $a$.
+
+Si $f$ est décroissante puis croissante autour de $a$, alors $f$ admet un **minimum local** en $a$.
+
+### Exemple
+
+Soit $f(x) = -x^2 + 4x - 1$ sur $\\mathbb{R}$.
+
+$f$ est croissante sur $]-\\infty ; 2]$ et décroissante sur $[2 ; +\\infty[$.
+
+$f$ admet donc un **maximum local** (et global) en $x = 2$, avec $f(2) = -4 + 8 - 1 = 3$.
+
+---
+
+## À retenir
+
+- L'ensemble de définition $D_f$ détermine les valeurs de $x$ pour lesquelles $f(x)$ est calculable.
+- La **parité** (paire ou impaire) traduit une symétrie de la courbe.
+- La **monotonie** décrit le sens de variation de la fonction sur un intervalle.
+- Un **extremum local** est un maximum ou minimum atteint localement.
+- Ces propriétés permettent de dresser un premier portrait de la fonction avant toute étude approfondie.
+""",
+                'quiz': {
+                    'titre': "Quiz — Ensemble de définition, parité et monotonie",
+                    'questions': [
+                        # ── 8 QCM facile ──────────────────────────────
+                        {
+                            'ordre': 1,
+                            'type': 'qcm',
+                            'texte': "Quel est l'ensemble de définition de $f(x) = \\\\frac{1}{x - 3}$ ?",
+                            'options': ["$\\\\mathbb{R}$", "$\\\\mathbb{R} \\\\setminus \\\\{3\\\\}$", "$\\\\mathbb{R} \\\\setminus \\\\{-3\\\\}$", "$]3 ; +\\\\infty[$"],
+                            'reponse_correcte': '1',
+                            'explication': "Le dénominateur s'annule pour $x = 3$, donc $D_f = \\mathbb{R} \\setminus \\{3\\}$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 2,
+                            'type': 'qcm',
+                            'texte': "Quel est l'ensemble de définition de $g(x) = \\\\sqrt{x - 2}$ ?",
+                            'options': ["$\\\\mathbb{R}$", "$]-\\\\infty ; 2]$", "$[2 ; +\\\\infty[$", "$]2 ; +\\\\infty[$"],
+                            'reponse_correcte': '2',
+                            'explication': "Il faut $x - 2 \\geq 0$, soit $x \\geq 2$, donc $D_g = [2 ; +\\infty[$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 3,
+                            'type': 'qcm',
+                            'texte': "La fonction $f(x) = x^2$ est :",
+                            'options': ["Paire", "Impaire", "Ni paire ni impaire", "Paire et impaire"],
+                            'reponse_correcte': '0',
+                            'explication': "$f(-x) = (-x)^2 = x^2 = f(x)$ pour tout $x$. La fonction est paire.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 4,
+                            'type': 'qcm',
+                            'texte': "La fonction $g(x) = x^3$ est :",
+                            'options': ["Paire", "Impaire", "Ni paire ni impaire", "Constante"],
+                            'reponse_correcte': '1',
+                            'explication': "$g(-x) = (-x)^3 = -x^3 = -g(x)$. La fonction est impaire.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 5,
+                            'type': 'qcm',
+                            'texte': "Si $f$ est paire, sa courbe admet une symétrie par rapport :",
+                            'options': ["À l'axe des abscisses", "À l'axe des ordonnées", "À l'origine $O$", "À la droite $y = x$"],
+                            'reponse_correcte': '1',
+                            'explication': "Une fonction paire vérifie $f(-x) = f(x)$, ce qui correspond à une symétrie par rapport à l'axe $(Oy)$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 6,
+                            'type': 'qcm',
+                            'texte': "Dire que $f$ est strictement croissante sur $I$ signifie :",
+                            'options': [
+                                "Pour tous $x_1 < x_2$ dans $I$, $f(x_1) < f(x_2)$",
+                                "Pour tous $x_1 < x_2$ dans $I$, $f(x_1) > f(x_2)$",
+                                "Pour tous $x_1 < x_2$ dans $I$, $f(x_1) = f(x_2)$",
+                                "La courbe est une droite ascendante",
+                            ],
+                            'reponse_correcte': '0',
+                            'explication': "Strictement croissante signifie que l'ordre est strictement conservé : $x_1 < x_2 \\Rightarrow f(x_1) < f(x_2)$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 7,
+                            'type': 'qcm',
+                            'texte': "La fonction $f(x) = x^2$ est strictement décroissante sur :",
+                            'options': ["$\\\\mathbb{R}$", "$[0 ; +\\\\infty[$", "$]-\\\\infty ; 0]$", "$[-1 ; 1]$"],
+                            'reponse_correcte': '2',
+                            'explication': "La fonction carré est strictement décroissante sur $]-\\infty ; 0]$ et strictement croissante sur $[0 ; +\\infty[$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 8,
+                            'type': 'qcm',
+                            'texte': "L'image de $-3$ par la fonction $f(x) = x^2 + 1$ est :",
+                            'options': ["$-8$", "$8$", "$10$", "$-10$"],
+                            'reponse_correcte': '2',
+                            'explication': "$f(-3) = (-3)^2 + 1 = 9 + 1 = 10$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        # ── 6 QCM moyen ───────────────────────────────
+                        {
+                            'ordre': 9,
+                            'type': 'qcm',
+                            'texte': "Quel est l'ensemble de définition de $h(x) = \\\\frac{\\\\sqrt{x}}{x^2 - 1}$ ?",
+                            'options': [
+                                "$[0 ; +\\\\infty[$",
+                                "$[0 ; +\\\\infty[ \\\\setminus \\\\{1\\\\}$",
+                                "$\\\\mathbb{R} \\\\setminus \\\\{-1 ; 1\\\\}$",
+                                "$]0 ; +\\\\infty[ \\\\setminus \\\\{1\\\\}$",
+                            ],
+                            'reponse_correcte': '1',
+                            'explication': "Il faut $x \\geq 0$ (racine) et $x^2 - 1 \\neq 0$ (dénominateur), soit $x \\neq \\pm 1$. Comme $x \\geq 0$, seul $x = 1$ est exclu.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 10,
+                            'type': 'qcm',
+                            'texte': "La fonction $f(x) = x^2 + x$ est :",
+                            'options': ["Paire", "Impaire", "Ni paire ni impaire", "Paire et impaire"],
+                            'reponse_correcte': '2',
+                            'explication': "$f(-x) = x^2 - x$. On a $f(-x) \\neq f(x)$ et $f(-x) \\neq -f(x)$, donc $f$ n'est ni paire ni impaire.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 11,
+                            'type': 'qcm',
+                            'texte': "Soit $f(x) = \\\\frac{x}{x^2 + 1}$. Quelle est la parité de $f$ ?",
+                            'options': ["Paire", "Impaire", "Ni paire ni impaire", "On ne peut pas conclure"],
+                            'reponse_correcte': '1',
+                            'explication': "$f(-x) = \\frac{-x}{(-x)^2 + 1} = \\frac{-x}{x^2 + 1} = -f(x)$. La fonction est impaire.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 12,
+                            'type': 'qcm',
+                            'texte': "Soit $f$ définie sur $\\\\mathbb{R}$ avec le tableau de variations : $f$ décroissante sur $]-\\\\infty ; 1]$ et croissante sur $[1 ; +\\\\infty[$. Quel est l'extremum en $x = 1$ ?",
+                            'options': ["Maximum local", "Minimum local", "Point d'inflexion", "Aucun extremum"],
+                            'reponse_correcte': '1',
+                            'explication': "Si $f$ est décroissante puis croissante autour de $a$, alors $f$ admet un minimum local en $a$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 13,
+                            'type': 'qcm',
+                            'texte': "Quel est l'ensemble de définition de $f(x) = \\\\ln(4 - x^2)$ ?",
+                            'options': ["$]-2 ; 2[$", "$[-2 ; 2]$", "$\\\\mathbb{R} \\\\setminus \\\\{-2 ; 2\\\\}$", "$]0 ; 2[$"],
+                            'reponse_correcte': '0',
+                            'explication': "Il faut $4 - x^2 > 0$, soit $x^2 < 4$, c'est-à-dire $-2 < x < 2$. Donc $D_f = ]-2 ; 2[$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 14,
+                            'type': 'qcm',
+                            'texte': "Soit $f(x) = -x^2 + 4x - 1$. Sur quel intervalle $f$ est-elle croissante ?",
+                            'options': ["$]-\\\\infty ; 2]$", "$[2 ; +\\\\infty[$", "$]-\\\\infty ; -2]$", "$\\\\mathbb{R}$"],
+                            'reponse_correcte': '0',
+                            'explication': "Le sommet est en $x = -\\frac{4}{2 \\times (-1)} = 2$. Comme $a < 0$, $f$ est croissante sur $]-\\infty ; 2]$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        # ── 3 Vrai/Faux moyen ────────────────────────
+                        {
+                            'ordre': 15,
+                            'type': 'vrai_faux',
+                            'texte': "Pour étudier la parité d'une fonction, il faut d'abord vérifier que son ensemble de définition est symétrique par rapport à 0.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "C'est un prérequis indispensable : $D_f$ doit être symétrique par rapport à $0$ avant de comparer $f(-x)$ et $f(x)$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 16,
+                            'type': 'vrai_faux',
+                            'texte': "Un nombre réel possède toujours exactement un antécédent par une fonction $f$.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "Un nombre peut avoir zéro, un ou plusieurs antécédents. Par exemple, $4$ a deux antécédents par $f(x) = x^2$ : $2$ et $-2$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 17,
+                            'type': 'vrai_faux',
+                            'texte': "Une fonction strictement croissante sur $\\\\mathbb{R}$ ne peut pas admettre de maximum local.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "Si $f$ est strictement croissante sur $\\mathbb{R}$, elle augmente toujours : elle ne peut pas atteindre de maximum local.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        # ── 3 Texte libre difficile ───────────────────
+                        {
+                            'ordre': 18,
+                            'type': 'texte_libre',
+                            'texte': "Déterminer l'ensemble de définition de $f(x) = \\\\frac{1}{x^2 - 4}$. Donner la réponse sous la forme R\\\\{a ; b} avec a < b.",
+                            'options': None,
+                            'reponse_correcte': 'R\\{-2 ; 2}',
+                            'tolerances': ["R\\\\{-2 ; 2}", "R\\{-2;2}", "R \\ {-2 ; 2}", "ℝ\\{-2 ; 2}"],
+                            'explication': "$x^2 - 4 = 0 \\Leftrightarrow x = -2$ ou $x = 2$. Donc $D_f = \\mathbb{R} \\setminus \\{-2 ; 2\\}$.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 19,
+                            'type': 'texte_libre',
+                            'texte': "Soit $f(x) = \\\\frac{x^3}{x^2 + 1}$. Calculer $f(-x)$ et indiquer si la fonction est paire, impaire, ou ni l'un ni l'autre.",
+                            'options': None,
+                            'reponse_correcte': 'impaire',
+                            'tolerances': ["Impaire", "IMPAIRE", "f est impaire"],
+                            'explication': "$f(-x) = \\frac{(-x)^3}{(-x)^2 + 1} = \\frac{-x^3}{x^2 + 1} = -f(x)$. La fonction est impaire.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 20,
+                            'type': 'texte_libre',
+                            'texte': "Soit $f(x) = -x^2 + 6x - 5$. Donner la valeur du maximum de $f$ (nombre entier).",
+                            'options': None,
+                            'reponse_correcte': '4',
+                            'tolerances': ["4.0", "4,0"],
+                            'explication': "Le sommet est en $x = -\\frac{6}{2 \\times (-1)} = 3$. $f(3) = -9 + 18 - 5 = 4$. Comme $a < 0$, c'est un maximum.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                    ],
+                },
+            },
+            {
+                'ordre': 2,
+                'titre': 'Composition et valeur absolue',
+                'duree': 30,
+                'contenu': """# Composition de fonctions et valeur absolue
+
+## Introduction
+
+La **composition de fonctions** est une opération fondamentale qui permet de construire de nouvelles fonctions à partir de fonctions connues. La **valeur absolue**, quant à elle, est un outil algébrique et géométrique incontournable. Ce cours couvre ces deux notions au programme de Première.
+
+---
+
+## 1. Composition de fonctions
+
+### Définition
+
+Soient deux fonctions $f$ et $g$. La **composée** de $f$ par $g$, notée $g \\circ f$ (lire « $g$ rond $f$ »), est la fonction définie par :
+
+$$(g \\circ f)(x) = g\\big(f(x)\\big)$$
+
+L'ordre est important : on applique **d'abord** $f$, **puis** $g$.
+
+> **Attention :** en général, $g \\circ f \\neq f \\circ g$.
+
+### Ensemble de définition de la composée
+
+$g \\circ f$ est définie pour les $x \\in D_f$ tels que $f(x) \\in D_g$.
+
+### Exemple
+
+Soient $f(x) = 2x + 1$ et $g(x) = x^2$.
+
+$$(g \\circ f)(x) = g(f(x)) = g(2x + 1) = (2x + 1)^2$$
+
+$$(f \\circ g)(x) = f(g(x)) = f(x^2) = 2x^2 + 1$$
+
+On vérifie que $g \\circ f \\neq f \\circ g$ : pour $x = 1$, $(g \\circ f)(1) = 9$ tandis que $(f \\circ g)(1) = 3$.
+
+---
+
+## 2. Sens de variation d'une composée
+
+C'est un résultat essentiel pour l'étude de fonctions :
+
+### Théorème
+
+| Variations de $f$ | Variations de $g$ | Variations de $g \\circ f$ |
+|---|---|---|
+| Croissante ($\\nearrow$) | Croissante ($\\nearrow$) | **Croissante** ($\\nearrow$) |
+| Croissante ($\\nearrow$) | Décroissante ($\\searrow$) | **Décroissante** ($\\searrow$) |
+| Décroissante ($\\searrow$) | Croissante ($\\nearrow$) | **Décroissante** ($\\searrow$) |
+| Décroissante ($\\searrow$) | Décroissante ($\\searrow$) | **Croissante** ($\\nearrow$) |
+
+> **Règle mnémotechnique :** même sens → croissante ; sens contraires → décroissante. C'est la **règle des signes** appliquée aux variations.
+
+### Exemple
+
+Soit $h(x) = (2x - 3)^2$.
+
+On décompose : $h = g \\circ f$ avec $f(x) = 2x - 3$ (affine, croissante) et $g(t) = t^2$.
+
+- $g$ est décroissante sur $]-\\infty ; 0]$ et croissante sur $[0 ; +\\infty[$.
+- $f(x) = 0 \\Leftrightarrow x = \\frac{3}{2}$.
+
+Donc :
+- Sur $\\left]-\\infty ; \\frac{3}{2}\\right]$ : $f$ croissante et $g$ décroissante → $h$ **décroissante**.
+- Sur $\\left[\\frac{3}{2} ; +\\infty\\right[$ : $f$ croissante et $g$ croissante → $h$ **croissante**.
+
+Le minimum de $h$ est atteint en $x = \\frac{3}{2}$ et vaut $h\\left(\\frac{3}{2}\\right) = 0$.
+
+---
+
+## 3. La fonction valeur absolue
+
+### Définition
+
+La **valeur absolue** d'un nombre réel $x$, notée $|x|$, est définie par :
+
+$$|x| = \\begin{cases} x & \\text{si } x \\geq 0 \\\\ -x & \\text{si } x < 0 \\end{cases}$$
+
+> $|x|$ représente la **distance** de $x$ à l'origine sur la droite des réels.
+
+### Courbe représentative
+
+La courbe de la fonction $x \\mapsto |x|$ a la forme d'un **V** pointant vers le haut, avec un sommet en $O(0 ; 0)$.
+
+- Sur $]-\\infty ; 0]$ : la courbe est la droite $y = -x$ (pente $-1$).
+- Sur $[0 ; +\\infty[$ : la courbe est la droite $y = x$ (pente $+1$).
+
+La fonction valeur absolue est **paire** : $|-x| = |x|$ pour tout $x$, ce qui se traduit par la symétrie de la courbe par rapport à l'axe des ordonnées.
+
+---
+
+## 4. Propriétés de la valeur absolue
+
+### Propriétés fondamentales
+
+Pour tous réels $a$ et $b$ :
+
+1. $|a| \\geq 0$ et $|a| = 0 \\Leftrightarrow a = 0$
+2. $|-a| = |a|$
+3. $|ab| = |a| \\cdot |b|$ (multiplicativité)
+4. $\\left|\\frac{a}{b}\\right| = \\frac{|a|}{|b|}$ pour $b \\neq 0$
+5. $|a|^2 = a^2$
+
+### Inégalité triangulaire
+
+Pour tous réels $a$ et $b$ :
+
+$$|a + b| \\leq |a| + |b|$$
+
+C'est l'une des inégalités les plus importantes en mathématiques. L'égalité a lieu si et seulement si $a$ et $b$ sont de **même signe** (ou l'un des deux est nul).
+
+### Exemple
+
+Avec $a = 3$ et $b = -5$ :
+
+$|a + b| = |3 + (-5)| = |-2| = 2$
+
+$|a| + |b| = 3 + 5 = 8$
+
+On vérifie bien $2 \\leq 8$.
+
+---
+
+## 5. Résolution d'équations avec valeur absolue
+
+### Équation $|X| = k$
+
+- Si $k > 0$ : deux solutions, $X = k$ ou $X = -k$.
+- Si $k = 0$ : une solution, $X = 0$.
+- Si $k < 0$ : **aucune solution** (la valeur absolue est toujours positive).
+
+### Exemple
+
+Résoudre $|2x - 5| = 3$.
+
+$$2x - 5 = 3 \\quad \\text{ou} \\quad 2x - 5 = -3$$
+$$2x = 8 \\quad \\text{ou} \\quad 2x = 2$$
+$$x = 4 \\quad \\text{ou} \\quad x = 1$$
+
+L'ensemble des solutions est $S = \\{1 ; 4\\}$.
+
+**Vérification :** $|2(4) - 5| = |3| = 3$ ✓ et $|2(1) - 5| = |-3| = 3$ ✓
+
+---
+
+## 6. Résolution d'inéquations avec valeur absolue
+
+### Inéquation $|X| \\leq k$ (avec $k \\geq 0$)
+
+$$|X| \\leq k \\iff -k \\leq X \\leq k$$
+
+### Inéquation $|X| \\geq k$ (avec $k \\geq 0$)
+
+$$|X| \\geq k \\iff X \\leq -k \\quad \\text{ou} \\quad X \\geq k$$
+
+### Exemple
+
+Résoudre $|x - 3| < 2$.
+
+$$-2 < x - 3 < 2$$
+$$1 < x < 5$$
+
+L'ensemble des solutions est l'intervalle ouvert $]1 ; 5[$.
+
+**Interprétation géométrique :** les réels dont la **distance à $3$** est strictement inférieure à $2$.
+
+---
+
+## 7. Interprétation géométrique de la valeur absolue
+
+La valeur absolue a une signification géométrique très naturelle :
+
+$$|a - b| = \\text{distance entre les points d'abscisses } a \\text{ et } b \\text{ sur la droite des réels}$$
+
+Cette interprétation est très utile pour résoudre des inéquations :
+
+- $|x - 3| < 2$ : les points à distance inférieure à $2$ du point $3$, soit $]1 ; 5[$.
+- $|x + 1| \\geq 4$ : les points à distance supérieure ou égale à $4$ du point $-1$, soit $]-\\infty ; -5] \\cup [3 ; +\\infty[$.
+
+### Exemple : encadrement avec la valeur absolue
+
+Si $|x - 2| \\leq 0{,}5$, alors $1{,}5 \\leq x \\leq 2{,}5$.
+
+Cela signifie que $x$ est une **approximation** de $2$ à $0{,}5$ près.
+
+---
+
+## À retenir
+
+- La composée $g \\circ f$ s'obtient en appliquant $f$ puis $g$ : $(g \\circ f)(x) = g(f(x))$.
+- Le sens de variation d'une composée suit la **règle des signes** : même sens → croissante, sens contraires → décroissante.
+- La valeur absolue $|x|$ mesure la **distance à zéro** : $|x| \\geq 0$ et $|x| = 0 \\iff x = 0$.
+- **Inégalité triangulaire** : $|a + b| \\leq |a| + |b|$.
+- $|X| = k$ donne deux solutions (si $k > 0$), $|X| \\leq k$ donne un intervalle $[-k ; k]$.
+- $|a - b|$ est la distance entre $a$ et $b$ sur la droite réelle.
+""",
+                'quiz': {
+                    'titre': "Quiz — Composition de fonctions et valeur absolue",
+                    'questions': [
+                        # ── 8 QCM facile ──────────────────────────────
+                        {
+                            'ordre': 1,
+                            'type': 'qcm',
+                            'texte': "Que signifie $(g \\\\circ f)(x)$ ?",
+                            'options': ["$f(g(x))$", "$g(f(x))$", "$f(x) \\\\times g(x)$", "$f(x) + g(x)$"],
+                            'reponse_correcte': '1',
+                            'explication': "$(g \\circ f)(x) = g(f(x))$ : on applique d'abord $f$, puis $g$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 2,
+                            'type': 'qcm',
+                            'texte': "Quelle est la valeur de $|-7|$ ?",
+                            'options': ["$-7$", "$7$", "$0$", "$49$"],
+                            'reponse_correcte': '1',
+                            'explication': "$|-7| = 7$ car la valeur absolue donne la distance à zéro, toujours positive.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 3,
+                            'type': 'qcm',
+                            'texte': "Soient $f(x) = x + 2$ et $g(x) = 3x$. Que vaut $(g \\\\circ f)(1)$ ?",
+                            'options': ["$5$", "$7$", "$9$", "$6$"],
+                            'reponse_correcte': '2',
+                            'explication': "$f(1) = 3$, puis $g(3) = 9$. Donc $(g \\circ f)(1) = 9$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 4,
+                            'type': 'qcm',
+                            'texte': "L'équation $|x| = 5$ admet :",
+                            'options': ["Aucune solution", "Une solution", "Deux solutions", "Une infinité de solutions"],
+                            'reponse_correcte': '2',
+                            'explication': "$|x| = 5 \\Leftrightarrow x = 5$ ou $x = -5$. Il y a deux solutions.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 5,
+                            'type': 'qcm',
+                            'texte': "Que représente $|a - b|$ géométriquement ?",
+                            'options': [
+                                "La somme de $a$ et $b$",
+                                "Le produit de $a$ et $b$",
+                                "La distance entre $a$ et $b$ sur la droite réelle",
+                                "La moyenne de $a$ et $b$",
+                            ],
+                            'reponse_correcte': '2',
+                            'explication': "$|a - b|$ mesure la distance entre les points d'abscisses $a$ et $b$ sur la droite des réels.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 6,
+                            'type': 'qcm',
+                            'texte': "L'équation $|x| = -3$ admet :",
+                            'options': ["Aucune solution", "Une solution", "Deux solutions", "Une infinité de solutions"],
+                            'reponse_correcte': '0',
+                            'explication': "La valeur absolue est toujours positive ou nulle, donc $|x| = -3$ n'a aucune solution.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 7,
+                            'type': 'qcm',
+                            'texte': "La fonction valeur absolue $x \\\\mapsto |x|$ est :",
+                            'options': ["Paire", "Impaire", "Ni paire ni impaire", "Constante"],
+                            'reponse_correcte': '0',
+                            'explication': "$|-x| = |x|$ pour tout $x$, donc la fonction valeur absolue est paire.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 8,
+                            'type': 'qcm',
+                            'texte': "Soient $f(x) = x^2$ et $g(x) = x + 1$. Que vaut $(f \\\\circ g)(x)$ ?",
+                            'options': ["$x^2 + 1$", "$(x + 1)^2$", "$x^2 + x$", "$x^2 + 2x$"],
+                            'reponse_correcte': '1',
+                            'explication': "$(f \\circ g)(x) = f(g(x)) = f(x + 1) = (x + 1)^2$.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        # ── 6 QCM moyen ───────────────────────────────
+                        {
+                            'ordre': 9,
+                            'type': 'qcm',
+                            'texte': "Si $f$ est croissante et $g$ est décroissante, alors $g \\\\circ f$ est :",
+                            'options': ["Croissante", "Décroissante", "Constante", "On ne peut pas conclure"],
+                            'reponse_correcte': '1',
+                            'explication': "Croissante $\\circ$ Décroissante (sens contraires) $\\Rightarrow$ la composée est décroissante.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 10,
+                            'type': 'qcm',
+                            'texte': "Résoudre $|2x - 1| = 5$. L'ensemble des solutions est :",
+                            'options': ["$\\\\{3\\\\}$", "$\\\\{-2 ; 3\\\\}$", "$\\\\{-3 ; 2\\\\}$", "$\\\\{-2 ; -3\\\\}$"],
+                            'reponse_correcte': '1',
+                            'explication': "$2x - 1 = 5 \\Rightarrow x = 3$ ou $2x - 1 = -5 \\Rightarrow x = -2$. Donc $S = \\{-2 ; 3\\}$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 11,
+                            'type': 'qcm',
+                            'texte': "L'inéquation $|x - 4| < 3$ a pour ensemble de solutions :",
+                            'options': ["$]1 ; 7[$", "$[-1 ; 7]$", "$]4 ; 7[$", "$]-3 ; 3[$"],
+                            'reponse_correcte': '0',
+                            'explication': "$|x - 4| < 3 \\Leftrightarrow -3 < x - 4 < 3 \\Leftrightarrow 1 < x < 7$. Donc $S = ]1 ; 7[$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 12,
+                            'type': 'qcm',
+                            'texte': "Soient $f(x) = 2x - 3$ et $g(x) = x^2$. Quelle est l'expression de $(g \\\\circ f)(x)$ ?",
+                            'options': ["$4x^2 - 12x + 9$", "$2x^2 - 3$", "$4x^2 - 9$", "$4x^2 + 12x + 9$"],
+                            'reponse_correcte': '0',
+                            'explication': "$(g \\circ f)(x) = (2x - 3)^2 = 4x^2 - 12x + 9$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 13,
+                            'type': 'qcm',
+                            'texte': "Laquelle de ces propriétés est l'inégalité triangulaire ?",
+                            'options': [
+                                "$|a \\\\cdot b| = |a| \\\\cdot |b|$",
+                                "$|a + b| \\\\leq |a| + |b|$",
+                                "$|a - b| = |b - a|$",
+                                "$|a|^2 = a^2$",
+                            ],
+                            'reponse_correcte': '1',
+                            'explication': "L'inégalité triangulaire s'écrit $|a + b| \\leq |a| + |b|$ pour tous réels $a$ et $b$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 14,
+                            'type': 'qcm',
+                            'texte': "Soit $h(x) = (3x + 1)^2$. On pose $f(x) = 3x + 1$ et $g(t) = t^2$. Quel est le minimum de $h$ ?",
+                            'options': ["$h(-\\\\frac{1}{3}) = 0$", "$h(0) = 1$", "$h(1) = 16$", "$h(-1) = 4$"],
+                            'reponse_correcte': '0',
+                            'explication': "$f(x) = 0 \\Leftrightarrow x = -\\frac{1}{3}$. Le minimum de $g(t) = t^2$ est $0$ en $t = 0$, donc $h\\left(-\\frac{1}{3}\\right) = 0$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        # ── 3 Vrai/Faux moyen ────────────────────────
+                        {
+                            'ordre': 15,
+                            'type': 'vrai_faux',
+                            'texte': "En général, la composition de fonctions est commutative : $g \\\\circ f = f \\\\circ g$.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "En général $g \\circ f \\neq f \\circ g$. Par exemple, avec $f(x) = x + 1$ et $g(x) = x^2$ : $(g \\circ f)(x) = (x+1)^2$ mais $(f \\circ g)(x) = x^2 + 1$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 16,
+                            'type': 'vrai_faux',
+                            'texte': "Si $|x - 2| \\\\leq 0{,}1$, alors $1{,}9 \\\\leq x \\\\leq 2{,}1$.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "$|x - 2| \\leq 0{,}1 \\Leftrightarrow -0{,}1 \\leq x - 2 \\leq 0{,}1 \\Leftrightarrow 1{,}9 \\leq x \\leq 2{,}1$.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 17,
+                            'type': 'vrai_faux',
+                            'texte': "Si $f$ est décroissante et $g$ est décroissante, alors $g \\\\circ f$ est décroissante.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "Décroissante composée avec décroissante donne une fonction croissante (règle des signes : $(-) \\times (-) = (+)$).",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        # ── 3 Texte libre difficile ───────────────────
+                        {
+                            'ordre': 18,
+                            'type': 'texte_libre',
+                            'texte': "Résoudre $|3x - 6| = 12$. Donner l'ensemble des solutions sous la forme {a ; b} avec a < b.",
+                            'options': None,
+                            'reponse_correcte': '{-2 ; 6}',
+                            'tolerances': ["{-2;6}", "{-2 ; 6}", "{ -2 ; 6 }"],
+                            'explication': "$3x - 6 = 12 \\Rightarrow x = 6$ ou $3x - 6 = -12 \\Rightarrow x = -2$. Donc $S = \\{-2 ; 6\\}$.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 19,
+                            'type': 'texte_libre',
+                            'texte': "Résoudre $|x + 1| \\\\leq 3$. Donner la solution sous la forme [a ; b].",
+                            'options': None,
+                            'reponse_correcte': '[-4 ; 2]',
+                            'tolerances': ["[-4;2]", "[-4 ; 2]", "[ -4 ; 2 ]"],
+                            'explication': "$|x + 1| \\leq 3 \\Leftrightarrow -3 \\leq x + 1 \\leq 3 \\Leftrightarrow -4 \\leq x \\leq 2$.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 20,
+                            'type': 'texte_libre',
+                            'texte': "Soient $f(x) = 2x + 3$ et $g(x) = x^2 - 1$. Calculer $(g \\\\circ f)(0)$.",
+                            'options': None,
+                            'reponse_correcte': '8',
+                            'tolerances': ["8.0", "8,0"],
+                            'explication': "$f(0) = 3$, puis $g(3) = 9 - 1 = 8$. Donc $(g \\circ f)(0) = 8$.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                    ],
+                },
+            },
+        ],
+    },
 ]
 
 
 class Command(BaseCommand):
-    help = "Seed Mathématiques Première — chapitres 1 à 8, leçons (sans quiz)."
+    help = "Seed Mathématiques Première — chapitres 1 à 9, leçons (sans quiz)."
 
     def handle(self, *args, **options):
         matiere, created = Matiere.objects.get_or_create(

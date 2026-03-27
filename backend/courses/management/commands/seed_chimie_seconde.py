@@ -6686,11 +6686,1514 @@ $$C_7H_6O_3 + C_4H_6O_3 \\xrightarrow{H_2SO_4} C_9H_8O_4 + CH_3COOH$$
             },
         ],
     },
+    # ──────────────────────────────────────────────
+    # CHAPITRE 10 — Transformations physiques
+    # ──────────────────────────────────────────────
+    {
+        'ordre': 10,
+        'titre': 'Transformations physiques',
+        'description': "Comprendre les changements d'état de la matière et les phénomènes de dissolution, en lien avec la conservation de la matière.",
+        'score_minimum': 60.0,
+        'lecons': [
+            {
+                'ordre': 1,
+                'titre': "Changements d'état et conservation de la matière",
+                'duree': 30,
+                'contenu': """# Changements d'état et conservation de la matière
+
+## Introduction
+
+La matière peut exister sous trois **états physiques** : solide, liquide et gazeux. Le passage d'un état à un autre s'appelle un **changement d'état**. Ces transformations sont omniprésentes dans la vie quotidienne : la glace qui fond, l'eau qui bout, la buée sur une vitre froide… Comprendre ces phénomènes est essentiel en chimie comme en physique.
+
+---
+
+## Les trois états de la matière
+
+### État solide
+
+À l'état solide, les entités chimiques (atomes, molécules ou ions) sont **très proches** les unes des autres et occupent des positions **fixes**. Elles vibrent autour de leur position d'équilibre, mais ne se déplacent pas librement.
+
+- Forme **propre** (ne dépend pas du récipient)
+- Volume **propre** (quasi incompressible)
+
+> **Exemples :** glace, fer, sel de cuisine ($NaCl$)
+
+### État liquide
+
+À l'état liquide, les entités sont **proches** mais peuvent **glisser** les unes sur les autres. L'ordre est partiel : on parle d'un **désordre local**.
+
+- Pas de forme propre (prend la forme du récipient)
+- Volume **propre** (quasi incompressible)
+
+> **Exemples :** eau liquide, éthanol, mercure
+
+### État gazeux
+
+À l'état gazeux, les entités sont **très éloignées** les unes des autres et se déplacent de façon **désordonnée** à grande vitesse.
+
+- Pas de forme propre
+- Pas de volume propre (un gaz occupe tout le volume disponible)
+- Compressible et expansible
+
+> **Exemples :** vapeur d'eau, dioxygène $O_2$, dioxyde de carbone $CO_2$
+
+---
+
+## Les changements d'état
+
+### Nomenclature
+
+Les changements d'état portent des noms spécifiques selon les états de départ et d'arrivée :
+
+| Transformation | État initial → État final | Exemple |
+|---------------|--------------------------|---------|
+| **Fusion** | Solide → Liquide | Glace qui fond |
+| **Solidification** | Liquide → Solide | Eau qui gèle |
+| **Vaporisation** | Liquide → Gaz | Eau qui bout |
+| **Liquéfaction (condensation liquide)** | Gaz → Liquide | Buée sur une vitre |
+| **Sublimation** | Solide → Gaz | Neige carbonique ($CO_2$ solide) |
+| **Condensation solide** | Gaz → Solide | Givre sur une branche |
+
+### Caractéristiques essentielles
+
+1. **Un changement d'état est une transformation physique** : la nature chimique de la substance ne change pas. L'eau reste $H_2O$, qu'elle soit solide, liquide ou gazeuse.
+
+2. **Conservation de la masse** : lors d'un changement d'état, la masse de l'échantillon se conserve.
+
+$$m_{\\text{initial}} = m_{\\text{final}}$$
+
+3. **Variation du volume** : le volume peut changer (l'eau liquide occupe moins de volume que la glace, ce qui est une exception remarquable pour la plupart des substances).
+
+---
+
+## Paliers de température
+
+### Température de changement d'état
+
+Pour un **corps pur**, le changement d'état s'effectue à **température constante** tant que les deux états coexistent. Cette température caractéristique s'appelle :
+
+- **Température de fusion** $\\theta_f$ (ou point de fusion) pour la fusion/solidification
+- **Température d'ébullition** $\\theta_{eb}$ (ou point d'ébullition) pour la vaporisation/liquéfaction
+
+> **Exemple :** pour l'eau pure à pression atmosphérique normale ($P = 1{,}013 \\times 10^5 \\, Pa$) :
+>
+> $\\theta_f = 0 \\, °C$ et $\\theta_{eb} = 100 \\, °C$
+
+### Courbe de température lors d'un changement d'état
+
+Lorsqu'on chauffe un corps pur solide, on observe sur le graphique température en fonction du temps :
+
+1. La température **augmente** (le solide se réchauffe)
+2. La température **reste constante** au palier de fusion (les deux phases coexistent)
+3. La température **augmente** à nouveau (le liquide se réchauffe)
+4. La température **reste constante** au palier d'ébullition (les deux phases coexistent)
+5. La température **augmente** (le gaz se réchauffe)
+
+> **Point clé :** la présence d'un **palier de température** lors du changement d'état est caractéristique d'un **corps pur**. Un mélange change d'état sur un intervalle de températures.
+
+---
+
+## Cas des mélanges
+
+Pour un **mélange**, le changement d'état ne se fait **pas à température constante**. On observe un changement progressif sur un **intervalle de températures**, sans véritable palier.
+
+> **Exemple :** l'eau salée gèle en dessous de $0 \\, °C$, et la température de solidification dépend de la concentration en sel. C'est le principe du **salage des routes** en hiver.
+
+---
+
+## Diagramme d'états
+
+Un **diagramme d'états** (ou diagramme de phases) représente les domaines d'existence des différents états d'un corps pur en fonction de la **température** et de la **pression**.
+
+- Les **courbes** séparent les domaines solide, liquide et gazeux.
+- Le **point triple** est le seul point où les trois états coexistent simultanément.
+- Le **point critique** marque la limite au-delà de laquelle il n'y a plus de distinction entre liquide et gaz (état **supercritique**).
+
+> **Pour l'eau :** le point triple se trouve à $T = 0{,}01 \\, °C$ et $P = 611 \\, Pa$, et le point critique à $T = 374 \\, °C$ et $P = 221 \\times 10^5 \\, Pa$.
+
+---
+
+## Énergie et changements d'état
+
+Un changement d'état nécessite ou libère de l'**énergie thermique** (chaleur) :
+
+- **Fusion, vaporisation, sublimation** : le corps **absorbe** de l'énergie → transformation **endothermique**
+- **Solidification, liquéfaction, condensation solide** : le corps **libère** de l'énergie → transformation **exothermique**
+
+L'énergie nécessaire pour faire fondre une masse $m$ de corps pur est :
+
+$$Q = m \\times L_f$$
+
+où $L_f$ est la **chaleur latente de fusion** (en $J \\cdot kg^{-1}$).
+
+> **Exemple :** pour la glace, $L_f \\approx 334 \\, kJ \\cdot kg^{-1}$. Pour faire fondre $500 \\, g$ de glace :
+>
+> $Q = 0{,}500 \\times 334 \\times 10^3 = 167 \\times 10^3 \\, J = 167 \\, kJ$
+
+---
+
+## L'essentiel à retenir
+
+- La matière existe sous trois états : **solide, liquide, gazeux**.
+- Les changements d'état sont des **transformations physiques** (pas de changement de nature chimique).
+- La **masse se conserve** lors d'un changement d'état.
+- Pour un corps pur, le changement d'état se fait à **température constante** (palier).
+- L'énergie est absorbée (endothermique) ou libérée (exothermique) selon le sens du changement.
+""",
+                'quiz': {
+                    'titre': "Quiz — Changements d'état et conservation de la matière",
+                    'questions': [
+                        {
+                            'ordre': 1,
+                            'type': 'qcm',
+                            'texte': "Quel est le nom du passage de l'état solide à l'état liquide ?",
+                            'options': ["La fusion", "La solidification", "La vaporisation", "La sublimation"],
+                            'reponse_correcte': '0',
+                            'explication': "La fusion est le passage de l'état solide à l'état liquide.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 2,
+                            'type': 'qcm',
+                            'texte': "Comment appelle-t-on le passage de l'état gazeux à l'état liquide ?",
+                            'options': ["La liquéfaction", "La vaporisation", "La solidification", "La sublimation"],
+                            'reponse_correcte': '0',
+                            'explication': "La liquéfaction (ou condensation liquide) est le passage de l'état gazeux à l'état liquide. Exemple : la buée sur une vitre froide.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 3,
+                            'type': 'qcm',
+                            'texte': "Quelle propriété caractérise l'état solide ?",
+                            'options': ["Forme propre et volume propre", "Pas de forme propre mais volume propre", "Ni forme propre ni volume propre", "Forme propre mais pas de volume propre"],
+                            'reponse_correcte': '0',
+                            'explication': "À l'état solide, la matière possède une forme propre (ne dépend pas du récipient) et un volume propre (quasi incompressible).",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 4,
+                            'type': 'qcm',
+                            'texte': "Lors d'un changement d'état, que se passe-t-il pour la masse de l'échantillon ?",
+                            'options': ["Elle se conserve", "Elle augmente", "Elle diminue", "Elle dépend du type de changement d'état"],
+                            'reponse_correcte': '0',
+                            'explication': "Lors d'un changement d'état, la masse se conserve : m_initial = m_final.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 5,
+                            'type': 'qcm',
+                            'texte': "La neige carbonique (CO₂ solide) qui passe directement à l'état gazeux est un exemple de :",
+                            'options': ["Sublimation", "Vaporisation", "Fusion", "Liquéfaction"],
+                            'reponse_correcte': '0',
+                            'explication': "La sublimation est le passage direct de l'état solide à l'état gazeux, sans passer par l'état liquide.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 6,
+                            'type': 'qcm',
+                            'texte': "Quelle est la température d'ébullition de l'eau pure à pression atmosphérique normale ?",
+                            'options': ["100 °C", "0 °C", "50 °C", "212 °C"],
+                            'reponse_correcte': '0',
+                            'explication': "La température d'ébullition de l'eau pure à pression atmosphérique normale (1,013 × 10⁵ Pa) est de 100 °C.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 7,
+                            'type': 'qcm',
+                            'texte': "À l'état gazeux, les molécules sont :",
+                            'options': ["Très éloignées et en mouvement désordonné", "Très proches et en positions fixes", "Proches mais glissant les unes sur les autres", "Immobiles et très éloignées"],
+                            'reponse_correcte': '0',
+                            'explication': "À l'état gazeux, les entités sont très éloignées les unes des autres et se déplacent de façon désordonnée à grande vitesse.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 8,
+                            'type': 'qcm',
+                            'texte': "Un changement d'état est une transformation :",
+                            'options': ["Physique", "Chimique", "Nucléaire", "Biologique"],
+                            'reponse_correcte': '0',
+                            'explication': "Un changement d'état est une transformation physique : la nature chimique de la substance ne change pas. L'eau reste H₂O quel que soit son état.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 9,
+                            'type': 'qcm',
+                            'texte': "Qu'observe-t-on sur la courbe de température lors du changement d'état d'un corps pur ?",
+                            'options': ["Un palier de température", "Une augmentation continue de la température", "Une diminution continue de la température", "Des oscillations de température"],
+                            'reponse_correcte': '0',
+                            'explication': "Pour un corps pur, le changement d'état s'effectue à température constante : on observe un palier tant que les deux phases coexistent.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 10,
+                            'type': 'qcm',
+                            'texte': "Pour un mélange, le changement d'état :",
+                            'options': ["Se fait sur un intervalle de températures sans palier net", "Se fait à température constante comme un corps pur", "Ne peut pas se produire", "Se fait toujours à 0 °C"],
+                            'reponse_correcte': '0',
+                            'explication': "Pour un mélange, le changement d'état ne se fait pas à température constante : on observe un changement progressif sur un intervalle de températures.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 11,
+                            'type': 'qcm',
+                            'texte': "La chaleur latente de fusion de la glace vaut environ :",
+                            'options': ["334 kJ·kg⁻¹", "34 kJ·kg⁻¹", "134 kJ·kg⁻¹", "534 kJ·kg⁻¹"],
+                            'reponse_correcte': '0',
+                            'explication': "La chaleur latente de fusion de la glace est d'environ 334 kJ·kg⁻¹.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 12,
+                            'type': 'qcm',
+                            'texte': "Au point triple de l'eau, les trois états coexistent à :",
+                            'options': ["T = 0,01 °C et P = 611 Pa", "T = 0 °C et P = 1 atm", "T = 100 °C et P = 1 atm", "T = 374 °C et P = 221 × 10⁵ Pa"],
+                            'reponse_correcte': '0',
+                            'explication': "Le point triple de l'eau se trouve à T = 0,01 °C et P = 611 Pa, où les trois états coexistent simultanément.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 13,
+                            'type': 'qcm',
+                            'texte': "La vaporisation et la fusion sont des transformations :",
+                            'options': ["Endothermiques (le corps absorbe de l'énergie)", "Exothermiques (le corps libère de l'énergie)", "Athermiques (sans échange d'énergie)", "Parfois endothermiques, parfois exothermiques"],
+                            'reponse_correcte': '0',
+                            'explication': "La fusion, la vaporisation et la sublimation sont endothermiques : le corps absorbe de l'énergie pour passer à un état plus désordonné.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 14,
+                            'type': 'qcm',
+                            'texte': "Quelle énergie faut-il pour faire fondre 500 g de glace (Lf ≈ 334 kJ·kg⁻¹) ?",
+                            'options': ["167 kJ", "334 kJ", "668 kJ", "67 kJ"],
+                            'reponse_correcte': '0',
+                            'explication': "Q = m × Lf = 0,500 × 334 = 167 kJ.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 15,
+                            'type': 'vrai_faux',
+                            'texte': "La sublimation est le passage direct de l'état solide à l'état gazeux.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "La sublimation est bien le passage direct de l'état solide à l'état gazeux (exemple : la neige carbonique CO₂).",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 16,
+                            'type': 'vrai_faux',
+                            'texte': "La solidification est une transformation endothermique.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "La solidification est exothermique : le corps libère de l'énergie en passant de l'état liquide à l'état solide.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 17,
+                            'type': 'vrai_faux',
+                            'texte': "La présence d'un palier de température lors d'un changement d'état est caractéristique d'un corps pur.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "Un corps pur change d'état à température constante (palier). Un mélange change d'état sur un intervalle de températures.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 18,
+                            'type': 'texte_libre',
+                            'texte': "Comment appelle-t-on le point du diagramme de phases où les trois états (solide, liquide, gazeux) coexistent simultanément ?",
+                            'options': None,
+                            'reponse_correcte': 'point triple',
+                            'tolerances': ['le point triple', 'Point triple', 'pt triple'],
+                            'explication': "Le point triple est le seul point du diagramme de phases où les trois états de la matière coexistent simultanément.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 19,
+                            'type': 'texte_libre',
+                            'texte': "Quelle est la formule donnant l'énergie Q nécessaire pour faire fondre une masse m d'un corps pur, en fonction de la chaleur latente de fusion Lf ?",
+                            'options': None,
+                            'reponse_correcte': 'Q = m × Lf',
+                            'tolerances': ['Q = m * Lf', 'Q=mLf', 'Q = mLf'],
+                            'explication': "L'énergie nécessaire pour faire fondre une masse m de corps pur est Q = m × Lf, où Lf est la chaleur latente de fusion en J·kg⁻¹.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 20,
+                            'type': 'texte_libre',
+                            'texte': "Comment appelle-t-on le passage direct de l'état gazeux à l'état solide, sans passer par l'état liquide ?",
+                            'options': None,
+                            'reponse_correcte': 'condensation solide',
+                            'tolerances': ['la condensation solide', 'Condensation solide', 'déposition'],
+                            'explication': "La condensation solide (ou déposition) est le passage direct de l'état gazeux à l'état solide. Exemple : la formation de givre.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                    ],
+                },
+            },
+            {
+                'ordre': 2,
+                'titre': 'Dissolution et solubilité',
+                'duree': 30,
+                'contenu': """# Dissolution et solubilité
+
+## Introduction
+
+Lorsque l'on met un morceau de sucre dans un verre d'eau et que l'on agite, le sucre « disparaît » : il s'est **dissous**. La dissolution est une transformation physique fondamentale en chimie. Elle permet de préparer des **solutions**, omniprésentes dans la vie courante (eau salée, sirop, sérum physiologique…) comme au laboratoire.
+
+---
+
+## Vocabulaire de la dissolution
+
+### Soluté, solvant, solution
+
+- **Soluté** : l'espèce chimique qui est dissoute (le sucre, le sel, etc.)
+- **Solvant** : le liquide dans lequel le soluté se dissout (l'eau, l'éthanol, etc.)
+- **Solution** : le mélange homogène obtenu après dissolution
+
+$$\\text{Soluté} + \\text{Solvant} \\longrightarrow \\text{Solution}$$
+
+> Lorsque le solvant est l'eau, on parle de **solution aqueuse**.
+
+### Solution saturée et non saturée
+
+- Une **solution non saturée** peut encore dissoudre du soluté supplémentaire.
+- Une **solution saturée** ne peut plus dissoudre de soluté : l'ajout de soluté entraîne la formation d'un **dépôt** (corps non dissous) au fond du récipient.
+
+---
+
+## Le processus de dissolution
+
+### Dissolution d'un soluté moléculaire
+
+Lorsqu'on dissout un soluté **moléculaire** (comme le sucre $C_{12}H_{22}O_{11}$), les molécules de soluté se **dispersent** parmi les molécules de solvant. Les molécules de soluté sont entourées de molécules de solvant : on parle de **solvatation** (ou **hydratation** si le solvant est l'eau).
+
+### Dissolution d'un soluté ionique
+
+Lorsqu'on dissout un soluté **ionique** (comme le chlorure de sodium $NaCl$), le cristal se dissocie en **ions** qui se dispersent dans le solvant :
+
+$$NaCl_{(s)} \\xrightarrow{\\text{eau}} Na^+_{(aq)} + Cl^-_{(aq)}$$
+
+L'indice $(aq)$ signifie que les ions sont **hydratés**, c'est-à-dire entourés de molécules d'eau.
+
+> **Autre exemple :** dissolution du sulfate de cuivre :
+>
+> $$CuSO_{4(s)} \\xrightarrow{\\text{eau}} Cu^{2+}_{(aq)} + SO_4^{2-}_{(aq)}$$
+
+### Conservation de la matière
+
+Lors de la dissolution, la **masse totale se conserve** :
+
+$$m_{\\text{solution}} = m_{\\text{soluté}} + m_{\\text{solvant}}$$
+
+Les atomes ne sont ni créés ni détruits : ils changent simplement de répartition spatiale.
+
+---
+
+## Concentration en masse
+
+### Définition
+
+La **concentration en masse** $C_m$ d'un soluté dans une solution est la masse de soluté dissoute par litre de solution :
+
+$$C_m = \\frac{m_{\\text{soluté}}}{V_{\\text{solution}}}$$
+
+- $C_m$ en $g \\cdot L^{-1}$
+- $m_{\\text{soluté}}$ en $g$
+- $V_{\\text{solution}}$ en $L$
+
+### Exemple
+
+On dissout $9{,}0 \\, g$ de chlorure de sodium dans de l'eau pour obtenir $1{,}0 \\, L$ de solution (sérum physiologique) :
+
+$$C_m = \\frac{9{,}0}{1{,}0} = 9{,}0 \\, g \\cdot L^{-1}$$
+
+---
+
+## Solubilité
+
+### Définition
+
+La **solubilité** $s$ d'un soluté dans un solvant donné est la **concentration en masse maximale** que l'on peut atteindre dans une solution saturée, à une température donnée.
+
+$$s = C_{m, \\text{max}} \\quad (\\text{en } g \\cdot L^{-1})$$
+
+### Exemples de solubilités dans l'eau à $20 \\, °C$
+
+| Soluté | Solubilité ($g \\cdot L^{-1}$) |
+|--------|-------------------------------|
+| Chlorure de sodium $NaCl$ | $\\approx 360$ |
+| Sucre (saccharose) $C_{12}H_{22}O_{11}$ | $\\approx 2000$ |
+| Sulfate de cuivre $CuSO_4$ | $\\approx 320$ |
+| Dioxyde de carbone $CO_2$ | $\\approx 1{,}7$ |
+
+---
+
+## Facteurs influençant la solubilité
+
+### Température
+
+Pour la plupart des solides, la solubilité **augmente** avec la température :
+
+> En chauffant de l'eau, on peut dissoudre davantage de sucre.
+
+Pour les **gaz**, c'est l'inverse : la solubilité **diminue** quand la température augmente.
+
+> **Exemple concret :** une bouteille d'eau gazeuse pétille davantage quand on la sort du réfrigérateur (le $CO_2$ dissous s'échappe car sa solubilité diminue en se réchauffant).
+
+### Nature du soluté et du solvant
+
+La solubilité dépend de la **compatibilité chimique** entre le soluté et le solvant :
+
+- Les solutés **polaires** ou **ioniques** se dissolvent bien dans les solvants **polaires** comme l'eau → « *qui se ressemble s'assemble* »
+- Les solutés **apolaires** (huile, graisses) sont très peu solubles dans l'eau mais solubles dans des solvants organiques comme l'hexane ou l'éthanol
+
+> **Application :** c'est pourquoi on utilise du **savon** pour laver les graisses. Le savon possède une partie polaire (hydrophile) et une partie apolaire (lipophile) qui « capture » les graisses.
+
+### Pression (pour les gaz)
+
+La solubilité d'un gaz dans un liquide **augmente** avec la pression :
+
+> Les boissons gazeuses sont embouteillées sous pression pour dissoudre davantage de $CO_2$. À l'ouverture, la pression diminue et le gaz s'échappe sous forme de bulles.
+
+---
+
+## Préparation d'une solution par dissolution
+
+### Protocole au laboratoire
+
+Pour préparer un volume $V$ de solution à la concentration $C_m$ :
+
+1. **Calculer** la masse de soluté nécessaire : $m = C_m \\times V$
+2. **Peser** le soluté sur une balance de précision
+3. **Introduire** le soluté dans une **fiole jaugée** de volume $V$
+4. **Ajouter** de l'eau distillée (environ les 2/3 du volume)
+5. **Agiter** jusqu'à dissolution complète
+6. **Compléter** avec de l'eau distillée jusqu'au trait de jauge (ménisque tangent au trait)
+7. **Boucher** et **homogénéiser** en retournant la fiole
+
+### Exemple de calcul
+
+On veut préparer $V = 250 \\, mL = 0{,}250 \\, L$ de solution de chlorure de sodium à $C_m = 20 \\, g \\cdot L^{-1}$.
+
+$$m = C_m \\times V = 20 \\times 0{,}250 = 5{,}0 \\, g$$
+
+Il faut peser $5{,}0 \\, g$ de $NaCl$.
+
+---
+
+## L'essentiel à retenir
+
+- La **dissolution** est la dispersion d'un **soluté** dans un **solvant** pour former une **solution** homogène.
+- Un soluté ionique se dissocie en **ions hydratés** ; un soluté moléculaire se disperse sous forme de molécules.
+- La **masse se conserve** lors de la dissolution.
+- La **concentration en masse** : $C_m = \\dfrac{m_{\\text{soluté}}}{V_{\\text{solution}}}$ (en $g \\cdot L^{-1}$).
+- La **solubilité** $s$ est la concentration maximale en solution saturée.
+- La solubilité dépend de la **température**, de la **nature** du soluté et du solvant, et de la **pression** (pour les gaz).
+""",
+                'quiz': {
+                    'titre': 'Quiz — Dissolution et solubilité',
+                    'questions': [
+                        {
+                            'ordre': 1,
+                            'type': 'qcm',
+                            'texte': "Dans une dissolution, comment appelle-t-on le liquide dans lequel le soluté se dissout ?",
+                            'options': ["Le solvant", "La solution", "Le soluté", "Le précipité"],
+                            'reponse_correcte': '0',
+                            'explication': "Le solvant est le liquide dans lequel le soluté se dissout. Quand le solvant est l'eau, on parle de solution aqueuse.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 2,
+                            'type': 'qcm',
+                            'texte': "Lors d'une dissolution, on obtient un mélange :",
+                            'options': ["Homogène", "Hétérogène", "Biphasique", "Gazeux"],
+                            'reponse_correcte': '0',
+                            'explication': "La dissolution produit une solution, qui est un mélange homogène : on ne distingue qu'une seule phase.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 3,
+                            'type': 'qcm',
+                            'texte': "L'indice (aq) dans Na⁺(aq) signifie que l'ion est :",
+                            'options': ["Hydraté (entouré de molécules d'eau)", "À l'état gazeux", "À l'état solide", "Non dissocié"],
+                            'reponse_correcte': '0',
+                            'explication': "L'indice (aq) signifie « aqueux » : l'ion est hydraté, c'est-à-dire entouré de molécules d'eau.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 4,
+                            'type': 'qcm',
+                            'texte': "La concentration en masse Cm s'exprime en :",
+                            'options': ["g·L⁻¹", "mol·L⁻¹", "kg·m⁻³", "g·mol⁻¹"],
+                            'reponse_correcte': '0',
+                            'explication': "La concentration en masse Cm = m(soluté) / V(solution) s'exprime en g·L⁻¹.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 5,
+                            'type': 'qcm',
+                            'texte': "Lors de la dissolution, la masse totale :",
+                            'options': ["Se conserve", "Augmente", "Diminue", "Dépend du soluté"],
+                            'reponse_correcte': '0',
+                            'explication': "Lors de la dissolution, la masse se conserve : m(solution) = m(soluté) + m(solvant).",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 6,
+                            'type': 'qcm',
+                            'texte': "Le chlorure de sodium NaCl est un soluté :",
+                            'options': ["Ionique", "Moléculaire", "Métallique", "Covalent pur"],
+                            'reponse_correcte': '0',
+                            'explication': "NaCl est un composé ionique. Lors de sa dissolution, il se dissocie en ions Na⁺(aq) et Cl⁻(aq).",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 7,
+                            'type': 'qcm',
+                            'texte': "Que se passe-t-il quand on ajoute du soluté à une solution déjà saturée ?",
+                            'options': ["Un dépôt se forme au fond du récipient", "Le soluté se dissout normalement", "La solution change de couleur", "Le solvant s'évapore"],
+                            'reponse_correcte': '0',
+                            'explication': "Une solution saturée ne peut plus dissoudre de soluté supplémentaire : l'excès forme un dépôt (corps non dissous) au fond.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 8,
+                            'type': 'qcm',
+                            'texte': "Le saccharose (sucre de table) est un soluté :",
+                            'options': ["Moléculaire", "Ionique", "Métallique", "Gazeux"],
+                            'reponse_correcte': '0',
+                            'explication': "Le saccharose C₁₂H₂₂O₁₁ est un composé moléculaire. Lors de sa dissolution, les molécules se dispersent parmi les molécules d'eau.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 9,
+                            'type': 'qcm',
+                            'texte': "La solubilité du NaCl dans l'eau à 20 °C est d'environ :",
+                            'options': ["360 g·L⁻¹", "36 g·L⁻¹", "3,6 g·L⁻¹", "3 600 g·L⁻¹"],
+                            'reponse_correcte': '0',
+                            'explication': "La solubilité du chlorure de sodium dans l'eau à 20 °C est d'environ 360 g·L⁻¹.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 10,
+                            'type': 'qcm',
+                            'texte': "Pour la plupart des gaz dissous, lorsque la température augmente, la solubilité :",
+                            'options': ["Diminue", "Augmente", "Reste constante", "Devient nulle"],
+                            'reponse_correcte': '0',
+                            'explication': "Pour les gaz, la solubilité diminue quand la température augmente. C'est pourquoi une boisson gazeuse pétille plus en se réchauffant.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 11,
+                            'type': 'qcm',
+                            'texte': "Pour préparer 250 mL de solution de NaCl à 20 g·L⁻¹, quelle masse de sel faut-il peser ?",
+                            'options': ["5,0 g", "20 g", "50 g", "2,5 g"],
+                            'reponse_correcte': '0',
+                            'explication': "m = Cm × V = 20 × 0,250 = 5,0 g.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 12,
+                            'type': 'qcm',
+                            'texte': "Les solutés polaires ou ioniques se dissolvent bien dans :",
+                            'options': ["Les solvants polaires comme l'eau", "Les solvants apolaires comme l'hexane", "N'importe quel solvant", "Les gaz uniquement"],
+                            'reponse_correcte': '0',
+                            'explication': "« Qui se ressemble s'assemble » : les solutés polaires/ioniques se dissolvent dans les solvants polaires, et les apolaires dans les solvants apolaires.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 13,
+                            'type': 'qcm',
+                            'texte': "La solubilité d'un gaz dans un liquide augmente lorsque :",
+                            'options': ["La pression augmente", "La pression diminue", "La température augmente", "On agite la solution"],
+                            'reponse_correcte': '0',
+                            'explication': "La solubilité d'un gaz augmente avec la pression. C'est pourquoi les boissons gazeuses sont embouteillées sous pression.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 14,
+                            'type': 'qcm',
+                            'texte': "Lors de la dissolution de CuSO₄ dans l'eau, on obtient :",
+                            'options': ["Cu²⁺(aq) et SO₄²⁻(aq)", "Cu(aq) et SO₄(aq)", "CuSO₄(aq) non dissocié", "Cu²⁻(aq) et SO₄²⁺(aq)"],
+                            'reponse_correcte': '0',
+                            'explication': "Le sulfate de cuivre est un composé ionique. Il se dissocie en ions Cu²⁺(aq) et SO₄²⁻(aq) lors de sa dissolution dans l'eau.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 15,
+                            'type': 'vrai_faux',
+                            'texte': "La dissolution est une transformation chimique.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "La dissolution est une transformation physique : les espèces chimiques se dispersent dans le solvant mais ne changent pas de nature.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 16,
+                            'type': 'vrai_faux',
+                            'texte': "La solubilité de la plupart des solides dans l'eau augmente avec la température.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "Pour la plupart des solides, la solubilité augmente avec la température. On peut dissoudre davantage de sucre dans de l'eau chaude.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 17,
+                            'type': 'vrai_faux',
+                            'texte': "Une solution saturée peut encore dissoudre du soluté supplémentaire.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "Par définition, une solution saturée a atteint sa concentration maximale et ne peut plus dissoudre de soluté supplémentaire.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 18,
+                            'type': 'texte_libre',
+                            'texte': "Quelle est la formule de la concentration en masse Cm d'un soluté dans une solution ?",
+                            'options': None,
+                            'reponse_correcte': 'Cm = m / V',
+                            'tolerances': ['Cm = m/V', 'C = m/V', 'Cm=m/V'],
+                            'explication': "La concentration en masse est Cm = m(soluté) / V(solution), en g·L⁻¹.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 19,
+                            'type': 'texte_libre',
+                            'texte': "Comment appelle-t-on la concentration en masse maximale que l'on peut atteindre dans une solution, à une température donnée ?",
+                            'options': None,
+                            'reponse_correcte': 'solubilité',
+                            'tolerances': ['la solubilité', 'Solubilité', 'solubilite'],
+                            'explication': "La solubilité s est la concentration en masse maximale dans une solution saturée, à une température donnée.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 20,
+                            'type': 'texte_libre',
+                            'texte': "Quel type de verrerie de précision utilise-t-on au laboratoire pour préparer un volume exact de solution par dissolution ?",
+                            'options': None,
+                            'reponse_correcte': 'fiole jaugée',
+                            'tolerances': ['une fiole jaugée', 'Fiole jaugée', 'la fiole jaugée'],
+                            'explication': "La fiole jaugée est la verrerie de précision utilisée pour préparer un volume exact de solution. On complète jusqu'au trait de jauge.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                    ],
+                },
+            },
+        ],
+    },
+    # ──────────────────────────────────────────────
+    # CHAPITRE 11 — Transformations nucléaires
+    # ──────────────────────────────────────────────
+    {
+        'ordre': 11,
+        'titre': 'Transformations nucléaires',
+        'description': "Découvrir la structure du noyau atomique, les différents types de radioactivité, et les réactions de fission et de fusion nucléaires.",
+        'score_minimum': 60.0,
+        'lecons': [
+            {
+                'ordre': 1,
+                'titre': 'Noyau atomique et radioactivité',
+                'duree': 30,
+                'contenu': """# Noyau atomique et radioactivité
+
+## Introduction
+
+Au cœur de chaque atome se trouve le **noyau**, une structure extrêmement petite et dense qui contient l'essentiel de la masse de l'atome. Certains noyaux sont **instables** : ils se transforment spontanément en émettant des rayonnements. C'est le phénomène de **radioactivité**, découvert par Henri Becquerel en 1896. Comprendre la radioactivité est indispensable pour saisir les enjeux de l'énergie nucléaire, de l'imagerie médicale et de la datation en géologie.
+
+---
+
+## Le noyau atomique
+
+### Composition
+
+Le noyau est constitué de **nucléons** :
+
+- **Protons** (charge positive $+e$) : leur nombre $Z$ est le **numéro atomique** (il définit l'élément chimique)
+- **Neutrons** (charge nulle) : leur nombre est noté $N$
+
+Le nombre total de nucléons est le **nombre de masse** :
+
+$$A = Z + N$$
+
+### Notation symbolique
+
+Un noyau est noté :
+
+$$^A_Z X$$
+
+où $X$ est le symbole de l'élément chimique.
+
+> **Exemples :**
+>
+> - Hydrogène : $^1_1 H$ (1 proton, 0 neutron)
+> - Carbone 12 : $^{12}_{\\;6} C$ (6 protons, 6 neutrons)
+> - Uranium 238 : $^{238}_{\\;92} U$ (92 protons, 146 neutrons)
+
+---
+
+## Isotopes
+
+### Définition
+
+Deux noyaux sont **isotopes** s'ils ont le **même numéro atomique** $Z$ (même élément chimique) mais un **nombre de masse** $A$ différent (nombre de neutrons différent).
+
+> **Exemples d'isotopes du carbone :**
+>
+> | Isotope | Protons ($Z$) | Neutrons ($N$) | Masse ($A$) | Stabilité |
+> |---------|:---:|:---:|:---:|-----------|
+> | $^{12}_{\\;6} C$ | 6 | 6 | 12 | Stable |
+> | $^{13}_{\\;6} C$ | 6 | 7 | 13 | Stable |
+> | $^{14}_{\\;6} C$ | 6 | 8 | 14 | Radioactif |
+
+Les isotopes d'un même élément ont les **mêmes propriétés chimiques** (même nombre d'électrons) mais des **propriétés nucléaires différentes**.
+
+---
+
+## Stabilité et instabilité nucléaire
+
+### Vallée de stabilité
+
+Les noyaux stables se trouvent dans une zone appelée **vallée de stabilité** sur un diagramme $N$ en fonction de $Z$ :
+
+- Pour les noyaux légers ($Z \\leq 20$) : $N \\approx Z$ (autant de neutrons que de protons)
+- Pour les noyaux lourds : $N > Z$ (il faut davantage de neutrons pour compenser la répulsion entre protons)
+
+### Noyaux instables
+
+Un noyau qui se trouve **en dehors** de la vallée de stabilité est **radioactif** : il se désintègre spontanément pour se rapprocher de la stabilité en émettant un rayonnement.
+
+---
+
+## Les trois types de radioactivité
+
+### Radioactivité alpha ($\\alpha$)
+
+Un noyau lourd émet un **noyau d'hélium** $^4_2 He$ (particule $\\alpha$) :
+
+$$^A_Z X \\longrightarrow ^{A-4}_{Z-2} Y + ^4_2 He$$
+
+> **Exemple :** désintégration de l'uranium 238 :
+>
+> $$^{238}_{\\;92} U \\longrightarrow ^{234}_{\\;90} Th + ^4_2 He$$
+
+**Caractéristiques :** rayonnement peu pénétrant (arrêté par une feuille de papier), mais très ionisant.
+
+### Radioactivité bêta moins ($\\beta^-$)
+
+Un **neutron** du noyau se transforme en **proton** avec émission d'un **électron** $^{\\;\\;0}_{-1} e$ :
+
+$$^A_Z X \\longrightarrow ^{\\;\\;A}_{Z+1} Y + ^{\\;\\;0}_{-1} e$$
+
+> **Exemple :** désintégration du carbone 14 :
+>
+> $$^{14}_{\\;6} C \\longrightarrow ^{14}_{\\;7} N + ^{\\;\\;0}_{-1} e$$
+
+**Caractéristiques :** concerne les noyaux avec un **excès de neutrons**.
+
+### Radioactivité bêta plus ($\\beta^+$)
+
+Un **proton** du noyau se transforme en **neutron** avec émission d'un **positon** $^{0}_{1} e$ :
+
+$$^A_Z X \\longrightarrow ^{\\;\\;A}_{Z-1} Y + ^{0}_{1} e$$
+
+> **Exemple :** désintégration du fluor 18 :
+>
+> $$^{18}_{\\;9} F \\longrightarrow ^{18}_{\\;8} O + ^{0}_{1} e$$
+
+**Caractéristiques :** concerne les noyaux avec un **excès de protons**.
+
+---
+
+## Lois de conservation (lois de Soddy)
+
+Lors d'une réaction nucléaire, deux grandeurs se conservent :
+
+1. **Conservation du nombre de masse** $A$ :
+
+$$\\sum A_{\\text{réactifs}} = \\sum A_{\\text{produits}}$$
+
+2. **Conservation du numéro atomique** $Z$ (conservation de la charge) :
+
+$$\\sum Z_{\\text{réactifs}} = \\sum Z_{\\text{produits}}$$
+
+> **Application :** ces lois permettent d'identifier un noyau fils inconnu dans une équation de désintégration.
+>
+> Si $^{210}_{\\;84} Po \\longrightarrow ^{A}_{Z} X + ^4_2 He$, alors :
+>
+> $A = 210 - 4 = 206$ et $Z = 84 - 2 = 82$, donc $X = ^{206}_{\\;82} Pb$ (plomb 206).
+
+---
+
+## Demi-vie radioactive
+
+### Définition
+
+La **demi-vie** $t_{1/2}$ d'un isotope radioactif est la durée au bout de laquelle la **moitié** des noyaux radioactifs initialement présents se sont désintégrés.
+
+### Loi de décroissance
+
+Le nombre de noyaux radioactifs restants à l'instant $t$ est :
+
+$$N(t) = N_0 \\times \\left(\\frac{1}{2}\\right)^{t / t_{1/2}}$$
+
+où $N_0$ est le nombre initial de noyaux.
+
+### Exemples de demi-vies
+
+| Isotope | $t_{1/2}$ | Application |
+|---------|-----------|-------------|
+| $^{14}_{\\;6} C$ | $5730$ ans | Datation archéologique |
+| $^{131}_{\\;53} I$ (iode 131) | $8{,}02$ jours | Traitement de la thyroïde |
+| $^{238}_{\\;92} U$ | $4{,}5 \\times 10^9$ ans | Datation géologique |
+| $^{222}_{\\;86} Rn$ (radon 222) | $3{,}8$ jours | Risque sanitaire (gaz naturel) |
+
+> **Remarque :** après $n$ demi-vies, il reste $\\dfrac{N_0}{2^n}$ noyaux radioactifs. Après environ **10 demi-vies**, l'activité est divisée par $2^{10} = 1024 \\approx 1000$, et on considère que l'échantillon est pratiquement inactif.
+
+---
+
+## L'essentiel à retenir
+
+- Le noyau $^A_Z X$ contient $Z$ protons et $N = A - Z$ neutrons.
+- Des **isotopes** ont le même $Z$ mais un $A$ différent.
+- Un noyau **instable** se désintègre par radioactivité : $\\alpha$, $\\beta^-$ ou $\\beta^+$.
+- Les **lois de Soddy** imposent la conservation de $A$ et de $Z$.
+- La **demi-vie** $t_{1/2}$ est le temps pour que la moitié des noyaux se désintègrent.
+""",
+                'quiz': {
+                    'titre': 'Quiz — Noyau atomique et radioactivité',
+                    'questions': [
+                        {
+                            'ordre': 1,
+                            'type': 'qcm',
+                            'texte': "Le noyau atomique est constitué de :",
+                            'options': ["Protons et neutrons", "Protons et électrons", "Neutrons et électrons", "Protons, neutrons et électrons"],
+                            'reponse_correcte': '0',
+                            'explication': "Le noyau contient des protons (charge +) et des neutrons (charge nulle), appelés collectivement nucléons.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 2,
+                            'type': 'qcm',
+                            'texte': "Le numéro atomique Z représente le nombre de :",
+                            'options': ["Protons", "Neutrons", "Nucléons", "Électrons du noyau"],
+                            'reponse_correcte': '0',
+                            'explication': "Z est le numéro atomique, c'est-à-dire le nombre de protons dans le noyau. Il définit l'élément chimique.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 3,
+                            'type': 'qcm',
+                            'texte': "Le nombre de masse A est égal à :",
+                            'options': ["Z + N (protons + neutrons)", "Z − N", "Z × N", "N − Z"],
+                            'reponse_correcte': '0',
+                            'explication': "Le nombre de masse A est le nombre total de nucléons : A = Z + N.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 4,
+                            'type': 'qcm',
+                            'texte': "Deux isotopes d'un même élément ont :",
+                            'options': ["Le même Z mais un A différent", "Le même A mais un Z différent", "Le même Z et le même A", "Un Z et un A tous deux différents"],
+                            'reponse_correcte': '0',
+                            'explication': "Des isotopes ont le même numéro atomique Z (même élément) mais un nombre de masse A différent (nombre de neutrons différent).",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 5,
+                            'type': 'qcm',
+                            'texte': "Lors d'une désintégration alpha (α), le noyau émet :",
+                            'options': ["Un noyau d'hélium ⁴₂He", "Un électron", "Un positon", "Un neutron"],
+                            'reponse_correcte': '0',
+                            'explication': "La radioactivité α consiste en l'émission d'un noyau d'hélium ⁴₂He (2 protons + 2 neutrons).",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 6,
+                            'type': 'qcm',
+                            'texte': "Le carbone 14 (¹⁴₆C) possède :",
+                            'options': ["6 protons et 8 neutrons", "6 protons et 6 neutrons", "8 protons et 6 neutrons", "14 protons et 6 neutrons"],
+                            'reponse_correcte': '0',
+                            'explication': "¹⁴₆C : Z = 6 protons et N = A − Z = 14 − 6 = 8 neutrons.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 7,
+                            'type': 'qcm',
+                            'texte': "La demi-vie d'un isotope radioactif est :",
+                            'options': ["La durée pour que la moitié des noyaux se désintègrent", "La durée pour que tous les noyaux se désintègrent", "La moitié de la durée de vie d'un noyau", "Le temps entre deux désintégrations successives"],
+                            'reponse_correcte': '0',
+                            'explication': "La demi-vie t₁/₂ est la durée au bout de laquelle la moitié des noyaux radioactifs initialement présents se sont désintégrés.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 8,
+                            'type': 'qcm',
+                            'texte': "La radioactivité bêta moins (β⁻) concerne les noyaux ayant :",
+                            'options': ["Un excès de neutrons", "Un excès de protons", "Trop de nucléons", "Pas assez de nucléons"],
+                            'reponse_correcte': '0',
+                            'explication': "La radioactivité β⁻ concerne les noyaux avec un excès de neutrons : un neutron se transforme en proton avec émission d'un électron.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 9,
+                            'type': 'qcm',
+                            'texte': "Lors de la désintégration α de ²¹⁰₈₄Po, quel est le noyau fils produit ?",
+                            'options': ["²⁰⁶₈₂Pb (plomb 206)", "²⁰⁶₈₄Po", "²⁰⁶₈₆Rn", "²¹⁰₈₂Pb"],
+                            'reponse_correcte': '0',
+                            'explication': "Désintégration α : A diminue de 4 et Z de 2. Donc A = 210 − 4 = 206 et Z = 84 − 2 = 82, soit le plomb ²⁰⁶₈₂Pb.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 10,
+                            'type': 'qcm',
+                            'texte': "Les lois de Soddy imposent la conservation de :",
+                            'options': ["A (nombre de masse) et Z (numéro atomique)", "A uniquement", "Z uniquement", "La masse totale uniquement"],
+                            'reponse_correcte': '0',
+                            'explication': "Les lois de Soddy stipulent que lors d'une réaction nucléaire, le nombre de masse A et le numéro atomique Z se conservent.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 11,
+                            'type': 'qcm',
+                            'texte': "La demi-vie du carbone 14 est d'environ :",
+                            'options': ["5 730 ans", "573 ans", "57 300 ans", "5,73 ans"],
+                            'reponse_correcte': '0',
+                            'explication': "La demi-vie du carbone 14 est de 5 730 ans, ce qui permet la datation archéologique.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 12,
+                            'type': 'qcm',
+                            'texte': "Après 3 demi-vies, quelle fraction des noyaux radioactifs initiaux reste-t-il ?",
+                            'options': ["1/8", "1/3", "1/4", "1/6"],
+                            'reponse_correcte': '0',
+                            'explication': "Après n demi-vies, il reste N₀/2ⁿ noyaux. Pour n = 3 : N₀/2³ = N₀/8, soit 1/8 des noyaux initiaux.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 13,
+                            'type': 'qcm',
+                            'texte': "Le rayonnement alpha (α) est arrêté par :",
+                            'options': ["Une feuille de papier", "Une plaque de plomb uniquement", "Rien, il traverse tout", "Une feuille d'aluminium de quelques mm"],
+                            'reponse_correcte': '0',
+                            'explication': "Le rayonnement α est peu pénétrant : il est arrêté par une simple feuille de papier, mais il est très ionisant.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 14,
+                            'type': 'qcm',
+                            'texte': "Pour les noyaux légers stables (Z ≤ 20), le nombre de neutrons N est environ :",
+                            'options': ["Égal au nombre de protons (N ≈ Z)", "Le double du nombre de protons", "La moitié du nombre de protons", "Nul"],
+                            'reponse_correcte': '0',
+                            'explication': "Pour les noyaux légers stables, N ≈ Z. Pour les noyaux lourds, il faut davantage de neutrons (N > Z) pour la stabilité.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 15,
+                            'type': 'vrai_faux',
+                            'texte': "Les isotopes d'un même élément ont les mêmes propriétés chimiques.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "Les isotopes ont le même Z donc le même nombre d'électrons, ce qui leur confère les mêmes propriétés chimiques.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 16,
+                            'type': 'vrai_faux',
+                            'texte': "Le rayonnement alpha est très pénétrant et difficile à arrêter.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "Le rayonnement α est peu pénétrant (arrêté par une feuille de papier), mais il est très ionisant.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 17,
+                            'type': 'vrai_faux',
+                            'texte': "Lors d'une désintégration β⁻, un neutron se transforme en proton avec émission d'un électron.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "En radioactivité β⁻, un neutron du noyau se transforme en proton, et un électron est émis. Le numéro atomique Z augmente de 1.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 18,
+                            'type': 'texte_libre',
+                            'texte': "Quelle est la formule de la loi de décroissance radioactive donnant le nombre N(t) de noyaux restants en fonction de N₀ et de la demi-vie t₁/₂ ?",
+                            'options': None,
+                            'reponse_correcte': 'N(t) = N0 × (1/2)^(t/t1/2)',
+                            'tolerances': ['N = N0 × (1/2)^(t/t1/2)', 'N(t) = N0 * (1/2)^(t/t1/2)', 'N = N0(1/2)^(t/t1/2)'],
+                            'explication': "La loi de décroissance radioactive est N(t) = N₀ × (1/2)^(t/t₁/₂), où N₀ est le nombre initial de noyaux.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 19,
+                            'type': 'texte_libre',
+                            'texte': "Quel isotope radioactif, de demi-vie 5 730 ans, est utilisé pour la datation archéologique ?",
+                            'options': None,
+                            'reponse_correcte': 'carbone 14',
+                            'tolerances': ['le carbone 14', 'C-14', '14C', 'C14'],
+                            'explication': "Le carbone 14 (¹⁴C), de demi-vie 5 730 ans, permet de dater des échantillons organiques jusqu'à environ 50 000 ans.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 20,
+                            'type': 'texte_libre',
+                            'texte': "Comment appelle-t-on des noyaux ayant le même numéro atomique Z mais un nombre de masse A différent ?",
+                            'options': None,
+                            'reponse_correcte': 'isotopes',
+                            'tolerances': ['des isotopes', 'Isotopes', 'les isotopes'],
+                            'explication': "Des isotopes sont des noyaux ayant le même Z (même élément chimique) mais un A différent (nombre de neutrons différent).",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                    ],
+                },
+            },
+            {
+                'ordre': 2,
+                'titre': 'Fission, fusion et énergie nucléaire',
+                'duree': 30,
+                'contenu': """# Fission, fusion et énergie nucléaire
+
+## Introduction
+
+Les réactions nucléaires libèrent des quantités d'énergie **considérables**, bien supérieures à celles des réactions chimiques. C'est cette énergie qui alimente les **centrales nucléaires** et fait briller les **étoiles**. Il existe deux grands types de réactions nucléaires productrices d'énergie : la **fission** et la **fusion**.
+
+---
+
+## Rappel : énergie et masse
+
+### Équivalence masse-énergie
+
+Albert Einstein a montré en 1905 que la masse et l'énergie sont liées par la célèbre relation :
+
+$$E = m \\times c^2$$
+
+- $E$ : énergie (en joules, $J$)
+- $m$ : masse (en kilogrammes, $kg$)
+- $c$ : vitesse de la lumière dans le vide ($c \\approx 3{,}00 \\times 10^8 \\, m \\cdot s^{-1}$)
+
+### Défaut de masse
+
+La masse d'un noyau est toujours **inférieure** à la somme des masses de ses nucléons pris séparément. Cette différence est le **défaut de masse** :
+
+$$\\Delta m = Z \\times m_p + N \\times m_n - m_{\\text{noyau}}$$
+
+- $m_p \\approx 1{,}6726 \\times 10^{-27} \\, kg$ (masse du proton)
+- $m_n \\approx 1{,}6749 \\times 10^{-27} \\, kg$ (masse du neutron)
+
+Ce défaut de masse correspond à l'**énergie de liaison** du noyau :
+
+$$E_{\\text{liaison}} = \\Delta m \\times c^2$$
+
+Plus l'énergie de liaison **par nucléon** $\\dfrac{E_{\\text{liaison}}}{A}$ est grande, plus le noyau est **stable**.
+
+---
+
+## La fission nucléaire
+
+### Principe
+
+La **fission** est la cassure d'un noyau lourd en **deux noyaux plus légers** (appelés fragments de fission), accompagnée de l'émission de **neutrons** et d'une **grande quantité d'énergie**.
+
+### Exemple : fission de l'uranium 235
+
+Lorsqu'un noyau d'uranium 235 absorbe un **neutron lent**, il devient instable et se scinde :
+
+$$^{235}_{\\;92} U + ^1_0 n \\longrightarrow ^{144}_{\\;56} Ba + ^{89}_{36} Kr + 3 \\, ^1_0 n + \\text{énergie}$$
+
+> **Remarque :** cette réaction n'est qu'un exemple parmi de nombreuses fissions possibles de l'uranium 235. Les fragments de fission varient d'une réaction à l'autre.
+
+### Réaction en chaîne
+
+Les **neutrons produits** par une fission peuvent provoquer la fission d'**autres noyaux** d'uranium 235. C'est le principe de la **réaction en chaîne** :
+
+- Si elle est **contrôlée** (en absorbant une partie des neutrons) → **centrale nucléaire**
+- Si elle est **non contrôlée** (multiplication exponentielle) → **bombe atomique**
+
+### Bilan énergétique
+
+La fission d'un seul noyau d'uranium 235 libère environ :
+
+$$E \\approx 200 \\, MeV \\approx 3{,}2 \\times 10^{-11} \\, J$$
+
+C'est environ **un million de fois** plus d'énergie que la combustion d'un atome de carbone !
+
+> Pour un kilogramme d'uranium 235, l'énergie libérée est de l'ordre de $8 \\times 10^{13} \\, J$, soit l'équivalent de la combustion de **2000 tonnes** de pétrole.
+
+---
+
+## La fusion nucléaire
+
+### Principe
+
+La **fusion** est l'assemblage de **deux noyaux légers** pour former un **noyau plus lourd**, avec libération d'énergie.
+
+### Exemple : fusion de l'hydrogène
+
+Dans les étoiles, le cycle principal est la fusion de noyaux d'hydrogène (protons) en hélium. L'une des réactions de la chaîne proton-proton est :
+
+$$^2_1 H + ^3_1 H \\longrightarrow ^4_2 He + ^1_0 n + \\text{énergie}$$
+
+où $^2_1 H$ est le **deutérium** et $^3_1 H$ le **tritium** (isotopes de l'hydrogène).
+
+### Conditions nécessaires
+
+La fusion nécessite des conditions **extrêmes** :
+
+- **Température** de l'ordre de $10^7$ à $10^8 \\, °C$ pour vaincre la répulsion électrostatique entre les noyaux (tous positifs)
+- **Pression** très élevée pour confiner les noyaux suffisamment proches
+
+> Ces conditions existent naturellement au **cœur des étoiles**. Sur Terre, les scientifiques tentent de les reproduire dans des réacteurs expérimentaux comme le projet **ITER** (en construction à Cadarache, en France).
+
+### Bilan énergétique
+
+La fusion de deutérium et de tritium libère environ :
+
+$$E \\approx 17{,}6 \\, MeV \\approx 2{,}8 \\times 10^{-12} \\, J$$
+
+par réaction. Rapportée à la **masse de combustible**, la fusion libère environ **4 fois plus** d'énergie par kilogramme que la fission.
+
+---
+
+## Comparaison fission / fusion
+
+| | **Fission** | **Fusion** |
+|--|------------|-----------|
+| **Principe** | Cassure d'un noyau lourd | Assemblage de noyaux légers |
+| **Combustible** | Uranium 235, Plutonium 239 | Deutérium, Tritium |
+| **Conditions** | Neutron lent incident | $T > 10^7 \\, °C$, haute pression |
+| **Énergie/kg** | $\\sim 8 \\times 10^{13} \\, J$ | $\\sim 3 \\times 10^{14} \\, J$ |
+| **Déchets** | Fragments radioactifs à vie longue | Hélium (non radioactif) + neutrons |
+| **Application actuelle** | Centrales nucléaires | Étoiles (sur Terre : en recherche) |
+
+---
+
+## Applications de l'énergie nucléaire
+
+### Les centrales nucléaires (fission)
+
+Dans une centrale nucléaire :
+
+1. La **fission** de l'uranium 235 chauffe de l'eau sous pression dans le **circuit primaire**
+2. Cette chaleur est transférée au **circuit secondaire** où l'eau se transforme en vapeur
+3. La vapeur fait tourner une **turbine** couplée à un **alternateur** qui produit de l'électricité
+4. La vapeur est refroidie par un **circuit de refroidissement** (tours aéroréfrigérantes ou eau de rivière)
+
+> **En France**, environ **70 %** de l'électricité est produite par les centrales nucléaires.
+
+### L'énergie des étoiles (fusion)
+
+Les étoiles comme le **Soleil** tirent leur énergie de la fusion nucléaire de l'hydrogène en hélium dans leur cœur, où la température atteint environ $15 \\times 10^6 \\, °C$.
+
+> L'énergie solaire qui parvient à la Terre provient donc de réactions de **fusion nucléaire** !
+
+### La médecine nucléaire
+
+- **Imagerie** : la scintigraphie utilise des isotopes radioactifs (comme le technétium 99) injectés dans l'organisme pour observer le fonctionnement des organes.
+- **Thérapie** : la radiothérapie utilise des rayonnements pour détruire les cellules cancéreuses.
+- **TEP** (Tomographie par Émission de Positons) : utilise des isotopes émetteurs $\\beta^+$ comme le fluor 18.
+
+---
+
+## Enjeux et risques
+
+### Avantages de l'énergie nucléaire
+
+- Pas d'émission directe de $CO_2$ (lutte contre le changement climatique)
+- Grande quantité d'énergie produite pour peu de combustible
+- Production continue (indépendante de la météo)
+
+### Inconvénients et risques
+
+- **Déchets radioactifs** : certains restent dangereux pendant des milliers d'années
+- **Risque d'accident** : Tchernobyl (1986), Fukushima (2011)
+- **Matières fissiles** : risque de prolifération nucléaire
+
+---
+
+## L'essentiel à retenir
+
+- La **fission** est la cassure d'un noyau lourd → réaction en chaîne → centrales nucléaires.
+- La **fusion** est l'assemblage de noyaux légers → énergie des étoiles → projet ITER.
+- $E = mc^2$ relie masse et énergie : le **défaut de masse** correspond à l'énergie libérée.
+- Les **lois de conservation** ($A$ et $Z$) s'appliquent à toutes les réactions nucléaires.
+- L'énergie nucléaire présente des **avantages** (pas de $CO_2$, grande densité énergétique) et des **risques** (déchets, accidents).
+""",
+                'quiz': {
+                    'titre': 'Quiz — Fission, fusion et énergie nucléaire',
+                    'questions': [
+                        {
+                            'ordre': 1,
+                            'type': 'qcm',
+                            'texte': "La fission nucléaire est :",
+                            'options': ["La cassure d'un noyau lourd en noyaux plus légers", "L'assemblage de noyaux légers en un noyau plus lourd", "La désintégration radioactive naturelle", "L'absorption d'un photon par un noyau"],
+                            'reponse_correcte': '0',
+                            'explication': "La fission est la cassure d'un noyau lourd (comme l'uranium 235) en deux noyaux plus légers, avec émission de neutrons et d'énergie.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 2,
+                            'type': 'qcm',
+                            'texte': "La fusion nucléaire est :",
+                            'options': ["L'assemblage de noyaux légers en un noyau plus lourd", "La cassure d'un noyau lourd", "Un changement d'état de la matière", "La désintégration alpha"],
+                            'reponse_correcte': '0',
+                            'explication': "La fusion nucléaire est l'assemblage de deux noyaux légers (comme le deutérium et le tritium) pour former un noyau plus lourd avec libération d'énergie.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 3,
+                            'type': 'qcm',
+                            'texte': "La relation d'Einstein reliant masse et énergie est :",
+                            'options': ["E = mc²", "E = mv²", "E = mgh", "E = ½mv²"],
+                            'reponse_correcte': '0',
+                            'explication': "La relation d'Einstein E = mc² montre l'équivalence entre masse et énergie, avec c la vitesse de la lumière.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 4,
+                            'type': 'qcm',
+                            'texte': "Quel est le combustible principal utilisé dans les centrales nucléaires actuelles ?",
+                            'options': ["L'uranium 235", "L'hydrogène", "Le plutonium 240", "L'hélium"],
+                            'reponse_correcte': '0',
+                            'explication': "Les centrales nucléaires actuelles fonctionnent par fission de l'uranium 235.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 5,
+                            'type': 'qcm',
+                            'texte': "Les étoiles comme le Soleil tirent leur énergie de :",
+                            'options': ["La fusion nucléaire", "La fission nucléaire", "La combustion chimique", "La radioactivité naturelle"],
+                            'reponse_correcte': '0',
+                            'explication': "Les étoiles produisent leur énergie par fusion nucléaire de l'hydrogène en hélium, à des températures de l'ordre de 15 millions de °C.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 6,
+                            'type': 'qcm',
+                            'texte': "Le défaut de masse d'un noyau est :",
+                            'options': ["La différence entre la masse des nucléons séparés et la masse du noyau", "La masse du noyau entier", "La masse des électrons", "La masse perdue par radioactivité"],
+                            'reponse_correcte': '0',
+                            'explication': "Le défaut de masse Δm = Z×mp + N×mn − m(noyau) correspond à la masse « manquante » convertie en énergie de liaison.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 7,
+                            'type': 'qcm',
+                            'texte': "En France, la part de l'électricité produite par les centrales nucléaires est d'environ :",
+                            'options': ["70 %", "30 %", "50 %", "90 %"],
+                            'reponse_correcte': '0',
+                            'explication': "En France, environ 70 % de l'électricité est produite par les centrales nucléaires (fission de l'uranium).",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 8,
+                            'type': 'qcm',
+                            'texte': "Lors d'une réaction en chaîne de fission :",
+                            'options': ["Les neutrons produits provoquent de nouvelles fissions", "Les protons provoquent de nouvelles fissions", "Les électrons provoquent de nouvelles fissions", "La réaction s'arrête spontanément après une fission"],
+                            'reponse_correcte': '0',
+                            'explication': "Dans une réaction en chaîne, les neutrons émis par une fission peuvent provoquer la fission d'autres noyaux d'uranium 235.",
+                            'difficulte': 'facile',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 9,
+                            'type': 'qcm',
+                            'texte': "L'énergie libérée par la fission d'un seul noyau d'uranium 235 est d'environ :",
+                            'options': ["200 MeV", "20 MeV", "2 MeV", "2 000 MeV"],
+                            'reponse_correcte': '0',
+                            'explication': "La fission d'un noyau d'uranium 235 libère environ 200 MeV, soit environ un million de fois plus qu'une réaction chimique.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 10,
+                            'type': 'qcm',
+                            'texte': "La fusion nucléaire nécessite des températures de l'ordre de :",
+                            'options': ["10⁷ à 10⁸ °C", "10³ à 10⁴ °C", "10⁵ à 10⁶ °C", "10⁹ à 10¹⁰ °C"],
+                            'reponse_correcte': '0',
+                            'explication': "La fusion nécessite des températures de 10⁷ à 10⁸ °C pour vaincre la répulsion électrostatique entre les noyaux positifs.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 11,
+                            'type': 'qcm',
+                            'texte': "Rapportée à la masse de combustible, la fusion libère par rapport à la fission :",
+                            'options': ["Environ 4 fois plus d'énergie", "La même quantité d'énergie", "Environ 4 fois moins d'énergie", "Environ 100 fois plus d'énergie"],
+                            'reponse_correcte': '0',
+                            'explication': "La fusion libère environ 4 fois plus d'énergie par kilogramme de combustible que la fission.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 12,
+                            'type': 'qcm',
+                            'texte': "Le deutérium (²₁H) et le tritium (³₁H) sont :",
+                            'options': ["Des isotopes de l'hydrogène", "Des isotopes de l'hélium", "Des éléments chimiques différents", "Des ions de l'hydrogène"],
+                            'reponse_correcte': '0',
+                            'explication': "Le deutérium (²₁H) et le tritium (³₁H) ont le même Z = 1 que l'hydrogène mais des A différents : ce sont des isotopes de l'hydrogène.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 13,
+                            'type': 'qcm',
+                            'texte': "Plus l'énergie de liaison par nucléon est grande, plus le noyau est :",
+                            'options': ["Stable", "Instable", "Radioactif", "Lourd"],
+                            'reponse_correcte': '0',
+                            'explication': "L'énergie de liaison par nucléon mesure la cohésion du noyau : plus elle est élevée, plus le noyau est stable.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 14,
+                            'type': 'qcm',
+                            'texte': "Le projet international ITER, en construction à Cadarache, vise à :",
+                            'options': ["Reproduire la fusion nucléaire sur Terre", "Construire une nouvelle centrale à fission", "Stocker les déchets nucléaires", "Développer la radioactivité médicale"],
+                            'reponse_correcte': '0',
+                            'explication': "ITER est un projet international de réacteur expérimental à fusion, en construction à Cadarache en France.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 15,
+                            'type': 'vrai_faux',
+                            'texte': "La fission de l'uranium 235 produit des déchets radioactifs à vie longue.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'vrai',
+                            'explication': "La fission produit des fragments radioactifs dont certains ont des demi-vies de milliers d'années, posant un problème de gestion des déchets.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 16,
+                            'type': 'vrai_faux',
+                            'texte': "La fusion nucléaire du deutérium et du tritium produit de l'hélium, qui est radioactif.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "L'hélium 4 produit par la fusion est un gaz noble stable et non radioactif. C'est un avantage majeur de la fusion.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 17,
+                            'type': 'vrai_faux',
+                            'texte': "Les centrales nucléaires émettent directement du CO₂ lors de la production d'électricité.",
+                            'options': ["Vrai", "Faux"],
+                            'reponse_correcte': 'faux',
+                            'explication': "Les réactions nucléaires ne produisent pas de CO₂. L'énergie nucléaire n'émet pas directement de gaz à effet de serre.",
+                            'difficulte': 'moyen',
+                            'points': 1,
+                        },
+                        {
+                            'ordre': 18,
+                            'type': 'texte_libre',
+                            'texte': "Quelle est la célèbre formule d'Einstein reliant l'énergie E à la masse m ?",
+                            'options': None,
+                            'reponse_correcte': 'E = mc²',
+                            'tolerances': ['E=mc²', 'E = m × c²', 'E=mc^2', 'E = mc^2'],
+                            'explication': "La relation d'Einstein E = mc² montre qu'une masse m est équivalente à une énergie E, avec c ≈ 3,00 × 10⁸ m·s⁻¹.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 19,
+                            'type': 'texte_libre',
+                            'texte': "Comment appelle-t-on le phénomène où les neutrons produits par une fission provoquent d'autres fissions en cascade ?",
+                            'options': None,
+                            'reponse_correcte': 'réaction en chaîne',
+                            'tolerances': ['une réaction en chaîne', 'Réaction en chaîne', 'reaction en chaine'],
+                            'explication': "La réaction en chaîne se produit quand les neutrons émis par une fission provoquent la fission d'autres noyaux, et ainsi de suite.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                        {
+                            'ordre': 20,
+                            'type': 'texte_libre',
+                            'texte': "Quel est le nom du projet international de réacteur à fusion nucléaire en construction à Cadarache, en France ?",
+                            'options': None,
+                            'reponse_correcte': 'ITER',
+                            'tolerances': ['le projet ITER', 'Iter', 'iter', 'projet ITER'],
+                            'explication': "ITER (International Thermonuclear Experimental Reactor) est le projet de réacteur expérimental à fusion en construction à Cadarache.",
+                            'difficulte': 'difficile',
+                            'points': 2,
+                        },
+                    ],
+                },
+            },
+        ],
+    },
 ]
 
 
 class Command(BaseCommand):
-    help = "Seed Chimie Seconde — chapitres 1-9, leçons et quiz."
+    help = "Seed Chimie Seconde — chapitres 1-11, leçons et quiz."
 
     def handle(self, *args, **options):
         matiere, created = Matiere.objects.get_or_create(

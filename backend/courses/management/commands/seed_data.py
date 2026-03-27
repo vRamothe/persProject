@@ -220,7 +220,7 @@ class Command(BaseCommand):
                         "3. Poser un calcul rigoureux avec unités.\n"
                         "4. Vérifier la cohérence du résultat.\n\n"
                         "## Exercice corrigé\n"
-                        "Rédige une solution structurée : hypothèses, calculs, conclusion." 
+                        "Rédige une solution structurée : hypothèses, calculs, conclusion."
                     ),
                 },
             )
@@ -282,6 +282,7 @@ class Command(BaseCommand):
                         "tolerances": q.get("tolerances"),
                         "explication": q.get("explication", ""),
                         "points": q.get("points", 1),
+                        "difficulte": q.get("difficulte", "moyen"),
                     },
                 )
             # Only remove seed-managed questions; leave generated extras untouched
