@@ -1,5 +1,5 @@
 ---
-description: "Seed chimie première — Use when generating, regenerating or updating the Django management command seed_chimie_premiere.py for the Chimie Première level of ScienceLycée. Contains full curriculum documentation for 8 chapters extracted from the PDF source files in ressources/1ere/PC/. Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'chimie' Matiere at niveau 'premiere'."
+description: "Seed chimie première — Use when generating, regenerating or updating the Django management command seed_chimie_premiere.py for the Chimie Première level of ScienceLycée. Contains full curriculum documentation for 10 chapters extracted from the PDF source files in ressources/1ere/PC/. Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'chimie' Matiere at niveau 'premiere'."
 tools: [read, edit, search, execute, todo]
 name: "Seed Chimie Première"
 argument-hint: "Generate or update seed_chimie_premiere.py management command"

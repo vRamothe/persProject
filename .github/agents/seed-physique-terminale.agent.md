@@ -1,5 +1,5 @@
 ---
-description: "Seed physique terminale — Use when generating, regenerating or updating the Django management command seed_physique_terminale.py for the Physique Terminale level of ScienceLycée. Contains full curriculum documentation for 12 chapters (Ch.0 à Ch.20) extracted from PDF source files. Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'physique' Matiere at niveau 'terminale'."
+description: "Seed physique terminale — Use when generating, regenerating or updating the Django management command seed_physique_terminale.py for the Physique Terminale level of ScienceLycée. Contains full curriculum documentation for 15 chapters (Ch.0 à Ch.20) extracted from PDF source files. Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'physique' Matiere at niveau 'terminale'."
 tools: [read, edit, search, execute, todo]
 name: "Seed Physique Terminale"
 argument-hint: "Generate or update seed_physique_terminale.py management command"

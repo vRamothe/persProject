@@ -164,9 +164,23 @@ docker compose exec web python manage.py shell
 ```
 
 ## Seed Data
-`python manage.py seed_data` — idempotent, creates admin + sample Matière/Chapitre/Lecon content. Extend via `courses/management/commands/seed_content.py`.
+Full curriculum content is seeded via dedicated management commands per subject and level:
 
-Admin credentials from `.env`: `FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`.
+| Command | Matière | Niveau | Chapitres | Leçons | Questions |
+|---------|---------|--------|-----------|--------|-----------|
+| `seed_chimie_seconde` | chimie | seconde | 11 | 22 | 440 |
+| `seed_physique_seconde` | physique | seconde | 8 | 16 | 320 |
+| `seed_maths_seconde` | mathematiques | seconde | 13 | 26 | 520 |
+| `seed_chimie_premiere` | chimie | premiere | 10 | 21 | 420 |
+| `seed_physique_premiere` | physique | premiere | 9 | 18 | 360 |
+| `seed_maths_premiere` | mathematiques | premiere | 9 | 25 | 500 |
+| `seed_data` (imports `seed_content.py`) | all | terminale | 42 | 152 | 548 |
+
+`seed_data` also creates the admin user from `.env` (`FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`) and basic Matière records.
+
+**Quiz format**: 20 questions per quiz in individual seed files (8 QCM facile + 6 QCM moyen + 3 vrai_faux moyen + 3 texte_libre difficile). Terminale quizzes in `seed_content.py` have 2-3 questions per quiz.
+
+**Total**: 280 quizzes, 3108 questions across 280 lessons.
 
 ## Conventions
 - Views are function-based with `@login_required`; use CBV only when there is a clear reason

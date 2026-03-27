@@ -1,5 +1,5 @@
 ---
-description: "Seed physique seconde — Use when generating, regenerating or updating the Django management command seed_physique_seconde.py for the Physique Seconde level of ScienceLycée. Contains full curriculum documentation for 7 chapters extracted from the PDF source files in ressources/2nd/PC/ (Chapitres 10–16). Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'physique' Matiere at niveau 'seconde'."
+description: "Seed physique seconde — Use when generating, regenerating or updating the Django management command seed_physique_seconde.py for the Physique Seconde level of ScienceLycée. Contains full curriculum documentation for 8 chapters extracted from the PDF source files in ressources/2nd/PC/ (Chapitres 10–16). Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'physique' Matiere at niveau 'seconde'."
 tools: [read, edit, search, execute, todo]
 name: "Seed Physique Seconde"
 argument-hint: "Generate or update seed_physique_seconde.py management command"

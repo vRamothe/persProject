@@ -97,7 +97,9 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 | CSV import | `courses/management/commands/import_questions.py` |
 | Forms | `users/forms.py` (keep Tailwind widget classes consistent) |
 | Admin interface | `*/admin.py` |
-| Seed content | `courses/management/commands/seed_content.py` |
+| Seed content (Terminale) | `courses/management/commands/seed_content.py` + `seed_data.py` |
+| Seed content (Seconde) | `courses/management/commands/seed_chimie_seconde.py`, `seed_physique_seconde.py`, `seed_maths_seconde.py` |
+| Seed content (Première) | `courses/management/commands/seed_chimie_premiere.py`, `seed_physique_premiere.py`, `seed_maths_premiere.py` |
 | Settings | `config/settings/base.py` (or `development.py` / `production.py` for env-specific) |
 | Docker / deploy | `backend/Dockerfile`, `backend/entrypoint.sh`, `docker-compose.yml`, `nginx/nginx.conf` |
 | Password reset | `users/urls.py` (4 reset routes), `templates/registration/password_reset*.html`, `config/settings/development.py` + `production.py` |

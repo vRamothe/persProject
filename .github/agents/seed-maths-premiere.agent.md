@@ -1,5 +1,5 @@
 ---
-description: "Seed maths première — Use when generating, regenerating or updating the Django management command seed_maths_premiere.py for the Mathématiques Première level of ScienceLycée. Contains full curriculum documentation for 8 chapters extracted from the PDF source files in ressources/1ere/Maths/. Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'mathematiques' Matiere at niveau 'premiere'."
+description: "Seed maths première — Use when generating, regenerating or updating the Django management command seed_maths_premiere.py for the Mathématiques Première level of ScienceLycée. Contains full curriculum documentation for 9 chapters extracted from the PDF source files in ressources/1ere/Maths/. Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'mathematiques' Matiere at niveau 'premiere'."
 tools: [read, edit, search, execute, todo]
 name: "Seed Maths Première"
 argument-hint: "Generate or update seed_maths_premiere.py management command"

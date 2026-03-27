@@ -1,5 +1,5 @@
 ---
-description: "Seed chimie terminale — Use when generating, regenerating or updating the Django management command seed_chimie_terminale.py for the Chimie Terminale level of ScienceLycée. Contains full curriculum documentation for 9 chapters extracted from PDF source files. Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'chimie' Matiere at niveau 'terminale'."
+description: "Seed chimie terminale — Use when generating, regenerating or updating the Django management command seed_chimie_terminale.py for the Chimie Terminale level of ScienceLycée. Contains full curriculum documentation for 12 chapters extracted from PDF source files. Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'chimie' Matiere at niveau 'terminale'."
 tools: [read, edit, search, execute, todo]
 name: "Seed Chimie Terminale"
 argument-hint: "Generate or update seed_chimie_terminale.py management command"

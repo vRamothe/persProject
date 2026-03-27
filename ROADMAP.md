@@ -96,3 +96,4 @@
 - ~~PDF export~~ (#31) — WeasyPrint at `/cours/lecon/<pk>/pdf/` with LaTeX→SVG math rendering (TeX Live + dvisvgm)
 - ~~Logging & monitoring~~ (#33) — Django `LOGGING`, Sentry (prod), `/health/` endpoint
 - ~~Database backups~~ (#34) — Heroku `pg:backups:schedule`
+- ~~Full curriculum content seeding~~ — All 9 seed commands covering 3 subjects × 3 levels with complete chapter+lesson+quiz content: 280 quizzes, 3108 questions across 280 lessons. Bug fixes: `'choix'→'options'` (61q), text `reponse_correcte`→index (59q), missing `difficulte` added (268q). Commands: `seed_chimie_seconde` (11ch), `seed_physique_seconde` (8ch), `seed_maths_seconde` (13ch), `seed_chimie_premiere` (10ch), `seed_physique_premiere` (9ch), `seed_maths_premiere` (9ch), `seed_data`+`seed_content` (Terminale: 42ch).

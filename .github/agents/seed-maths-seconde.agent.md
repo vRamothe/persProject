@@ -1,5 +1,5 @@
 ---
-description: "Seed maths seconde — Use when generating, regenerating or updating the Django management command seed_maths_seconde.py for the Mathématiques Seconde level of ScienceLycée. Contains full curriculum documentation for 12 chapters extracted from the PDF source files in ressources/2nd/Maths/. Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'mathematiques' Matiere at niveau 'seconde'."
+description: "Seed maths seconde — Use when generating, regenerating or updating the Django management command seed_maths_seconde.py for the Mathématiques Seconde level of ScienceLycée. Contains full curriculum documentation for 13 chapters extracted from the PDF source files in ressources/2nd/Maths/. Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'mathematiques' Matiere at niveau 'seconde'."
 tools: [read, edit, search, execute, todo]
 name: "Seed Maths Seconde"
 argument-hint: "Generate or update seed_maths_seconde.py management command"

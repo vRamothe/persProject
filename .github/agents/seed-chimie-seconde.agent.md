@@ -1,5 +1,5 @@
 ---
-description: "Seed chimie seconde — Use when generating, regenerating or updating the Django management command seed_chimie_seconde.py for the Chimie Seconde level of ScienceLycée. Contains full curriculum documentation for 9 chapters extracted from the PDF source files in ressources/2nd/PC/ (Chapitres 1–9). Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'chimie' Matiere at niveau 'seconde'."
+description: "Seed chimie seconde — Use when generating, regenerating or updating the Django management command seed_chimie_seconde.py for the Chimie Seconde level of ScienceLycée. Contains full curriculum documentation for 11 chapters extracted from the PDF source files in ressources/2nd/PC/ (Chapitres 1–11). Creates Chapitre, Lecon, Quiz and Question records (20 questions per leçon) for the 'chimie' Matiere at niveau 'seconde'."
 tools: [read, edit, search, execute, todo]
 name: "Seed Chimie Seconde"
 argument-hint: "Generate or update seed_chimie_seconde.py management command"
