@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -501,12 +503,16 @@ def _envoyer_email_verification(request, user):
     url = request.build_absolute_uri(
         reverse("verifier_email", kwargs={"token": token})
     )
-    send_mail(
-        subject="ScienceLycée — Confirmez votre adresse email",
-        message=f"Bonjour {user.prenom},\n\nCliquez sur ce lien pour activer votre compte :\n{url}\n\nCe lien est valable 24 heures.",
-        from_email=None,  # utilise DEFAULT_FROM_EMAIL
-        recipient_list=[user.email],
-    )
+    logger = logging.getLogger(__name__)
+    try:
+        send_mail(
+            subject="ScienceLycée — Confirmez votre adresse email",
+            message=f"Bonjour {user.prenom},\n\nCliquez sur ce lien pour activer votre compte :\n{url}\n\nCe lien est valable 24 heures.",
+            from_email=None,  # utilise DEFAULT_FROM_EMAIL
+            recipient_list=[user.email],
+        )
+    except Exception as e:
+        logger.error("Échec envoi email de vérification pour user pk=%s : %s", user.pk, e)
 
 
 def inscription_confirmation_view(request):
