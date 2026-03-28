@@ -11,7 +11,7 @@ ScienceLycée is a French high-school e-learning platform for Physics, Chemistry
 | Math rendering | KaTeX 0.16.9 (auto-render, web) · TeX Live + dvisvgm (LaTeX→SVG, PDF export) |
 | Content | Markdown rendered server-side via `python-markdown` with LaTeX protection |
 | Auth | Custom `users.CustomUser` (email-based, `AUTH_USER_MODEL`) |
-| Deploy | Docker Compose (dev) — `db` (postgres), `web` (gunicorn + `--reload`), `nginx` · Heroku (prod) — `heroku.yml` container deploy · Dockerfile includes `texlive-latex-base texlive-latex-recommended texlive-fonts-recommended dvisvgm` for PDF math |
+| Deploy | Docker Compose (dev) — `db` (postgres), `web` (gunicorn + `--reload`), `nginx` · Heroku (prod) — `heroku.yml` container deploy · Dockerfile includes `texlive-latex-base texlive-latex-recommended texlive-fonts-recommended dvisvgm` for PDF math + runs `collectstatic` at build time for static files |
 | Config | `python-decouple` + `.env`, settings split: `base / development / production` |
 
 ## Django App Structure
@@ -163,6 +163,15 @@ docker compose run --rm --user root -v $(pwd)/backend:/app --entrypoint python w
 docker compose exec web python manage.py shell
 ```
 
+```bash
+# Ordre d'exécution des seed commands (entrypoint.sh / heroku-release.sh)
+# 1. seed_data (terminale + admin user)
+# 2. seed_physique_seconde, seed_chimie_seconde, seed_maths_seconde
+# 3. seed_physique_premiere, seed_chimie_premiere, seed_maths_premiere
+# 4. seed_chimie_orga_terminale (complément terminale)
+# 5. pad_quiz_questions (dev only)
+```
+
 ## Seed Data
 Full curriculum content is seeded via dedicated management commands per subject and level:
 
@@ -174,9 +183,12 @@ Full curriculum content is seeded via dedicated management commands per subject 
 | `seed_chimie_premiere` | chimie | premiere | 10 | 21 | 420 |
 | `seed_physique_premiere` | physique | premiere | 9 | 18 | 360 |
 | `seed_maths_premiere` | mathematiques | premiere | 9 | 25 | 500 |
-| `seed_data` (imports `seed_content.py`) | all | terminale | 42 | 152 | 548 |
+| `seed_chimie_orga_terminale` | chimie | terminale | 1 | 3 | 60 |
+| `seed_data` (imports `seed_content.py`) | all (terminale only) | terminale | 42 | 152 | 548 |
 
 `seed_data` also creates the admin user from `.env` (`FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`) and basic Matière records.
+
+`seed_content.py` ne contient plus de données seconde/première — ces niveaux sont entièrement peuplés par les seed commands dédiés.
 
 **Quiz format**: 20 questions per quiz in individual seed files (8 QCM facile + 6 QCM moyen + 3 vrai_faux moyen + 3 texte_libre difficile). Terminale quizzes in `seed_content.py` have 2-3 questions per quiz.
 
@@ -189,6 +201,7 @@ Full curriculum content is seeded via dedicated management commands per subject 
 - Forms render with custom widgets defined in `users/forms.py` (Tailwind classes baked in)
 - No JavaScript files — all JS lives inline in templates or in Alpine.js `x-data` blocks
 - Migrations: always run `makemigrations` before `migrate`; never edit migration files manually unless fixing a squash
+- Seed commands for Chapitre use `update_or_create` (not `get_or_create`) with explicit `slug` in defaults to avoid UniqueViolation on `(matiere, niveau, slug)`
 
 ## Rate Limiting
 - Login: `django-axes` (AXES_FAILURE_LIMIT=5, AXES_COOLOFF_TIME=0.5h, AXES_LOCKOUT_CALLABLE configured)
@@ -198,6 +211,7 @@ Full curriculum content is seeded via dedicated management commands per subject 
 ## Email Verification
 - New users are created with `is_active=False`
 - `_envoyer_email_verification(request, user)` signs the user PK with `django.core.signing` (salt=`email-verification`, max_age=86400)
+- Email sending is wrapped in try/except: failures are logged at `error` level but do not block registration (user is always redirected to the confirmation page)
 - `verifier_email_view` validates the token, sets `is_active=True`, logs in the user
 - Tampered/expired tokens return HTTP 400 and render `registration/email_verification_invalid.html`
 
