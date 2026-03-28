@@ -9,8 +9,18 @@ fi
 echo ">> Application des migrations..."
 python manage.py migrate --noinput
 
-echo ">> Chargement des données initiales..."
+echo ">> Chargement des données initiales (terminale + admin)..."
 python manage.py seed_data
+
+echo ">> Chargement du contenu seconde..."
+python manage.py seed_physique_seconde
+python manage.py seed_chimie_seconde
+python manage.py seed_maths_seconde
+
+echo ">> Chargement du contenu première..."
+python manage.py seed_physique_premiere
+python manage.py seed_chimie_premiere
+python manage.py seed_maths_premiere
 
 echo ">> Complétion des quiz (20 QCM par quiz)..."
 python manage.py pad_quiz_questions
