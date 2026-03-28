@@ -298,6 +298,220 @@ class TestImportQuestions:
         call_command("import_questions", str(csv_file))
         assert Question.objects.count() == 0
 
+
+# ---------------------------------------------------------------------------
+# Batch 2 — Course views (matieres, chapitre, lecon, quiz display)
+# ---------------------------------------------------------------------------
+
+
+class TestMatieresView:
+    def test_matieres_requires_login(self, client):
+        response = client.get(reverse("matieres"))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_matieres_returns_200_for_eleve(self, client, eleve, matiere):
+        client.force_login(eleve)
+        response = client.get(reverse("matieres"))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_matieres_context_contains_matieres_data(self, client, eleve, matiere):
+        client.force_login(eleve)
+        response = client.get(reverse("matieres"))
+        assert "matieres_data" in response.context
+
+    @pytest.mark.django_db
+    def test_matieres_filters_by_niveau(self, client, eleve, matiere):
+        """Eleve terminale sees only terminale chapitres."""
+        Chapitre.objects.create(matiere=matiere, niveau="terminale", titre="Chap Term", ordre=1)
+        Chapitre.objects.create(matiere=matiere, niveau="seconde", titre="Chap Sec", ordre=1)
+        client.force_login(eleve)
+        response = client.get(reverse("matieres"))
+        content = response.content.decode()
+        assert "Chap Term" in content
+        assert "Chap Sec" not in content
+
+    @pytest.mark.django_db
+    def test_admin_sees_all_niveaux(self, client, admin_user, matiere):
+        """Admin with no preview session gets 200 (admin browse mode)."""
+        Chapitre.objects.create(matiere=matiere, niveau="terminale", titre="Chap T", ordre=1)
+        Chapitre.objects.create(matiere=matiere, niveau="seconde", titre="Chap S", ordre=1)
+        client.force_login(admin_user)
+        response = client.get(reverse("matieres"))
+        assert response.status_code == 200
+        assert response.context["is_admin_browse"] is True
+
+
+class TestChapitreView:
+    def test_chapitre_requires_login(self, client, chapitre):
+        response = client.get(reverse("chapitre", kwargs={"chapitre_pk": chapitre.pk}))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_wrong_niveau_redirects(self, client, eleve, matiere):
+        chap_sec = Chapitre.objects.create(matiere=matiere, niveau="seconde", titre="Chap Sec", ordre=1)
+        client.force_login(eleve)
+        response = client.get(reverse("chapitre", kwargs={"chapitre_pk": chap_sec.pk}))
+        assert response.status_code == 302
+
+    @pytest.mark.django_db
+    def test_locked_chapitre_redirects(self, client, eleve, chapitre):
+        """Eleve without ChapitreDebloque is redirected."""
+        client.force_login(eleve)
+        response = client.get(reverse("chapitre", kwargs={"chapitre_pk": chapitre.pk}))
+        assert response.status_code == 302
+
+    @pytest.mark.django_db
+    def test_unlocked_chapitre_returns_200(self, client, eleve, chapitre):
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=chapitre)
+        client.force_login(eleve)
+        response = client.get(reverse("chapitre", kwargs={"chapitre_pk": chapitre.pk}))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_chapitre_context_has_lecons_data(self, client, eleve, chapitre, lecon_gratuite):
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=chapitre)
+        client.force_login(eleve)
+        response = client.get(reverse("chapitre", kwargs={"chapitre_pk": chapitre.pk}))
+        assert "lecons_data" in response.context
+        assert "nb_lecons" in response.context
+
+    @pytest.mark.django_db
+    def test_admin_bypasses_unlock_check(self, client, admin_user, chapitre):
+        client.force_login(admin_user)
+        response = client.get(reverse("chapitre", kwargs={"chapitre_pk": chapitre.pk}))
+        assert response.status_code == 200
+
+
+class TestLeconView:
+    def test_lecon_requires_login(self, client, lecon_gratuite):
+        response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_wrong_niveau_redirects(self, client, eleve, matiere):
+        chap_sec = Chapitre.objects.create(matiere=matiere, niveau="seconde", titre="Chap Sec L", ordre=1)
+        lecon_sec = Lecon.objects.create(chapitre=chap_sec, titre="Lecon Sec", contenu="c", ordre=1)
+        client.force_login(eleve)
+        response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_sec.pk}))
+        assert response.status_code == 302
+
+    @pytest.mark.django_db
+    def test_locked_chapitre_redirects(self, client, eleve, lecon_gratuite):
+        client.force_login(eleve)
+        response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert response.status_code == 302
+
+    @pytest.mark.django_db
+    def test_lecon_returns_200_when_unlocked(self, client, eleve, lecon_gratuite):
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
+        client.force_login(eleve)
+        response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_lecon_marks_en_cours_on_first_access(self, client, eleve, lecon_gratuite):
+        from progress.models import ChapitreDebloque, UserProgression
+        ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
+        client.force_login(eleve)
+        client.get(reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        prog = UserProgression.objects.get(user=eleve, lecon=lecon_gratuite)
+        assert prog.statut == "en_cours"
+
+    @pytest.mark.django_db
+    def test_lecon_context_has_contenu_html(self, client, eleve, lecon_gratuite):
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
+        client.force_login(eleve)
+        response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert "contenu_html" in response.context
+
+    @pytest.mark.django_db
+    def test_admin_bypasses_unlock(self, client, admin_user, lecon_gratuite):
+        client.force_login(admin_user)
+        response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_lecon_second_access_keeps_en_cours(self, client, eleve, lecon_gratuite):
+        from progress.models import ChapitreDebloque, UserProgression
+        ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
+        client.force_login(eleve)
+        url = reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk})
+        client.get(url)
+        client.get(url)
+        prog = UserProgression.objects.get(user=eleve, lecon=lecon_gratuite)
+        assert prog.statut == "en_cours"
+
+
+class TestQuizDisplayView:
+    def test_quiz_requires_login(self, client, lecon_gratuite):
+        response = client.get(reverse("quiz", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_quiz_returns_200_with_questions(self, client, eleve, lecon_gratuite):
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Test Quiz")
+        for i in range(5):
+            Question.objects.create(
+                quiz=quiz, texte=f"Q{i}", type="qcm",
+                options=["A", "B", "C", "D"], reponse_correcte="0",
+                points=1, ordre=i + 1,
+            )
+        client.force_login(eleve)
+        response = client.get(reverse("quiz", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_quiz_no_quiz_redirects_to_lecon(self, client, eleve, lecon_gratuite):
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
+        client.force_login(eleve)
+        response = client.get(reverse("quiz", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert response.status_code == 302
+        assert f"/cours/lecon/{lecon_gratuite.pk}/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_quiz_context_has_question_ids(self, client, eleve, lecon_gratuite):
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Test Quiz")
+        for i in range(3):
+            Question.objects.create(
+                quiz=quiz, texte=f"Q{i}", type="qcm",
+                options=["A", "B", "C", "D"], reponse_correcte="0",
+                points=1, ordre=i + 1,
+            )
+        client.force_login(eleve)
+        response = client.get(reverse("quiz", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert "question_ids" in response.context
+        assert "questions" in response.context
+
+    @pytest.mark.django_db
+    def test_quiz_selects_max_5_questions(self, client, eleve, lecon_gratuite):
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Big Quiz")
+        for i in range(10):
+            Question.objects.create(
+                quiz=quiz, texte=f"Q{i}", type="qcm",
+                options=["A", "B", "C", "D"], reponse_correcte="0",
+                points=1, ordre=i + 1,
+            )
+        client.force_login(eleve)
+        response = client.get(reverse("quiz", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert len(response.context["questions"]) <= 5
+
     def test_header_only_csv_no_crash(self, tmp_path, db):
         from django.core.management import call_command
         csv_content = "quiz_lecon_slug,texte,type,reponse_correcte,options,tolerances,explication,points,ordre,difficulte\n"
@@ -318,4 +532,289 @@ class TestImportQuestions:
         call_command("import_questions", str(csv_file))
         q = Question.objects.get(texte="QCM question")
         assert q.options == ["A", "B", "C"]
+
+
+# ============================================================
+# Batch 5 — Revisions + SoumettreRevisions
+# ============================================================
+
+
+class TestRevisionsView:
+    """Tests for the revisions_view (spaced repetition page)."""
+
+    def test_revisions_requires_login(self, client):
+        response = client.get(reverse("revisions"))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_revisions_returns_200(self, client, eleve):
+        client.force_login(eleve)
+        response = client.get(reverse("revisions"))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_revisions_context_has_box_display(self, client, eleve):
+        client.force_login(eleve)
+        response = client.get(reverse("revisions"))
+        assert "box_display" in response.context
+        assert "nb_dues" in response.context
+        assert "total_historiques" in response.context
+
+    @pytest.mark.django_db
+    def test_revisions_shows_due_questions(self, client, eleve, lecon_gratuite):
+        from progress.models import UserQuestionHistorique
+        from datetime import date
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Rev Q")
+        q = Question.objects.create(
+            quiz=quiz, texte="Rev?", type="qcm",
+            options=["A", "B"], reponse_correcte="0", points=1, ordre=1,
+        )
+        UserQuestionHistorique.objects.create(
+            user=eleve, question=q, boite=1,
+            prochaine_revision=date.today(), nb_bonnes=0, nb_total=1,
+        )
+        client.force_login(eleve)
+        response = client.get(reverse("revisions"))
+        assert q in response.context["questions"]
+
+    @pytest.mark.django_db
+    def test_revisions_hides_future_questions(self, client, eleve, lecon_gratuite):
+        from progress.models import UserQuestionHistorique
+        from datetime import date, timedelta
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Rev Q2")
+        q = Question.objects.create(
+            quiz=quiz, texte="Future?", type="qcm",
+            options=["A", "B"], reponse_correcte="0", points=1, ordre=1,
+        )
+        UserQuestionHistorique.objects.create(
+            user=eleve, question=q, boite=1,
+            prochaine_revision=date.today() + timedelta(days=30),
+            nb_bonnes=0, nb_total=1,
+        )
+        client.force_login(eleve)
+        response = client.get(reverse("revisions"))
+        assert q not in response.context["questions"]
+
+
+class TestSoumettreRevisions:
+    """Tests for soumettre_revisions view (revision quiz submission)."""
+
+    def test_soumettre_revisions_requires_login(self, client):
+        response = client.post(reverse("soumettre_revisions"))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_get_redirects_to_revisions(self, client, eleve):
+        client.force_login(eleve)
+        response = client.get(reverse("soumettre_revisions"))
+        assert response.status_code == 302
+
+    @pytest.mark.django_db
+    def test_soumettre_revisions_empty_ids_redirects(self, client, eleve):
+        client.force_login(eleve)
+        response = client.post(reverse("soumettre_revisions"), {"question_ids": ""})
+        assert response.status_code == 302
+
+    @pytest.mark.django_db
+    def test_soumettre_revisions_renders_resultat(self, client, eleve, lecon_gratuite):
+        from progress.models import UserQuestionHistorique
+        from datetime import date
+        from django.core.cache import cache
+        cache.clear()
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="RQ")
+        q = Question.objects.create(
+            quiz=quiz, texte="?", type="qcm",
+            options=["A", "B", "C"], reponse_correcte="0", points=1, ordre=1,
+        )
+        UserQuestionHistorique.objects.create(
+            user=eleve, question=q, boite=1,
+            prochaine_revision=date.today(), nb_bonnes=0, nb_total=0,
+        )
+        client.force_login(eleve)
+        data = {"question_ids": str(q.id), f"question_{q.id}": "0"}
+        response = client.post(reverse("soumettre_revisions"), data)
+        assert response.status_code == 200
+        assert "corrections" in response.context
+
+    @pytest.mark.django_db
+    def test_soumettre_revisions_updates_leitner(self, client, eleve, lecon_gratuite):
+        from progress.models import UserQuestionHistorique
+        from datetime import date
+        from django.core.cache import cache
+        cache.clear()
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="RQ2")
+        q = Question.objects.create(
+            quiz=quiz, texte="Leitner?", type="qcm",
+            options=["A", "B", "C"], reponse_correcte="0", points=1, ordre=1,
+        )
+        hist = UserQuestionHistorique.objects.create(
+            user=eleve, question=q, boite=1,
+            prochaine_revision=date.today(), nb_bonnes=0, nb_total=0,
+        )
+        client.force_login(eleve)
+        data = {"question_ids": str(q.id), f"question_{q.id}": "0"}
+        client.post(reverse("soumettre_revisions"), data)
+        hist.refresh_from_db()
+        assert hist.boite == 2
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Batch 6 — Search edge cases, accueil, catalogue, helpers, error pages
+# ──────────────────────────────────────────────────────────────────────
+
+
+class TestAccueilView:
+    @pytest.mark.django_db
+    def test_accueil_accessible_anonymous(self, client):
+        """GET "/" sans authentification → 200."""
+        response = client.get("/")
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_accueil_renders_accueil_template(self, client):
+        """La page d'accueil utilise le template courses/accueil.html."""
+        response = client.get("/")
+        assert "courses/accueil.html" in [t.name for t in response.templates]
+
+    @pytest.mark.django_db
+    def test_accueil_context_has_matieres_data(self, client, matiere):
+        """Le contexte contient 'matieres_data'."""
+        response = client.get("/")
+        assert "matieres_data" in response.context
+
+    @pytest.mark.django_db
+    def test_authenticated_user_redirected_to_dashboard(self, client, eleve):
+        """Un utilisateur connecté sur "/" est redirigé vers le tableau de bord."""
+        client.force_login(eleve)
+        response = client.get("/")
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response["Location"]
+
+
+class TestYoutubeHelper:
+    """Tests unitaires pour _extraire_youtube_id."""
+
+    def test_standard_url(self):
+        from courses.views import _extraire_youtube_id
+        assert _extraire_youtube_id("https://www.youtube.com/watch?v=dQw4w9WgXcQ") == "dQw4w9WgXcQ"
+
+    def test_short_url(self):
+        from courses.views import _extraire_youtube_id
+        assert _extraire_youtube_id("https://youtu.be/dQw4w9WgXcQ") == "dQw4w9WgXcQ"
+
+    def test_embed_url(self):
+        from courses.views import _extraire_youtube_id
+        assert _extraire_youtube_id("https://www.youtube.com/embed/dQw4w9WgXcQ") == "dQw4w9WgXcQ"
+
+    def test_none_input(self):
+        from courses.views import _extraire_youtube_id
+        assert _extraire_youtube_id(None) is None
+
+    def test_empty_string(self):
+        from courses.views import _extraire_youtube_id
+        assert _extraire_youtube_id("") is None
+
+    def test_invalid_url(self):
+        from courses.views import _extraire_youtube_id
+        assert _extraire_youtube_id("not a youtube url") is None
+
+
+class TestLatexHelpers:
+    """Tests unitaires pour _proteger_latex et _restaurer_latex."""
+
+    def test_proteger_inline_latex(self):
+        from courses.views import _proteger_latex
+        texte = "Voici $x^2$ et $y$"
+        result, placeholders = _proteger_latex(texte)
+        assert len(placeholders) == 2
+        assert "$x^2$" not in result
+        assert "$y$" not in result
+
+    def test_proteger_display_latex(self):
+        from courses.views import _proteger_latex
+        texte = "Voici $$E=mc^2$$"
+        result, placeholders = _proteger_latex(texte)
+        assert len(placeholders) == 1
+        assert "$$E=mc^2$$" not in result
+
+    def test_restaurer_restores_original(self):
+        from courses.views import _proteger_latex, _restaurer_latex
+        original = "Voici $x^2$ et $$E=mc^2$$"
+        protected, placeholders = _proteger_latex(original)
+        restored = _restaurer_latex(protected, placeholders)
+        assert restored == original
+
+    def test_no_latex_unchanged(self):
+        from courses.views import _proteger_latex
+        texte = "No LaTeX here"
+        result, placeholders = _proteger_latex(texte)
+        assert result == texte
+        assert len(placeholders) == 0
+
+    def test_mixed_inline_and_display(self):
+        from courses.views import _proteger_latex
+        texte = "Inline $a+b$ puis display $$\\int_0^1 x\\,dx$$"
+        result, placeholders = _proteger_latex(texte)
+        assert len(placeholders) == 2
+        assert "$a+b$" not in result
+        assert "$$\\int_0^1 x\\,dx$$" not in result
+
+
+class TestCatalogueView:
+    @pytest.mark.django_db
+    def test_catalogue_nonexistent_matiere_returns_404(self, client):
+        """Slug inexistant → 404."""
+        response = client.get(
+            reverse("catalogue_matiere", kwargs={"matiere_slug": "inexistant"})
+        )
+        assert response.status_code == 404
+
+    @pytest.mark.django_db
+    def test_catalogue_context_has_niveaux_data(self, client, matiere):
+        """Le contexte contient 'niveaux_data'."""
+        response = client.get(
+            reverse("catalogue_matiere", kwargs={"matiere_slug": matiere.slug})
+        )
+        assert response.status_code == 200
+        assert "niveaux_data" in response.context
+
+    @pytest.mark.django_db
+    def test_catalogue_contains_chapitre_titles(self, client, chapitre):
+        """Le HTML contient le titre du chapitre."""
+        response = client.get(
+            reverse("catalogue_matiere", kwargs={"matiere_slug": chapitre.matiere.slug})
+        )
+        assert response.status_code == 200
+        assert chapitre.titre.encode() in response.content
+
+    @pytest.mark.django_db
+    def test_catalogue_accessible_when_authenticated(self, client, eleve, matiere):
+        """La page catalogue est aussi accessible aux utilisateurs connectés."""
+        client.force_login(eleve)
+        response = client.get(
+            reverse("catalogue_matiere", kwargs={"matiere_slug": matiere.slug})
+        )
+        assert response.status_code == 200
+
+
+class TestErrorPages:
+    @pytest.mark.django_db
+    def test_404_returns_404_status(self, client):
+        """GET sur une URL inexistante → 404."""
+        response = client.get("/cette-url-nexiste-pas/")
+        assert response.status_code == 404
+
+    @pytest.mark.django_db
+    def test_404_contains_message(self, client):
+        """La page 404 contient un message d'erreur."""
+        response = client.get("/cette-url-nexiste-pas/")
+        assert b"introuvable" in response.content or b"404" in response.content
+
+    def test_500_template_exists(self):
+        """Le template 500.html existe et est chargeable."""
+        from django.template.loader import get_template
+        template = get_template("500.html")
+        assert template is not None
 

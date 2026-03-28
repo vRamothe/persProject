@@ -36,4 +36,5 @@ urlpatterns = [
     path("admin-panel/preview/exit/", views.exit_preview_view, name="exit_preview"),
     path("admin-panel/preview/<str:niveau>/", views.preview_niveau_view, name="preview_niveau"),
     path("admin-panel/analytics/", views.admin_analytics_view, name="admin_analytics"),
+    path("admin-panel/tests/", views.admin_tests_view, name="admin_tests"),
 ]

@@ -34,7 +34,7 @@
   </div>
 
   <!-- Actions rapides admin -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <a href="{% url 'admin_utilisateurs' %}"
        class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition-all group">
       <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl mb-3 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
@@ -58,6 +58,14 @@
       </div>
       <div class="font-semibold text-gray-800">Gérer les quiz</div>
       <div class="text-sm text-gray-500 mt-0.5">{{ nb_completions }} completion(s)</div>
+    </a>
+    <a href="{% url 'admin_tests' %}"
+       class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-teal-300 hover:shadow-md transition-all group">
+      <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center text-xl mb-3 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+        🧪
+      </div>
+      <div class="font-semibold text-gray-800">Tests CI</div>
+      <div class="text-sm text-gray-500 mt-0.5">Monitoring de la CI</div>
     </a>
   </div>
 

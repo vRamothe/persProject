@@ -113,6 +113,7 @@ Admins can simulate the exact student view for any level without creating dummy 
 /admin-panel/preview/<niveau>/             → preview_niveau
 /admin-panel/preview/exit/                 → exit_preview
 /admin-panel/analytics/                    → admin_analytics (admin only)
+/admin-panel/tests/                        → admin_tests (admin only, CI monitoring)
 /cours/                                    → matieres
 /cours/recherche/                          → recherche (login required; PostgreSQL full-text)
 /cours/revisions/                          → revisions
@@ -139,7 +140,7 @@ Admins can simulate the exact student view for any level without creating dummy 
 Uses Django's built-in `PasswordResetView` flow with French templates in `templates/registration/`. Console email backend in dev, Brevo SMTP in production. Settings in `config/settings/development.py` and `production.py`.
 
 ## Testing
-- **Stack**: `pytest` 8.3 + `pytest-django` 4.9, config in `backend/pytest.ini`; 80 tests
+- **Stack**: `pytest` 8.3 + `pytest-django` 4.9, config in `backend/pytest.ini`; 214 tests
 - **Test files**: `users/tests.py`, `courses/tests.py`, `progress/tests.py`
 - **Run locally**: `docker compose run --rm --entrypoint pytest web -v --tb=short`
 - **CI**: GitHub Actions (`.github/workflows/ci.yml`) — runs on push/PR to `main` with PostgreSQL 16 service container
@@ -219,6 +220,15 @@ Full curriculum content is seeded via dedicated management commands per subject 
 - `admin_analytics_view` at `/admin-panel/analytics/` (admin-only, `is_admin` check)
 - Context: `weak_questions` (list of dicts with `question_id`, `texte`, `lecon`, `taux`), `lecon_completion` (dict by lecon PK), `chapitre_pass_rate` (dict by chapitre PK)
 - Template: `templates/dashboard/admin_analytics.html` — uses `item.texte` and `item.question_id` (NOT `item.question.texte`)
+
+## CI Tests Monitoring
+- `admin_tests_view` at `/admin-panel/tests/` (admin-only, `is_admin` check)
+- Fetches last 10 GitHub Actions runs via `urllib.request` (no `requests` dependency)
+- Settings: `GITHUB_REPO` (required) and `GITHUB_TOKEN` (optional, increases rate limit) in `config/settings/base.py`
+- Results cached 5 minutes via `django.core.cache` (key `ci_runs_cache`)
+- Context: `runs` (list of dicts), `nb_success`, `nb_failure`, `repo_url`, `configured` (bool), `error` (str or None)
+- Template: `templates/dashboard/admin_tests.html`
+- Dashboard card + sidebar link in `base.html`
 
 ## Content Import
 - `python manage.py import_questions <csv_file>` — columns: `quiz_lecon_slug`, `texte`, `type`, `reponse_correcte`, `options` (JSON), `tolerances` (JSON), `explication`, `points`, `ordre`, `difficulte`

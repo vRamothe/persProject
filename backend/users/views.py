@@ -15,6 +15,8 @@ from django.db.models.functions import TruncDate
 from .forms import ConnexionForm, InscriptionForm, ProfilForm, MotDePasseForm
 from .models import CustomUser, ConnexionLog
 
+logger = logging.getLogger(__name__)
+
 
 class ConnexionView(View):
     template_name = "registration/login.html"
@@ -627,4 +629,95 @@ def admin_analytics_view(request):
         "lecon_completion": lecon_completion,
         "chapitre_pass_rate": chapitre_pass_rate,
         "total_eleves": total_eleves,
+    })
+
+
+# ---- Admin CI tests monitoring ----
+
+@login_required
+def admin_tests_view(request):
+    """Monitoring des tests CI via l'API GitHub Actions."""
+    if not request.user.is_admin:
+        return redirect("tableau_de_bord")
+
+    from django.conf import settings
+    from django.core.cache import cache
+    import urllib.request
+    import json as json_module
+
+    github_repo = settings.GITHUB_REPO
+    github_token = settings.GITHUB_TOKEN
+
+    if not github_repo:
+        return render(request, "dashboard/admin_tests.html", {
+            "configured": False,
+            "runs": [],
+            "nb_success": 0,
+            "nb_failure": 0,
+            "repo_url": "",
+            "error": None,
+        })
+
+    repo_url = f"https://github.com/{github_repo}/actions"
+
+    # Check cache first
+    cached = cache.get("ci_runs_cache")
+    if cached is not None:
+        return render(request, "dashboard/admin_tests.html", {
+            "configured": True,
+            "error": None,
+            "repo_url": repo_url,
+            **cached,
+        })
+
+    api_url = f"https://api.github.com/repos/{github_repo}/actions/runs?per_page=10"
+    headers = {"Accept": "application/json"}
+    if github_token:
+        headers["Authorization"] = f"Bearer {github_token}"
+
+    try:
+        req = urllib.request.Request(api_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json_module.loads(response.read().decode())
+    except Exception as e:
+        logger.warning("GitHub Actions API error: %s", e)
+        return render(request, "dashboard/admin_tests.html", {
+            "configured": True,
+            "runs": [],
+            "nb_success": 0,
+            "nb_failure": 0,
+            "repo_url": repo_url,
+            "error": f"Impossible de contacter l'API GitHub : {e}",
+        })
+
+    runs = []
+    for run in data.get("workflow_runs", []):
+        commit_msg = ""
+        head_commit = run.get("head_commit")
+        if head_commit and head_commit.get("message"):
+            commit_msg = head_commit["message"][:80]
+        runs.append({
+            "run_number": run.get("run_number"),
+            "head_branch": run.get("head_branch", ""),
+            "commit_message": commit_msg,
+            "status": run.get("status", ""),
+            "conclusion": run.get("conclusion", ""),
+            "created_at": run.get("created_at", ""),
+            "updated_at": run.get("updated_at", ""),
+            "html_url": run.get("html_url", ""),
+        })
+
+    nb_success = sum(1 for r in runs if r["conclusion"] == "success")
+    nb_failure = sum(1 for r in runs if r["conclusion"] == "failure")
+
+    cache_data = {"runs": runs, "nb_success": nb_success, "nb_failure": nb_failure}
+    cache.set("ci_runs_cache", cache_data, 300)  # 5 minutes
+
+    return render(request, "dashboard/admin_tests.html", {
+        "configured": True,
+        "runs": runs,
+        "nb_success": nb_success,
+        "nb_failure": nb_failure,
+        "repo_url": repo_url,
+        "error": None,
     })

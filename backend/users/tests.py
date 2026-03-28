@@ -1,5 +1,10 @@
+import json
+from unittest.mock import MagicMock, patch
+from urllib.error import URLError
+
 import pytest
-from django.test import Client
+from django.core.cache import cache
+from django.test import Client, override_settings
 from django.urls import reverse
 from django.core import signing
 from users.models import CustomUser
@@ -127,6 +132,178 @@ class TestInscription:
         assert response.status_code == 200
 
 
+class TestInscriptionFormValidation:
+    """Unit tests for InscriptionForm validation logic."""
+
+    def _valid_data(self, **overrides):
+        data = {
+            "email": "test@example.com",
+            "prenom": "Marie",
+            "nom": "Dupont",
+            "niveau": "seconde",
+            "password1": "SecurePass99!",
+            "password2": "SecurePass99!",
+        }
+        data.update(overrides)
+        return data
+
+    @pytest.mark.django_db
+    def test_password_too_short_rejected(self):
+        from users.forms import InscriptionForm
+        form = InscriptionForm(data=self._valid_data(password1="Ab1", password2="Ab1"))
+        assert form.is_valid() is False
+        assert "password1" in form.errors
+
+    @pytest.mark.django_db
+    def test_password_no_uppercase_rejected(self):
+        from users.forms import InscriptionForm
+        form = InscriptionForm(data=self._valid_data(password1="securepass99!", password2="securepass99!"))
+        assert form.is_valid() is False
+        assert "password1" in form.errors
+
+    @pytest.mark.django_db
+    def test_password_no_digit_rejected(self):
+        from users.forms import InscriptionForm
+        form = InscriptionForm(data=self._valid_data(password1="SecurePass!", password2="SecurePass!"))
+        assert form.is_valid() is False
+        assert "password1" in form.errors
+
+    @pytest.mark.django_db
+    def test_passwords_mismatch_rejected(self):
+        from users.forms import InscriptionForm
+        form = InscriptionForm(data=self._valid_data(password1="SecurePass99!", password2="Different99!"))
+        assert form.is_valid() is False
+        assert "password2" in form.errors
+
+    @pytest.mark.django_db
+    def test_duplicate_email_rejected(self):
+        from users.forms import InscriptionForm
+        CustomUser.objects.create_user(
+            email="test@example.com", password="pass", role="eleve", niveau="seconde",
+        )
+        form = InscriptionForm(data=self._valid_data())
+        assert form.is_valid() is False
+        assert "email" in form.errors
+
+    @pytest.mark.django_db
+    def test_niveau_required(self):
+        from users.forms import InscriptionForm
+        form = InscriptionForm(data=self._valid_data(niveau=""))
+        assert form.is_valid() is False
+        assert "niveau" in form.errors
+
+    @pytest.mark.django_db
+    def test_valid_form_creates_user(self):
+        from users.forms import InscriptionForm
+        form = InscriptionForm(data=self._valid_data())
+        assert form.is_valid() is True
+        user = form.save()
+        assert user.role == "eleve"
+        assert user.niveau == "seconde"
+        assert user.email == "test@example.com"
+
+    @pytest.mark.django_db
+    def test_inscription_redirects_to_confirmation(self, client):
+        response = client.post(reverse("inscription"), self._valid_data())
+        assert response.status_code == 302
+        assert "confirmation" in response.url
+
+
+class TestProfilFormValidation:
+    """Unit tests for ProfilForm validation logic."""
+
+    @pytest.mark.django_db
+    def test_profil_form_valid(self, eleve):
+        from users.forms import ProfilForm
+        form = ProfilForm(
+            data={"prenom": "Jean", "nom": "Dupont", "email": "eleve@test.com", "niveau": "terminale"},
+            instance=eleve,
+        )
+        assert form.is_valid() is True
+
+    @pytest.mark.django_db
+    def test_profil_form_email_required(self, eleve):
+        from users.forms import ProfilForm
+        form = ProfilForm(
+            data={"prenom": "Jean", "nom": "Dupont", "email": "", "niveau": "terminale"},
+            instance=eleve,
+        )
+        assert form.is_valid() is False
+        assert "email" in form.errors
+
+    @pytest.mark.django_db
+    def test_profil_form_saves_changes(self, eleve):
+        from users.forms import ProfilForm
+        form = ProfilForm(
+            data={"prenom": "Pierre", "nom": "Martin", "email": "eleve@test.com", "niveau": "premiere"},
+            instance=eleve,
+        )
+        assert form.is_valid() is True
+        form.save()
+        eleve.refresh_from_db()
+        assert eleve.prenom == "Pierre"
+        assert eleve.nom == "Martin"
+        assert eleve.niveau == "premiere"
+
+
+class TestMotDePasseFormValidation:
+    """Unit tests for MotDePasseForm validation logic."""
+
+    def test_mdp_form_valid(self):
+        from users.forms import MotDePasseForm
+        form = MotDePasseForm(data={
+            "ancien": "OldPass123!",
+            "nouveau1": "NewSecure99!",
+            "nouveau2": "NewSecure99!",
+        })
+        assert form.is_valid() is True
+
+    def test_mdp_form_mismatch(self):
+        from users.forms import MotDePasseForm
+        form = MotDePasseForm(data={
+            "ancien": "OldPass123!",
+            "nouveau1": "NewSecure99!",
+            "nouveau2": "Different99!",
+        })
+        assert form.is_valid() is False
+        assert "__all__" in form.errors
+
+    def test_mdp_form_too_short(self):
+        from users.forms import MotDePasseForm
+        form = MotDePasseForm(data={
+            "ancien": "OldPass123!",
+            "nouveau1": "Ab1",
+            "nouveau2": "Ab1",
+        })
+        assert form.is_valid() is False
+
+
+class TestConnexionView:
+    """Tests for the ConnexionView (login page)."""
+
+    def test_connexion_page_renders_form(self, client):
+        response = client.get(reverse("connexion"))
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert "Connexion" in content or "form" in content
+
+    @pytest.mark.django_db
+    def test_connexion_post_invalid_credentials(self, client):
+        response = client.post(reverse("connexion"), {
+            "username": "fake@test.com",
+            "password": "wrongpassword",
+        })
+        # Invalid creds re-render the form (200), not redirect (302)
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_authenticated_user_redirected_from_connexion(self, client, eleve):
+        client.force_login(eleve)
+        response = client.get(reverse("connexion"))
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+
+
 class TestPasswordReset:
     def test_password_reset_page_accessible(self, client):
         response = client.get(reverse("password_reset"))
@@ -193,4 +370,473 @@ class TestHealthCheck:
         response = client.get(reverse("health"))
         data = json.loads(response.content)
         assert data == {"status": "ok"}
+
+
+# ============================================================
+# Batch 4 — Admin panel views + Preview mode
+# ============================================================
+
+
+class TestAdminUtilisateurs:
+    """Tests for the admin_utilisateurs view (user management list)."""
+
+    @pytest.mark.django_db
+    def test_eleve_cannot_access(self, client, eleve):
+        client.force_login(eleve)
+        response = client.get(reverse("admin_utilisateurs"))
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+
+    @pytest.mark.django_db
+    def test_admin_gets_200(self, client, admin_user):
+        client.force_login(admin_user)
+        response = client.get(reverse("admin_utilisateurs"))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_filters_by_niveau(self, client, admin_user):
+        CustomUser.objects.create_user(
+            email="sec@t.com", password="p", prenom="A", nom="Sec",
+            role="eleve", niveau="seconde",
+        )
+        CustomUser.objects.create_user(
+            email="term@t.com", password="p", prenom="B", nom="Term",
+            role="eleve", niveau="terminale",
+        )
+        client.force_login(admin_user)
+        response = client.get(reverse("admin_utilisateurs"), {"niveau": "seconde"})
+        assert response.status_code == 200
+        eleves = response.context["eleves"]
+        assert all(e.niveau == "seconde" for e in eleves)
+        assert any(e.email == "sec@t.com" for e in eleves)
+
+    @pytest.mark.django_db
+    def test_filters_by_actif(self, client, admin_user):
+        active = CustomUser.objects.create_user(
+            email="act@t.com", password="p", prenom="A", nom="Act",
+            role="eleve", niveau="seconde", is_active=True,
+        )
+        inactive = CustomUser.objects.create_user(
+            email="inact@t.com", password="p", prenom="B", nom="Inact",
+            role="eleve", niveau="seconde", is_active=False,
+        )
+        client.force_login(admin_user)
+        response = client.get(reverse("admin_utilisateurs"), {"actif": "1"})
+        assert response.status_code == 200
+        eleves = response.context["eleves"]
+        emails = [e.email for e in eleves]
+        assert active.email in emails
+        assert inactive.email not in emails
+
+    @pytest.mark.django_db
+    def test_search_by_name(self, client, admin_user):
+        CustomUser.objects.create_user(
+            email="unique@t.com", password="p", prenom="A", nom="UniqueNom",
+            role="eleve", niveau="seconde",
+        )
+        client.force_login(admin_user)
+        response = client.get(reverse("admin_utilisateurs"), {"q": "UniqueNom"})
+        assert response.status_code == 200
+        eleves = response.context["eleves"]
+        assert any(e.nom == "UniqueNom" for e in eleves)
+
+    @pytest.mark.django_db
+    def test_empty_search_returns_all(self, client, admin_user):
+        CustomUser.objects.create_user(
+            email="e1@t.com", password="p", prenom="A", nom="A",
+            role="eleve", niveau="seconde",
+        )
+        CustomUser.objects.create_user(
+            email="e2@t.com", password="p", prenom="B", nom="B",
+            role="eleve", niveau="terminale",
+        )
+        client.force_login(admin_user)
+        response = client.get(reverse("admin_utilisateurs"))
+        assert response.status_code == 200
+        eleves = response.context["eleves"]
+        assert len(eleves) >= 2
+
+    @pytest.mark.django_db
+    def test_context_has_progression_pct(self, client, admin_user):
+        CustomUser.objects.create_user(
+            email="prog@t.com", password="p", prenom="A", nom="Prog",
+            role="eleve", niveau="seconde",
+        )
+        client.force_login(admin_user)
+        response = client.get(reverse("admin_utilisateurs"))
+        eleves = response.context["eleves"]
+        assert len(eleves) >= 1
+        assert hasattr(eleves[0], "progression_pct")
+
+
+class TestAdminToggleActif:
+    """Tests for the admin_toggle_actif view."""
+
+    @pytest.mark.django_db
+    def test_eleve_cannot_toggle(self, client, eleve):
+        client.force_login(eleve)
+        url = reverse("admin_toggle_actif", kwargs={"user_id": eleve.pk})
+        response = client.post(url)
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+
+    @pytest.mark.django_db
+    def test_admin_toggles_active_to_inactive(self, client, admin_user, eleve):
+        assert eleve.is_active is True
+        client.force_login(admin_user)
+        url = reverse("admin_toggle_actif", kwargs={"user_id": eleve.pk})
+        response = client.post(url)
+        assert response.status_code == 302
+        eleve.refresh_from_db()
+        assert eleve.is_active is False
+
+    @pytest.mark.django_db
+    def test_admin_toggles_inactive_to_active(self, client, admin_user):
+        inactive_eleve = CustomUser.objects.create_user(
+            email="off@t.com", password="p", prenom="A", nom="Off",
+            role="eleve", niveau="seconde", is_active=False,
+        )
+        client.force_login(admin_user)
+        url = reverse("admin_toggle_actif", kwargs={"user_id": inactive_eleve.pk})
+        response = client.post(url)
+        assert response.status_code == 302
+        inactive_eleve.refresh_from_db()
+        assert inactive_eleve.is_active is True
+
+    @pytest.mark.django_db
+    def test_get_request_redirects(self, client, admin_user, eleve):
+        client.force_login(admin_user)
+        url = reverse("admin_toggle_actif", kwargs={"user_id": eleve.pk})
+        response = client.get(url)
+        assert response.status_code == 302
+        # GET should NOT toggle is_active
+        eleve.refresh_from_db()
+        assert eleve.is_active is True
+
+
+class TestAdminEleveDetail:
+    """Tests for the admin_eleve_detail view."""
+
+    @pytest.mark.django_db
+    def test_eleve_cannot_access(self, client, eleve):
+        client.force_login(eleve)
+        url = reverse("admin_eleve_detail", kwargs={"user_id": eleve.pk})
+        response = client.get(url)
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+
+    @pytest.mark.django_db
+    def test_admin_gets_200(self, client, admin_user, eleve):
+        client.force_login(admin_user)
+        url = reverse("admin_eleve_detail", kwargs={"user_id": eleve.pk})
+        response = client.get(url)
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_context_has_progression_data(self, client, admin_user, eleve):
+        client.force_login(admin_user)
+        url = reverse("admin_eleve_detail", kwargs={"user_id": eleve.pk})
+        response = client.get(url)
+        assert "progression_globale" in response.context
+        assert "eleve" in response.context
+
+    @pytest.mark.django_db
+    def test_nonexistent_user_returns_404(self, client, admin_user):
+        client.force_login(admin_user)
+        url = reverse("admin_eleve_detail", kwargs={"user_id": 99999})
+        response = client.get(url)
+        assert response.status_code == 404
+
+
+class TestAdminToggleChapitre:
+    """Tests for the admin_toggle_chapitre view."""
+
+    @pytest.mark.django_db
+    def test_eleve_cannot_toggle_chapitre(self, client, eleve):
+        from courses.models import Matiere, Chapitre
+        mat = Matiere.objects.create(nom="physique")
+        chap = Chapitre.objects.create(matiere=mat, niveau="terminale", titre="Ch", ordre=1)
+        client.force_login(eleve)
+        url = reverse("admin_toggle_chapitre", kwargs={"user_id": eleve.pk, "chapitre_id": chap.pk})
+        response = client.post(url)
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+
+    @pytest.mark.django_db
+    def test_admin_unlocks_chapitre(self, client, admin_user, eleve):
+        from courses.models import Matiere, Chapitre
+        from progress.models import ChapitreDebloque
+        mat = Matiere.objects.create(nom="physique")
+        chap = Chapitre.objects.create(matiere=mat, niveau="terminale", titre="Ch", ordre=1)
+        assert ChapitreDebloque.objects.filter(user=eleve, chapitre=chap).count() == 0
+        client.force_login(admin_user)
+        url = reverse("admin_toggle_chapitre", kwargs={"user_id": eleve.pk, "chapitre_id": chap.pk})
+        response = client.post(url)
+        assert response.status_code == 302
+        assert ChapitreDebloque.objects.filter(user=eleve, chapitre=chap).count() == 1
+
+    @pytest.mark.django_db
+    def test_admin_locks_chapitre(self, client, admin_user, eleve):
+        from courses.models import Matiere, Chapitre
+        from progress.models import ChapitreDebloque
+        mat = Matiere.objects.create(nom="physique")
+        chap = Chapitre.objects.create(matiere=mat, niveau="terminale", titre="Ch", ordre=1)
+        ChapitreDebloque.objects.create(user=eleve, chapitre=chap)
+        client.force_login(admin_user)
+        url = reverse("admin_toggle_chapitre", kwargs={"user_id": eleve.pk, "chapitre_id": chap.pk})
+        response = client.post(url)
+        assert response.status_code == 302
+        assert ChapitreDebloque.objects.filter(user=eleve, chapitre=chap).count() == 0
+
+    @pytest.mark.django_db
+    def test_get_request_redirects(self, client, admin_user, eleve):
+        from courses.models import Matiere, Chapitre
+        mat = Matiere.objects.create(nom="physique")
+        chap = Chapitre.objects.create(matiere=mat, niveau="terminale", titre="Ch", ordre=1)
+        client.force_login(admin_user)
+        url = reverse("admin_toggle_chapitre", kwargs={"user_id": eleve.pk, "chapitre_id": chap.pk})
+        response = client.get(url)
+        assert response.status_code == 302
+
+
+class TestPreviewMode:
+    """Tests for preview_niveau_view and exit_preview_view."""
+
+    @pytest.mark.django_db
+    def test_eleve_cannot_activate_preview(self, client, eleve):
+        client.force_login(eleve)
+        url = reverse("preview_niveau", kwargs={"niveau": "seconde"})
+        response = client.get(url)
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+
+    @pytest.mark.django_db
+    def test_admin_activates_preview(self, client, admin_user):
+        client.force_login(admin_user)
+        url = reverse("preview_niveau", kwargs={"niveau": "seconde"})
+        response = client.get(url)
+        assert response.status_code == 302
+        assert "cours" in response.url  # redirects to matieres
+        session = client.session
+        assert session.get("preview_niveau") == "seconde"
+
+    @pytest.mark.django_db
+    def test_invalid_niveau_redirects(self, client, admin_user):
+        client.force_login(admin_user)
+        url = reverse("preview_niveau", kwargs={"niveau": "invalid"})
+        response = client.get(url)
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+
+    @pytest.mark.django_db
+    def test_exit_preview_clears_session(self, client, admin_user):
+        client.force_login(admin_user)
+        session = client.session
+        session["preview_niveau"] = "seconde"
+        session.save()
+        response = client.get(reverse("exit_preview"))
+        assert response.status_code == 302
+        assert "preview_niveau" not in client.session
+
+    @pytest.mark.django_db
+    def test_exit_preview_redirects_to_dashboard(self, client, admin_user):
+        client.force_login(admin_user)
+        response = client.get(reverse("exit_preview"))
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+
+    @pytest.mark.django_db
+    def test_preview_mode_lecon_no_progression_write(self, client, admin_user):
+        """In preview mode, visiting a lecon should NOT create UserProgression."""
+        from courses.models import Matiere, Chapitre, Lecon
+        from progress.models import UserProgression
+        mat = Matiere.objects.create(nom="physique")
+        chap = Chapitre.objects.create(
+            matiere=mat, niveau="seconde", titre="Preview Ch", ordre=1,
+        )
+        lecon = Lecon.objects.create(
+            chapitre=chap, ordre=1, titre="Preview Lecon",
+            contenu="# Test", duree_estimee=10,
+        )
+        client.force_login(admin_user)
+        # Activate preview mode
+        session = client.session
+        session["preview_niveau"] = "seconde"
+        session.save()
+        url = reverse("lecon", kwargs={"lecon_pk": lecon.pk})
+        response = client.get(url)
+        assert response.status_code == 200
+        assert UserProgression.objects.filter(user=admin_user, lecon=lecon).count() == 0
+
+
+# ============================================================
+# Batch 5 — ProfilView
+# ============================================================
+
+
+class TestProfilView:
+    """Tests for the ProfilView CBV (profile + password change)."""
+
+    @pytest.mark.django_db
+    def test_profil_requires_login(self, client):
+        response = client.get(reverse("profil"))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_profil_get_returns_200(self, client, eleve):
+        client.force_login(eleve)
+        response = client.get(reverse("profil"))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_profil_get_has_forms_in_context(self, client, eleve):
+        client.force_login(eleve)
+        response = client.get(reverse("profil"))
+        assert "form_profil" in response.context
+        assert "form_mdp" in response.context
+
+    @pytest.mark.django_db
+    def test_profil_update_nom_prenom(self, client, eleve):
+        client.force_login(eleve)
+        data = {
+            "action": "profil",
+            "prenom": "NouveauPrenom",
+            "nom": "NouveauNom",
+            "email": eleve.email,
+            "niveau": eleve.niveau,
+        }
+        response = client.post(reverse("profil"), data)
+        assert response.status_code == 302
+        eleve.refresh_from_db()
+        assert eleve.prenom == "NouveauPrenom"
+        assert eleve.nom == "NouveauNom"
+
+    @pytest.mark.django_db
+    def test_profil_update_invalid_email(self, client, eleve):
+        client.force_login(eleve)
+        data = {
+            "action": "profil",
+            "prenom": "Jean",
+            "nom": "Dupont",
+            "email": "",
+            "niveau": eleve.niveau,
+        }
+        response = client.post(reverse("profil"), data)
+        assert response.status_code == 200
+        assert response.context["form_profil"].errors
+
+    @pytest.mark.django_db
+    def test_password_change_success(self, client, eleve):
+        client.force_login(eleve)
+        data = {
+            "action": "mot_de_passe",
+            "ancien": "TestPass123!",
+            "nouveau1": "NewSecure88!",
+            "nouveau2": "NewSecure88!",
+        }
+        response = client.post(reverse("profil"), data)
+        assert response.status_code == 302
+        eleve.refresh_from_db()
+        assert eleve.check_password("NewSecure88!")
+
+    @pytest.mark.django_db
+    def test_password_change_wrong_ancien(self, client, eleve):
+        client.force_login(eleve)
+        data = {
+            "action": "mot_de_passe",
+            "ancien": "WrongOldPass!",
+            "nouveau1": "NewSecure88!",
+            "nouveau2": "NewSecure88!",
+        }
+        response = client.post(reverse("profil"), data)
+        assert response.status_code == 200
+        assert "ancien" in response.context["form_mdp"].errors
+
+    @pytest.mark.django_db
+    def test_password_change_mismatch(self, client, eleve):
+        client.force_login(eleve)
+        data = {
+            "action": "mot_de_passe",
+            "ancien": "TestPass123!",
+            "nouveau1": "NewSecure88!",
+            "nouveau2": "DifferentPass99!",
+        }
+        response = client.post(reverse("profil"), data)
+        assert response.status_code == 200
+
+
+class TestAdminTests:
+    """Tests for the admin_tests_view (CI monitoring page)."""
+
+    @pytest.mark.django_db
+    def test_anonymous_redirected(self, client):
+        response = client.get(reverse("admin_tests"))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_eleve_redirected_to_dashboard(self, client, eleve):
+        client.force_login(eleve)
+        response = client.get(reverse("admin_tests"))
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_admin_gets_200(self, client, admin_user):
+        client.force_login(admin_user)
+        with override_settings(GITHUB_REPO="", GITHUB_TOKEN=""):
+            response = client.get(reverse("admin_tests"))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_unconfigured_shows_message(self, client, admin_user):
+        client.force_login(admin_user)
+        with override_settings(GITHUB_REPO="", GITHUB_TOKEN=""):
+            response = client.get(reverse("admin_tests"))
+        assert response.context["configured"] is False
+
+    @pytest.mark.django_db
+    def test_configured_has_context_keys(self, client, admin_user):
+        client.force_login(admin_user)
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps({
+            "workflow_runs": [{
+                "id": 1,
+                "run_number": 42,
+                "status": "completed",
+                "conclusion": "success",
+                "created_at": "2024-01-01T00:00:00Z",
+                "updated_at": "2024-01-01T00:05:00Z",
+                "html_url": "https://github.com/test/repo/actions/runs/1",
+                "head_branch": "main",
+                "head_commit": {"message": "fix: something"},
+            }]
+        }).encode()
+        mock_response.__enter__ = lambda s: s
+        mock_response.__exit__ = MagicMock(return_value=False)
+
+        cache.delete("ci_runs_cache")
+
+        with override_settings(GITHUB_REPO="test/repo", GITHUB_TOKEN=""), \
+             patch("urllib.request.urlopen", return_value=mock_response):
+            response = client.get(reverse("admin_tests"))
+
+        assert response.context["configured"] is True
+        assert len(response.context["runs"]) == 1
+        assert response.context["nb_success"] == 1
+        assert response.context["nb_failure"] == 0
+
+    @pytest.mark.django_db
+    def test_api_error_handled_gracefully(self, client, admin_user):
+        client.force_login(admin_user)
+        cache.delete("ci_runs_cache")
+
+        with override_settings(GITHUB_REPO="test/repo", GITHUB_TOKEN=""), \
+             patch("urllib.request.urlopen", side_effect=URLError("connection failed")):
+            response = client.get(reverse("admin_tests"))
+
+        assert response.status_code == 200
+        assert response.context["error"] is not None
+        assert response.context["runs"] == []
 

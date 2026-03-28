@@ -30,6 +30,7 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 - **Full-text search**: `recherche_view` at `/cours/recherche/`; PostgreSQL `SearchVector` + `SearchRank` on `Lecon.titre` + `contenu`; niveau-filtered for students; up to 20 results
 - **PDF export**: `lecon_pdf_view` at `/cours/lecon/<pk>/pdf/`; LaTeX→DVI→dvisvgm→SVG pipeline for native-quality math; WeasyPrint renders `lecon_pdf.html` with inline SVG equations. Helper functions: `_proteger_latex()` (placeholder protection), `_restaurer_latex_svg()` (orchestrator), `_compiler_equations_latex()` (single LaTeX call, one equation per page), `_nettoyer_svg(prefix)` (cleanup + ID prefixing to avoid collisions). Dockerfile includes `texlive-latex-base`, `texlive-latex-recommended`, `texlive-fonts-recommended`, `dvisvgm`
 - **Admin analytics**: `admin_analytics_view` at `/admin-panel/analytics/`; weak questions (<40% success from Leitner), lesson completion %, chapter quiz pass rates; template uses `item.texte` + `item.question_id` (dict, not ORM object)
+- **CI tests monitoring**: `admin_tests_view` at `/admin-panel/tests/`; fetches last 10 GitHub Actions runs via `urllib.request`; settings `GITHUB_REPO` (required) + `GITHUB_TOKEN` (optional) in `base.py`; cached 5 min; template `dashboard/admin_tests.html`; dashboard card + sidebar link in `base.html`
 - **CSV import**: `python manage.py import_questions <csv_file> [--dry-run]` — columns: `quiz_lecon_slug`, `texte`, `type`, `reponse_correcte`, `options` (JSON), `tolerances` (JSON), `difficulte`
 - **Health check**: `GET /health/` returns `{"status":"ok"}` with no auth required
 - **Logging & Sentry**: full `LOGGING` dict in `base.py`; `sentry-sdk[django]` init in `production.py` (reads `SENTRY_DSN` env var)
@@ -41,7 +42,7 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 - **Heroku production**: `collectstatic` runs during Docker build (not release phase); release phase runs migrations + all seed commands
 - **Password reset**: Django built-in `PasswordResetView` flow with French templates in `templates/registration/`; console email backend (dev), Brevo SMTP (prod)
 - **Error pages**: `handler404` → `config.views.custom_404` (extends `base.html`), `handler500` → `config.views.custom_500` (self-contained HTML)
-- **Testing**: `pytest` 8.3 + `pytest-django` 4.9, config in `backend/pytest.ini`; **80 tests**; run via `docker compose run --rm --entrypoint pytest web -v --tb=short`
+- **Testing**: `pytest` 8.3 + `pytest-django` 4.9, config in `backend/pytest.ini`; **214 tests**; run via `docker compose run --rm --entrypoint pytest web -v --tb=short`
   - **⚠️ Always use `client.force_login(user)`** — `client.login()` fails with `AxesBackendRequestParameterRequired` because `django-axes` requires a request object
 - **CI**: GitHub Actions (`.github/workflows/ci.yml`) on push/PR to `main` with PostgreSQL 16 service container
 
@@ -90,6 +91,7 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 | Full-text search | `courses/views.py` (`recherche_view`) + `templates/courses/recherche.html` |
 | PDF export | `courses/views.py` (`lecon_pdf_view`, `_proteger_latex`, `_restaurer_latex_svg`, `_compiler_equations_latex`, `_nettoyer_svg`) + `templates/courses/lecon_pdf.html` |
 | Admin analytics | `users/views.py` (`admin_analytics_view`) + `templates/dashboard/admin_analytics.html` |
+| CI tests monitoring | `users/views.py` (`admin_tests_view`) + `templates/dashboard/admin_tests.html` + `config/settings/base.py` (GITHUB_REPO, GITHUB_TOKEN) |
 | Sitemaps | `courses/sitemaps.py` + `config/urls.py` (sitemaps dict) |
 | Health check | `config/views.py` (`health_view`) + `config/urls.py` |
 | Logging / Sentry | `config/settings/base.py` (LOGGING) + `config/settings/production.py` (Sentry init) |

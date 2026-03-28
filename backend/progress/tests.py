@@ -5,10 +5,10 @@ from django.urls import reverse
 
 from courses.models import Matiere, Chapitre, Lecon, Quiz, Question
 from progress.models import (
-    UserQuizResultat, UserChapitreQuizResultat, ChapitreDebloque,
-    UserQuestionHistorique, LEITNER_INTERVALLES,
+    UserProgression, UserQuizResultat, UserChapitreQuizResultat, ChapitreDebloque,
+    UserQuestionHistorique, LEITNER_INTERVALLES, StatutLeconChoices,
 )
-from progress.views import _comparer_texte_libre
+from progress.views import _comparer_texte_libre, _enregistrer_historique_questions
 from users.models import CustomUser
 
 
@@ -408,3 +408,234 @@ class TestUserNote:
         client.force_login(eleve)
         response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon.pk}))
         assert response.context["note"] == note
+
+
+# ---- Terminer leçon tests ----
+
+class TestTerminerLecon:
+    def test_terminer_lecon_requires_post(self, client, eleve, lecon):
+        client.force_login(eleve)
+        response = client.get(reverse("terminer_lecon", kwargs={"lecon_pk": lecon.pk}))
+        assert response.status_code == 405
+
+    def test_terminer_lecon_requires_login(self, client, lecon):
+        response = client.post(reverse("terminer_lecon", kwargs={"lecon_pk": lecon.pk}))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    def test_terminer_lecon_wrong_niveau_returns_403(self, client, eleve, matiere):
+        chap_sec = Chapitre.objects.create(matiere=matiere, niveau="seconde", titre="Sec", ordre=10)
+        lecon_sec = Lecon.objects.create(chapitre=chap_sec, titre="Sec L", contenu="c", ordre=1)
+        client.force_login(eleve)
+        response = client.post(reverse("terminer_lecon", kwargs={"lecon_pk": lecon_sec.pk}))
+        assert response.status_code == 403
+
+    def test_terminer_lecon_marks_termine(self, client, eleve, lecon):
+        client.force_login(eleve)
+        client.post(reverse("terminer_lecon", kwargs={"lecon_pk": lecon.pk}))
+        prog = UserProgression.objects.get(user=eleve, lecon=lecon)
+        assert prog.statut == StatutLeconChoices.TERMINE
+        assert prog.termine_le is not None
+
+    def test_terminer_lecon_idempotent(self, client, eleve, lecon):
+        client.force_login(eleve)
+        client.post(reverse("terminer_lecon", kwargs={"lecon_pk": lecon.pk}))
+        client.post(reverse("terminer_lecon", kwargs={"lecon_pk": lecon.pk}))
+        assert UserProgression.objects.filter(user=eleve, lecon=lecon).count() == 1
+        prog = UserProgression.objects.get(user=eleve, lecon=lecon)
+        assert prog.statut == StatutLeconChoices.TERMINE
+
+    def test_terminer_lecon_htmx_returns_hx_redirect(self, client, eleve, lecon):
+        client.force_login(eleve)
+        response = client.post(
+            reverse("terminer_lecon", kwargs={"lecon_pk": lecon.pk}),
+            HTTP_HX_REQUEST="true",
+        )
+        assert "HX-Redirect" in response
+
+
+# ---- Soumettre quiz e2e flow tests ----
+
+class TestSoumettreQuizFlow:
+    def test_soumettre_quiz_requires_post(self, client, eleve, lecon, quiz, question_qcm):
+        from django.core.cache import cache
+        cache.clear()
+        client.force_login(eleve)
+        response = client.get(reverse("soumettre_quiz", kwargs={"lecon_pk": lecon.pk}))
+        assert response.status_code == 405
+
+    def test_soumettre_quiz_creates_resultat(self, client, eleve, lecon, quiz, question_qcm):
+        from django.core.cache import cache
+        cache.clear()
+        client.force_login(eleve)
+        client.post(
+            reverse("soumettre_quiz", kwargs={"lecon_pk": lecon.pk}),
+            {"question_ids": str(question_qcm.id), f"question_{question_qcm.id}": "0"},
+        )
+        assert UserQuizResultat.objects.filter(user=eleve, quiz=quiz).exists()
+
+    def test_soumettre_quiz_keeps_best_score(self, client, eleve, lecon, quiz, question_qcm):
+        from django.core.cache import cache
+        cache.clear()
+        client.force_login(eleve)
+        url = reverse("soumettre_quiz", kwargs={"lecon_pk": lecon.pk})
+        # First submit: 100%
+        client.post(url, {"question_ids": str(question_qcm.id), f"question_{question_qcm.id}": "0"})
+        # Second submit: 0%
+        client.post(url, {"question_ids": str(question_qcm.id), f"question_{question_qcm.id}": "2"})
+        resultat = UserQuizResultat.objects.get(user=eleve, quiz=quiz)
+        assert resultat.score == 100.0
+
+    def test_soumettre_quiz_updates_if_higher(self, client, eleve, lecon, quiz, question_qcm):
+        from django.core.cache import cache
+        cache.clear()
+        client.force_login(eleve)
+        url = reverse("soumettre_quiz", kwargs={"lecon_pk": lecon.pk})
+        # First submit: 0%
+        client.post(url, {"question_ids": str(question_qcm.id), f"question_{question_qcm.id}": "2"})
+        # Second submit: 100%
+        client.post(url, {"question_ids": str(question_qcm.id), f"question_{question_qcm.id}": "0"})
+        resultat = UserQuizResultat.objects.get(user=eleve, quiz=quiz)
+        assert resultat.score == 100.0
+
+    def test_soumettre_quiz_marks_progression_termine(self, client, eleve, lecon, quiz, question_qcm):
+        from django.core.cache import cache
+        cache.clear()
+        client.force_login(eleve)
+        client.post(
+            reverse("soumettre_quiz", kwargs={"lecon_pk": lecon.pk}),
+            {"question_ids": str(question_qcm.id), f"question_{question_qcm.id}": "0"},
+        )
+        prog = UserProgression.objects.get(user=eleve, lecon=lecon)
+        assert prog.statut == StatutLeconChoices.TERMINE
+
+    def test_soumettre_quiz_creates_leitner_history(self, client, eleve, lecon, quiz, question_qcm):
+        from django.core.cache import cache
+        cache.clear()
+        client.force_login(eleve)
+        client.post(
+            reverse("soumettre_quiz", kwargs={"lecon_pk": lecon.pk}),
+            {"question_ids": str(question_qcm.id), f"question_{question_qcm.id}": "0"},
+        )
+        assert UserQuestionHistorique.objects.filter(user=eleve, question=question_qcm).exists()
+
+    def test_soumettre_quiz_renders_resultat_template(self, client, eleve, lecon, quiz, question_qcm):
+        from django.core.cache import cache
+        cache.clear()
+        client.force_login(eleve)
+        response = client.post(
+            reverse("soumettre_quiz", kwargs={"lecon_pk": lecon.pk}),
+            {"question_ids": str(question_qcm.id), f"question_{question_qcm.id}": "0"},
+        )
+        assert response.status_code == 200
+        assert "corrections" in response.context
+        assert "score" in response.context
+
+    def test_soumettre_quiz_empty_question_ids_redirects(self, client, eleve, lecon, quiz, question_qcm):
+        from django.core.cache import cache
+        cache.clear()
+        client.force_login(eleve)
+        response = client.post(
+            reverse("soumettre_quiz", kwargs={"lecon_pk": lecon.pk}),
+            {"question_ids": ""},
+        )
+        # With empty question_ids, it falls back to all questions and renders result
+        assert response.status_code == 200
+
+
+# ---- Soumettre quiz chapitre e2e flow tests ----
+
+class TestSoumettreQuizChapitreFlow:
+    def test_chapitre_quiz_creates_resultat(self, client, eleve, chapitre, lecon, quiz):
+        from django.core.cache import cache
+        cache.clear()
+        questions = _make_questions(quiz, 5)
+        client.force_login(eleve)
+        data = {"question_ids": ",".join(str(q.id) for q in questions)}
+        for q in questions:
+            data[f"question_{q.id}"] = "0"
+        client.post(reverse("soumettre_quiz_chapitre", kwargs={"chapitre_pk": chapitre.pk}), data)
+        assert UserChapitreQuizResultat.objects.filter(user=eleve, chapitre=chapitre).exists()
+
+    def test_chapitre_quiz_keeps_best_score(self, client, eleve, chapitre, lecon, quiz):
+        from django.core.cache import cache
+        cache.clear()
+        questions = _make_questions(quiz, 5)
+        client.force_login(eleve)
+        url = reverse("soumettre_quiz_chapitre", kwargs={"chapitre_pk": chapitre.pk})
+        # First submit: 100%
+        data_100 = {"question_ids": ",".join(str(q.id) for q in questions)}
+        for q in questions:
+            data_100[f"question_{q.id}"] = "0"
+        client.post(url, data_100)
+        # Second submit: 0%
+        data_0 = {"question_ids": ",".join(str(q.id) for q in questions)}
+        for q in questions:
+            data_0[f"question_{q.id}"] = "3"
+        client.post(url, data_0)
+        resultat = UserChapitreQuizResultat.objects.get(user=eleve, chapitre=chapitre)
+        assert resultat.score == 100.0
+
+    def test_chapitre_quiz_pass_triggers_unlock(self, client, eleve, chapitre, chapitre_suivant, lecon, quiz):
+        from django.core.cache import cache
+        cache.clear()
+        questions = _make_questions(quiz, 5)
+        client.force_login(eleve)
+        data = {"question_ids": ",".join(str(q.id) for q in questions)}
+        for q in questions:
+            data[f"question_{q.id}"] = "0"
+        client.post(reverse("soumettre_quiz_chapitre", kwargs={"chapitre_pk": chapitre.pk}), data)
+        resultat = UserChapitreQuizResultat.objects.get(user=eleve, chapitre=chapitre)
+        assert resultat.passe is True
+        assert ChapitreDebloque.objects.filter(user=eleve, chapitre=chapitre_suivant).exists()
+
+    def test_chapitre_quiz_fail_no_unlock(self, client, eleve, chapitre, chapitre_suivant, lecon, quiz):
+        from django.core.cache import cache
+        cache.clear()
+        questions = _make_questions(quiz, 5)
+        client.force_login(eleve)
+        data = {"question_ids": ",".join(str(q.id) for q in questions)}
+        for q in questions:
+            data[f"question_{q.id}"] = "3"  # All wrong
+        client.post(reverse("soumettre_quiz_chapitre", kwargs={"chapitre_pk": chapitre.pk}), data)
+        resultat = UserChapitreQuizResultat.objects.get(user=eleve, chapitre=chapitre)
+        assert resultat.passe is False
+        assert not ChapitreDebloque.objects.filter(user=eleve, chapitre=chapitre_suivant).exists()
+
+    def test_chapitre_quiz_empty_ids_redirects(self, client, eleve, chapitre, lecon, quiz):
+        from django.core.cache import cache
+        cache.clear()
+        client.force_login(eleve)
+        response = client.post(
+            reverse("soumettre_quiz_chapitre", kwargs={"chapitre_pk": chapitre.pk}),
+            {"question_ids": ""},
+        )
+        assert response.status_code == 302
+
+
+# ---- _enregistrer_historique_questions unit tests ----
+
+class TestEnregistrerHistoriqueQuestions:
+    def test_creates_new_historique(self, eleve, question_qcm):
+        corrections_correct = [{"question": question_qcm, "correct": True}]
+        _enregistrer_historique_questions(eleve, corrections_correct)
+        hist = UserQuestionHistorique.objects.get(user=eleve, question=question_qcm)
+        assert hist.boite == 2
+
+    def test_updates_existing_historique(self, eleve, question_qcm):
+        hist = UserQuestionHistorique.objects.create(
+            user=eleve, question=question_qcm, boite=2, prochaine_revision=date.today(),
+        )
+        corrections = [{"question": question_qcm, "correct": True}]
+        _enregistrer_historique_questions(eleve, corrections)
+        hist.refresh_from_db()
+        assert hist.boite == 3
+
+    def test_wrong_answer_resets_to_box_1(self, eleve, question_qcm):
+        hist = UserQuestionHistorique.objects.create(
+            user=eleve, question=question_qcm, boite=3, prochaine_revision=date.today(),
+        )
+        corrections = [{"question": question_qcm, "correct": False}]
+        _enregistrer_historique_questions(eleve, corrections)
+        hist.refresh_from_db()
+        assert hist.boite == 1
