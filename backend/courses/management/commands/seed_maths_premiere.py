@@ -4,6 +4,7 @@ Usage : python manage.py seed_maths_premiere
 """
 
 from django.core.management.base import BaseCommand
+from django.utils.text import slugify
 from courses.models import Matiere, Chapitre, Lecon, Quiz, Question
 
 CHAPITRES = [
@@ -8690,17 +8691,18 @@ class Command(BaseCommand):
         total_quizzes = 0
 
         for chap_data in CHAPITRES:
-            chapitre, ch_created = Chapitre.objects.get_or_create(
+            chapitre, ch_created = Chapitre.objects.update_or_create(
                 matiere=matiere,
                 niveau='premiere',
                 ordre=chap_data['ordre'],
                 defaults={
                     'titre': chap_data['titre'],
+                    'slug': slugify(chap_data['titre']),
                     'description': chap_data['description'],
                     'score_minimum_deblocage': chap_data['score_minimum'],
                 },
             )
-            status = "créé" if ch_created else "existant"
+            status = "créé" if ch_created else "mis à jour"
             self.stdout.write(f"  {'✔' if ch_created else '…'} Ch.{chap_data['ordre']} — {chap_data['titre']} ({status})")
 
             for lecon_data in chap_data['lecons']:
