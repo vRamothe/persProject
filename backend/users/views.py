@@ -317,10 +317,21 @@ def admin_utilisateurs(request):
         niv: Lecon.objects.filter(chapitre__niveau=niv).count()
         for niv in niveaux_presents
     }
+    # Dernière connexion par élève (batch, sans N+1)
+    from users.models import ConnexionLog
+    from django.db.models import Max as DbMax
+    last_connexion_by_user = dict(
+        ConnexionLog.objects.filter(user__in=eleves)
+        .values("user_id")
+        .annotate(derniere=DbMax("timestamp"))
+        .values_list("user_id", "derniere")
+    )
+
     for eleve in eleves:
         total = total_by_niveau.get(eleve.niveau, 0)
         done = done_by_user.get(eleve.pk, 0)
         eleve.progression_pct = int(done / total * 100) if total > 0 else 0
+        eleve.derniere_connexion = eleve.last_login or last_connexion_by_user.get(eleve.pk)
 
     return render(request, "dashboard/admin_users.html", {
         "eleves": eleves,
