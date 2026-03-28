@@ -20,6 +20,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN DJANGO_SETTINGS_MODULE=config.settings.production \
+    SECRET_KEY=build-placeholder-not-real \
+    python manage.py collectstatic --noinput
+
 RUN addgroup --system django && adduser --system --ingroup django django
 RUN chown -R django:django /app
 RUN mkdir -p /home/django/.cache/fontconfig && chown -R django:django /home/django
