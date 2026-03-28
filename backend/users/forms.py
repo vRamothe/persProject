@@ -112,6 +112,7 @@ class InscriptionForm(forms.ModelForm):
         user.email = self.cleaned_data["email"].lower()
         user.set_password(self.cleaned_data["password1"])
         user.role = "eleve"
+        user.niveau = self.cleaned_data["niveau"]
         if commit:
             user.save()
         return user
