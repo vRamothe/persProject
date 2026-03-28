@@ -35,9 +35,17 @@ heroku.yml
 set -eu
 python manage.py check --deploy          # vérifie la config Django
 python manage.py migrate --noinput       # migrations
-python manage.py seed_data               # données de base
-python manage.py collectstatic --noinput # assets statiques
+python manage.py seed_data               # données de base (terminale + admin)
+python manage.py seed_physique_seconde   # contenu seconde
+python manage.py seed_chimie_seconde
+python manage.py seed_maths_seconde
+python manage.py seed_physique_premiere  # contenu première
+python manage.py seed_chimie_premiere
+python manage.py seed_maths_premiere
+python manage.py seed_chimie_orga_terminale  # complément terminale
 ```
+
+> ⚠️ `collectstatic` n'est plus dans la release phase — il tourne pendant le build Docker (Dockerfile). Les fichiers statiques sont intégrés à l'image.
 
 > Si `DATABASE_URL` n'est pas défini → le script s'arrête proprement (skip DB tasks).
 

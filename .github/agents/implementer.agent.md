@@ -37,7 +37,8 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 - Two roles: `admin` (full access) and `eleve` (level-filtered, progress-gated)
 - **Admin Preview Mode**: session key `request.session["preview_niveau"]` lets admins simulate the student view for a specific level; views `preview_niveau_view` / `exit_preview_view` in `users/views.py`; URLs `preview_niveau` / `exit_preview` in `users/urls.py`; `matieres_view` and `lecon_view` respect this key; progress writes are skipped during preview
 - **Dark mode**: toggle button (sun/moon) in header and floating button on auth pages; theme stored in `localStorage`; `<html>` gets/loses `dark` class; anti-flash init script in `<head>` of `base.html`; all dark styles are global CSS overrides in `base.html` — never add `dark:` classes to child templates
-- Docker Compose workflow with the custom entrypoint that runs `migrate → seed_data → collectstatic → gunicorn`
+- Docker Compose workflow with the custom entrypoint that runs `migrate → seed_data → seed_*_seconde → seed_*_premiere → seed_chimie_orga_terminale → pad_quiz_questions → collectstatic → gunicorn`
+- **Heroku production**: `collectstatic` runs during Docker build (not release phase); release phase runs migrations + all seed commands
 - **Password reset**: Django built-in `PasswordResetView` flow with French templates in `templates/registration/`; console email backend (dev), Brevo SMTP (prod)
 - **Error pages**: `handler404` → `config.views.custom_404` (extends `base.html`), `handler500` → `config.views.custom_500` (self-contained HTML)
 - **Testing**: `pytest` 8.3 + `pytest-django` 4.9, config in `backend/pytest.ini`; **80 tests**; run via `docker compose run --rm --entrypoint pytest web -v --tb=short`
