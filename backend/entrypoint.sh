@@ -22,6 +22,9 @@ python manage.py seed_physique_premiere
 python manage.py seed_chimie_premiere
 python manage.py seed_maths_premiere
 
+echo ">> Chargement des compléments terminale..."
+python manage.py seed_chimie_orga_terminale
+
 echo ">> Complétion des quiz (20 QCM par quiz)..."
 python manage.py pad_quiz_questions
 

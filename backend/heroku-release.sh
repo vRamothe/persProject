@@ -29,4 +29,7 @@ python manage.py seed_physique_premiere
 python manage.py seed_chimie_premiere
 python manage.py seed_maths_premiere
 
+echo ">> Loading terminale extras"
+python manage.py seed_chimie_orga_terminale
+
 echo ">> Release phase completed"
