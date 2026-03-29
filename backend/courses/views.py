@@ -1,19 +1,16 @@
 import logging
-import os
 import random
 import re
-import subprocess
-import tempfile
-from html import escape as html_escape
 
-import markdown
 from django.contrib.auth.decorators import login_required
+from django.utils.html import escape
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 
 from .models import Matiere, Chapitre, Lecon, Question
 from collections import defaultdict
+from .utils.latex_parser import render_markdown_to_html
 
 logger = logging.getLogger(__name__)
 
@@ -61,158 +58,27 @@ def _extraire_youtube_id(url):
     return None
 
 
-def _proteger_latex(contenu):
-    """Protège les blocs LaTeX ($$...$$ et $...$) du traitement Markdown.
-
-    Remplace chaque bloc par un placeholder unique, renvoie le texte modifié
-    et un dictionnaire placeholder → LaTeX original.
-    """
-    placeholders = {}
-    counter = 0
-
-    def _remplacer(match):
-        nonlocal counter
-        key = f"\x00LATEX{counter}\x00"
-        placeholders[key] = match.group(0)
-        counter += 1
-        return key
-
-    # $$...$$ (display) en premier, puis $...$ (inline)
-    contenu = re.sub(r'\$\$.+?\$\$', _remplacer, contenu, flags=re.DOTALL)
-    contenu = re.sub(r'\$(?!\$).+?\$', _remplacer, contenu, flags=re.DOTALL)
-    return contenu, placeholders
-
-
-def _restaurer_latex(html, placeholders):
-    """Réinsère les blocs LaTeX originaux dans le HTML rendu."""
-    for key, latex in placeholders.items():
-        html = html.replace(key, latex)
-    return html
-
-
-def _restaurer_latex_svg(html, placeholders):
-    """Convertit les blocs LaTeX en SVG via le moteur LaTeX + dvisvgm.
-
-    Pipeline : LaTeX source → latex (DVI) → dvisvgm --no-fonts (SVG vectoriel).
-    Toutes les équations sont compilées en un seul appel LaTeX (une par page),
-    puis dvisvgm produit un SVG par page avec --exact-bbox.
-    Les glyphes sont convertis en <path> (--no-fonts) : pas de dépendance de police.
-    """
-    if not placeholders:
-        return html
-
-    # Collecter les équations dans l'ordre des placeholders
-    equations = []
-    for key in sorted(placeholders.keys(), key=lambda k: int(re.search(r'\d+', k).group())):
-        raw = placeholders[key]
-        is_display = raw.startswith("$$") and raw.endswith("$$")
-        inner = raw[2:-2].strip() if is_display else raw[1:-1].strip()
-        equations.append((key, inner, is_display))
-
-    svgs = _compiler_equations_latex(equations)
-
-    for i, (key, inner, is_display) in enumerate(equations):
-        svg = svgs.get(i)
-        if svg:
-            if is_display:
-                html = html.replace(key, f'<div class="math-block">{svg}</div>')
-            else:
-                html = html.replace(key, f'<span class="math-inline">{svg}</span>')
-        else:
-            # Fallback : texte brut échappé
-            html = html.replace(key, html_escape(placeholders[key]))
-
-    return html
-
-
-def _compiler_equations_latex(equations):
-    """Compile toutes les équations en un seul appel LaTeX + dvisvgm.
-
-    Renvoie un dict {index: svg_string} pour chaque équation réussie.
-    """
-    if not equations:
-        return {}
-
-    tex_parts = [
-        r'\documentclass[11pt]{article}',
-        r'\usepackage{amsmath}',
-        r'\usepackage{amssymb}',
-        r'\usepackage{amsfonts}',
-        r'\pagestyle{empty}',
-        r'\begin{document}',
-    ]
-
-    for i, (key, inner, is_display) in enumerate(equations):
-        if i > 0:
-            tex_parts.append(r'\newpage')
-        if is_display:
-            tex_parts.append(f'\\[{inner}\\]')
-        else:
-            tex_parts.append(f'${inner}$')
-
-    tex_parts.append(r'\end{document}')
-    tex_content = '\n'.join(tex_parts)
-
-    svgs = {}
-    try:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tex_path = os.path.join(tmpdir, 'eq.tex')
-            with open(tex_path, 'w') as f:
-                f.write(tex_content)
-
-            # latex → DVI
-            subprocess.run(
-                ['latex', '-interaction=nonstopmode',
-                 '-output-directory', tmpdir, tex_path],
-                capture_output=True, timeout=30,
-            )
-
-            dvi_path = os.path.join(tmpdir, 'eq.dvi')
-            if not os.path.exists(dvi_path):
-                logger.warning("LaTeX : pas de DVI produit")
-                return {}
-
-            # dvisvgm → SVG (un fichier par page)
-            n = len(equations)
-            subprocess.run(
-                ['dvisvgm', '--no-fonts', '--exact-bbox',
-                 f'--page=1-{n}',
-                 '-o', os.path.join(tmpdir, 'eq-%p.svg'),
-                 dvi_path],
-                capture_output=True, timeout=30,
-            )
-
-            # dvisvgm zero-pads les numéros de page (%p) → lire tous les
-            # fichiers eq-*.svg et extraire le numéro de page du nom.
-            for fname in os.listdir(tmpdir):
-                m = re.match(r'eq-0*(\d+)\.svg$', fname)
-                if m:
-                    page = int(m.group(1))
-                    idx = page - 1
-                    if 0 <= idx < n:
-                        with open(os.path.join(tmpdir, fname), 'r') as f:
-                            svg = f.read()
-                        svgs[idx] = _nettoyer_svg(svg, f'eq{idx}')
-    except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
-        logger.warning("Pipeline LaTeX→SVG échoué : %s", e)
-
-    return svgs
-
-
-def _nettoyer_svg(svg_content, prefix):
-    """Nettoie le SVG produit par dvisvgm pour l'intégration inline.
-
-    Préfixe tous les id/href pour éviter les collisions entre SVG.
-    """
-    svg_content = re.sub(r'<\?xml[^?]*\?>\s*', '', svg_content)
-    svg_content = re.sub(r'<!--[\s\S]*?-->\s*', '', svg_content)
-    # Préfixer les IDs pour éviter "Anchor defined twice" dans WeasyPrint
-    # dvisvgm utilise des guillemets simples
-    svg_content = re.sub(r"""\bid=(['"])([^'"]+)\1""", rf'id=\1{prefix}-\2\1', svg_content)
-    svg_content = re.sub(r"""xlink:href=(['"])#([^'"]+)\1""", rf'xlink:href=\1#{prefix}-\2\1', svg_content)
-    svg_content = re.sub(r"""(?<!xlink:)href=(['"])#([^'"]+)\1""", rf'href=\1#{prefix}-\2\1', svg_content)
-    svg_content = re.sub(r'url\(#([^)]+)\)', rf'url(#{prefix}-\1)', svg_content)
-    return svg_content.strip()
+def _generer_video_html(lecon, youtube_id):
+    """Génère le code HTML pour l'intégration de la vidéo (YouTube ou fichier local)."""
+    if youtube_id:
+        return (
+            '<div class="my-6">'
+            '<div class="relative w-full rounded-xl overflow-hidden shadow-sm" style="padding-bottom:56.25%">'
+            f'<iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/{youtube_id}?rel=0" '
+            f'title="{escape(lecon.titre)}" frameborder="0" '
+            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '
+            'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+            '</div></div>'
+        )
+    elif lecon.video_fichier:
+        return (
+            '<div class="my-6">'
+            '<video class="w-full rounded-xl shadow-sm" controls preload="metadata">'
+            f'<source src="{lecon.video_fichier.url}" type="video/mp4">'
+            'Votre navigateur ne prend pas en charge la lecture vidéo.'
+            '</video></div>'
+        )
+    return ""
 
 
 @login_required
@@ -379,33 +245,12 @@ def lecon_view(request, lecon_pk):
             prog.save(update_fields=["statut", "derniere_activite"])
         est_terminee = prog.statut == StatutLeconChoices.TERMINE
 
-    # Rendu Markdown → HTML (protéger le LaTeX des transformations Markdown)
-    contenu_protege, placeholders_latex = _proteger_latex(lecon.contenu)
-    md = markdown.Markdown(extensions=["extra", "tables", "toc", "nl2br"])
-    contenu_html = md.convert(contenu_protege)
-    contenu_html = _restaurer_latex(contenu_html, placeholders_latex)
+    # Rendu Markdown → HTML (le LaTeX est restauré pour le rendu client via MathJax/KaTeX)
+    contenu_html = render_markdown_to_html(lecon.contenu, latex_to_svg=False)
 
     # Vidéo — construire le HTML d'embed
     youtube_id = _extraire_youtube_id(lecon.video_youtube_url)
-    video_html = ""
-    if youtube_id:
-        video_html = (
-            '<div class="my-6">'
-            '<div class="relative w-full rounded-xl overflow-hidden shadow-sm" style="padding-bottom:56.25%">'
-            f'<iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/{youtube_id}?rel=0" '
-            f'title="{lecon.titre}" frameborder="0" '
-            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '
-            'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
-            '</div></div>'
-        )
-    elif lecon.video_fichier:
-        video_html = (
-            '<div class="my-6">'
-            '<video class="w-full rounded-xl shadow-sm" controls preload="metadata">'
-            f'<source src="{lecon.video_fichier.url}" type="video/mp4">'
-            'Votre navigateur ne prend pas en charge la lecture vidéo.'
-            '</video></div>'
-        )
+    video_html = _generer_video_html(lecon, youtube_id)
 
     # Remplacer le marqueur [video] dans le contenu s'il existe
     video_placeholder = "<p>[video]</p>"
@@ -587,7 +432,11 @@ def soumettre_revisions(request):
     except ValueError:
         return redirect("revisions")
 
-    questions = list(Question.objects.filter(id__in=question_ids).select_related("quiz__lecon__chapitre__matiere"))
+    # Vérification de sécurité (IDOR) : s'assurer que les questions correspondent au niveau de l'utilisateur
+    if user.is_admin:
+        questions = list(Question.objects.filter(id__in=question_ids).select_related("quiz__lecon__chapitre__matiere"))
+    else:
+        questions = list(Question.objects.filter(id__in=question_ids, quiz__lecon__chapitre__niveau=user.niveau).select_related("quiz__lecon__chapitre__matiere"))
 
     corrections, _, _ = _evaluer_reponses(questions, request.POST)
 
@@ -676,31 +525,10 @@ def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug
         return redirect("lecon", lecon_pk=lecon.pk)
 
     # Render lesson content (read-only, no progression)
-    contenu_protege, placeholders_latex = _proteger_latex(lecon.contenu)
-    md = markdown.Markdown(extensions=["extra", "tables", "toc", "nl2br"])
-    contenu_html = md.convert(contenu_protege)
-    contenu_html = _restaurer_latex(contenu_html, placeholders_latex)
-
+    contenu_html = render_markdown_to_html(lecon.contenu, latex_to_svg=False)
+    
     youtube_id = _extraire_youtube_id(lecon.video_youtube_url)
-    video_html = ""
-    if youtube_id:
-        video_html = (
-            '<div class="my-6">'
-            '<div class="relative w-full rounded-xl overflow-hidden shadow-sm" style="padding-bottom:56.25%">'
-            f'<iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/{youtube_id}?rel=0" '
-            f'title="{lecon.titre}" frameborder="0" '
-            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '
-            'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
-            '</div></div>'
-        )
-    elif lecon.video_fichier:
-        video_html = (
-            '<div class="my-6">'
-            '<video class="w-full rounded-xl shadow-sm" controls preload="metadata">'
-            f'<source src="{lecon.video_fichier.url}" type="video/mp4">'
-            'Votre navigateur ne prend pas en charge la lecture vidéo.'
-            '</video></div>'
-        )
+    video_html = _generer_video_html(lecon, youtube_id)
 
     video_placeholder = "<p>[video]</p>"
     video_in_content = video_placeholder in contenu_html
@@ -804,11 +632,8 @@ def lecon_pdf_view(request, lecon_pk):
     if not user.is_admin and lecon.chapitre.niveau != user.niveau:
         return redirect("matieres")
 
-    contenu_protege, placeholders_latex = _proteger_latex(lecon.contenu)
-    md = markdown.Markdown(extensions=["extra", "tables", "toc", "nl2br"])
-    contenu_html = md.convert(contenu_protege)
-    contenu_html = _restaurer_latex_svg(contenu_html, placeholders_latex)
-
+    # Rendu Markdown → HTML avec compilation LaTeX en SVG pour le PDF
+    contenu_html = render_markdown_to_html(lecon.contenu, latex_to_svg=True)
     html_string = render_to_string("courses/lecon_pdf.html", {
         "lecon": lecon,
         "chapitre": lecon.chapitre,

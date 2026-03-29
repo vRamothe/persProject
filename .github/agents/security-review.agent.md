@@ -57,6 +57,7 @@ lecon = get_object_or_404(Lecon, pk=pk)
 - Aucune vue de contenu (leçon, quiz, chapitre) ne doit être accessible sans `@login_required`, sauf `catalogue_matiere_view` et `lecon_publique_view`
 - `lecon_publique_view` doit vérifier `lecon.gratuit` avant de servir le contenu
 - Les soumissions de quiz (`soumettre_quiz`, `soumettre_quiz_chapitre`) ne doivent pas permettre à un élève de soumettre pour un autre utilisateur
+- Les requêtes utilisant `id__in` provenant de requêtes POST doivent SYSTEMATIQUEMENT filtrer selon l'appartenance à l'utilisateur courant (`user.niveau` ou `user_id`) pour prévenir les failles IDOR.
 - `preview_niveau_view` et `exit_preview_view` doivent vérifier que l'utilisateur est admin
 
 ---
@@ -105,6 +106,9 @@ Lecon.objects.raw(f"SELECT * FROM lecon WHERE titre LIKE '%{query}%'")
 # Recherche full-text PostgreSQL (courses/views.py) — utiliser SearchVector paramétré
 from django.contrib.postgres.search import SearchVector, SearchQuery
 query_obj = SearchQuery(query)  # paramétré, pas de concaténation
+
+# Prévention XSS
+# Si du code Markdown est voué à être saisi par des utilisateurs non administrateurs, il DOIT être nettoyé via `bleach` après le rendu HTML.
 ```
 
 **Fichiers à auditer :**
