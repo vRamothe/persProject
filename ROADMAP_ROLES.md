@@ -31,6 +31,10 @@ Extension du système utilisateur de ScienceLycée pour supporter 4 rôles :
   Élève → compte inactif → email vérifié → compte actif MAIS lien "en attente"
   → Enseignant reçoit notification → approuve/refuse → lien validé
 
+Élève s'inscrit seul :
+  Élève → compte inactif → email vérifié → compte actif
+  (Aucune autre validation requise, l'élève est rattaché à l'admin par défaut)
+
 Parent s'inscrit avec code élève :
   Parent → compte inactif → email vérifié → compte actif MAIS lien "en attente"
   → Élève reçoit notification → approuve/refuse → lien validé
@@ -1015,6 +1019,49 @@ Aucune nouvelle variable requise pour cette feature. Les emails de notification 
 
 ---
 
+## Phase 9 — Réservation, Calendrier et Facturation SAP
+
+### Étape 9.1 — Modèle de Réservation (Double Validation)
+
+**Fichier** : `tutoring/models.py` (nouvelle app)
+
+La création d'un événement de cours nécessite l'accord des **deux parties** (Enseignant et Élève/Parent).
+- Modèle `CoursParticulier` avec un état `statut` (`en_attente_enseignant`, `en_attente_eleve`, `valide`, `annule`).
+- Si l'enseignant initie le cours, l'élève ou le parent doit le valider en entrant sa carte bancaire.
+- Si l'élève/parent initie, l'enseignant doit approuver la demande.
+
+### Étape 9.2 — Paiement Stripe (Pre-auth & Capture)
+
+**Fichier** : `tutoring/services.py`
+
+1. **Empreinte bancaire** : La carte bancaire est requise pour soumettre ou valider une demande de cours. Utilisation d'un `PaymentIntent` Stripe avec `capture_method='manual'`. Les fonds sont bloqués sur le compte client mais non prélevés.
+2. **Capture (Débit)** : Le débit n'est exécuté (`capture`) **uniquement** lorsque les deux parties ont validé le cours.
+
+### Étape 9.3 — Synchronisation Calendrier (Google, Apple, Outlook)
+
+**Fichier** : `tutoring/views.py` et `tutoring/calendar.py`
+
+Dès la double-validation du cours, l'événement est acté dans le système.
+- Génération d'un flux d'abonnement au calendrier au format iCalendar (`.ics`), sécurisé par un token unique par utilisateur.
+- Boutons d'ajout rapide "Ajouter à Google Agenda", "Ajouter à Outlook", "Ajouter à Apple Calendar" dans le tableau de bord.
+
+### Étape 9.4 — Génération et Envoi de Factures SAP (Défiscalisation)
+
+**Fichier** : `tutoring/facturation.py`
+
+1. **Génération PDF (WeasyPrint)** : Création d'une facture détaillée et numérotée dès que le paiement Stripe est capturé.
+2. **Mentions obligatoires** : La facture doit respecter les strictes exigences du **Service à la Personne (SAP)** en France pour ouvrir droit à la défiscalisation (50 % de réduction ou crédit d'impôt). Elle intègre l'identification fiscale de l'enseignant, le numéro d'agrément, et le libellé juridique obligatoire.
+3. **Envoi par Email** : La facture PDF est automatiquement distribuée à l'Élève, à ses Parents (payeurs) et à l'Enseignant (prestataire).
+
+### 🧪 Tests Phase 9
+
+- Workflow complet de double-validation (Création de la demande → empreinte bancaire mockée → validation par l'autre partie → capture Stripe mockée → statut `valide`).
+- Génération du fichier `.ics` et validation du format RFC 5545 (iCalendar).
+- Vérification du contenu du PDF de la facture (mock WeasyPrint) et présence obligatoire des mentions SAP.
+- Test d'envoi des e-mails transactionnels aux 3 rôles.
+
+---
+
 ## Ordre d'implémentation recommandé
 
 | Sprint | Phase | Livrable | Tests attendus |
@@ -1027,7 +1074,8 @@ Aucune nouvelle variable requise pour cette feature. Les emails de notification 
 | 6 | Phase 6 | Panel admin étendu | 11 tests admin |
 | 7 | Phase 7 | Seed data + preview enseignant | 8 tests seed/preview |
 | 8 | Phase 8 | Migration + déploiement | 4 tests migration |
-| | | **TOTAL** | **~95 tests** |
+| 9 | Phase 9 | Réservation, Calendrier et Facturation SAP | 15 tests booking |
+| | | **TOTAL** | **~110 tests** |
 
 ---
 
