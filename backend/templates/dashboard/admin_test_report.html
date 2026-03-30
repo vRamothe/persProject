@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Rapport de tests local{% endblock %}
+{% block page_title %}Rapport de tests local{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+
+  <!-- En-tête stats + bouton -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+      <!-- Stats pills -->
+      <div id="test-status" class="flex items-center gap-4 flex-wrap">
+        {% if report_exists %}
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium">{{ passed }} passed</span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-medium">{{ failed }} failed</span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-sm font-medium">{{ error }} errors</span>
+          <span class="inline-flex items-center gap-1.5 text-sm font-semibold
+            {% if status == 'green' %}text-emerald-700{% elif status == 'orange' %}text-amber-700{% elif status == 'red' %}text-red-700{% else %}text-gray-500{% endif %}">
+            <span class="w-2.5 h-2.5 rounded-full {% if status == 'green' %}bg-emerald-500{% elif status == 'orange' %}bg-amber-500{% elif status == 'red' %}bg-red-500{% else %}bg-gray-400{% endif %}"></span>
+            {{ passed }}/{{ total }}
+          </span>
+        {% else %}
+          <span class="text-gray-500 text-sm">Aucun rapport disponible. Lancez les tests pour en générer un.</span>
+        {% endif %}
+      </div>
+
+      <!-- Bouton relancer -->
+      <button hx-post="{% url 'admin_run_tests' %}"
+              hx-target="#test-status"
+              hx-swap="outerHTML"
+              hx-indicator="#run-spinner"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors flex-shrink-0">
+        <svg id="run-spinner" class="htmx-indicator w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Relancer les tests
+      </button>
+    </div>
+  </div>
+
+  <!-- Iframe du rapport -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" style="min-height: 700px;">
+    {% if report_exists %}
+      <iframe id="report-iframe"
+              src="{% url 'admin_serve_report' %}"
+              class="w-full border-0"
+              style="height: 80vh; min-height: 700px;">
+      </iframe>
+    {% else %}
+      <div class="flex flex-col items-center justify-center py-20 text-gray-400">
+        <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="text-lg font-medium">Aucun rapport trouvé</p>
+        <p class="text-sm mt-1">Cliquez sur « Relancer les tests » pour générer le rapport.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

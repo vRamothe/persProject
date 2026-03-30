@@ -3,9 +3,11 @@ import logging
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
 from django.core import signing
 from django.core.mail import send_mail
 from django.db import models
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.utils.decorators import method_decorator
@@ -732,3 +734,112 @@ def admin_tests_view(request):
         "repo_url": repo_url,
         "error": None,
     })
+
+
+# ---- Rapport de tests local ----
+
+@login_required
+def admin_test_report_view(request):
+    """Affiche le rapport de tests local (test_report.html) dans une iframe."""
+    if not request.user.is_admin:
+        return redirect("tableau_de_bord")
+
+    report_path = settings.BASE_DIR / "test_report.html"
+    report_exists = report_path.exists()
+
+    passed = failed = error = total = 0
+    status = "gray"
+    if report_exists:
+        from .context_processors import _parse_test_report
+        stats = _parse_test_report(report_path)
+        if stats:
+            passed = stats["passed"]
+            failed = stats["failed"]
+            error = stats["error"]
+            total = stats["total"]
+            status = stats["status"]
+
+    return render(request, "dashboard/admin_test_report.html", {
+        "report_exists": report_exists,
+        "passed": passed,
+        "failed": failed,
+        "error": error,
+        "total": total,
+        "status": status,
+    })
+
+
+@login_required
+def admin_serve_test_report(request):
+    """Sert le contenu brut de test_report.html pour l'iframe."""
+    if not request.user.is_admin:
+        return redirect("tableau_de_bord")
+
+    report_path = settings.BASE_DIR / "test_report.html"
+    if not report_path.exists():
+        return HttpResponse("Aucun rapport disponible", status=404)
+
+    return HttpResponse(
+        report_path.read_text(encoding="utf-8"),
+        content_type="text/html",
+    )
+
+
+@login_required
+def admin_run_tests_view(request):
+    """Relance les tests pytest et retourne le statut en fragment HTMX."""
+    if not request.user.is_admin:
+        return HttpResponse(status=403)
+    if request.method != "POST":
+        return HttpResponse(status=405)
+
+    import subprocess
+
+    try:
+        subprocess.run(
+            ["pytest", "-v", "--html=test_report.html", "--self-contained-html", "--tb=short"],
+            capture_output=True,
+            text=True,
+            cwd=str(settings.BASE_DIR),
+            timeout=120,
+        )
+    except subprocess.TimeoutExpired:
+        return HttpResponse(
+            '<div id="test-status" class="text-red-600 font-semibold">Timeout : les tests ont dépassé 120s</div>',
+            content_type="text/html",
+        )
+    except Exception as e:
+        logger.error("Erreur lors de l'exécution des tests : %s", e)
+        return HttpResponse(
+            f'<div id="test-status" class="text-red-600 font-semibold">Erreur : {e}</div>',
+            content_type="text/html",
+        )
+
+    # Parse le nouveau rapport
+    report_path = settings.BASE_DIR / "test_report.html"
+    passed = failed = error = total = 0
+    status = "gray"
+    if report_path.exists():
+        from .context_processors import _parse_test_report
+        stats = _parse_test_report(report_path)
+        if stats:
+            passed = stats["passed"]
+            failed = stats["failed"]
+            error = stats["error"]
+            total = stats["total"]
+            status = stats["status"]
+
+    color_map = {"green": "bg-emerald-500", "orange": "bg-amber-500", "red": "bg-red-500", "gray": "bg-gray-400"}
+    dot_class = color_map.get(status, "bg-gray-400")
+    text_color = {"green": "text-emerald-700", "orange": "text-amber-700", "red": "text-red-700", "gray": "text-gray-500"}
+    txt_class = text_color.get(status, "text-gray-500")
+
+    return HttpResponse(f"""
+        <div id="test-status" class="flex items-center gap-4 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium">{passed} passed</span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-medium">{failed} failed</span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-sm font-medium">{error} errors</span>
+            <span class="inline-flex items-center gap-1.5 {txt_class} text-sm font-semibold"><span class="w-2.5 h-2.5 rounded-full {dot_class}"></span> {passed}/{total}</span>
+        </div>
+        <script>document.getElementById('report-iframe').contentWindow.location.reload();</script>
+    """, content_type="text/html")
