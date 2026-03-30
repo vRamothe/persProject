@@ -168,6 +168,4 @@ LOGGING = {
     },
 }
 
-# GitHub Actions CI monitoring
-GITHUB_REPO = config("GITHUB_REPO", default="")
-GITHUB_TOKEN = config("GITHUB_TOKEN", default="")
+

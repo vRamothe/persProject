@@ -1,10 +1,5 @@
-import json
-from unittest.mock import MagicMock, patch
-from urllib.error import URLError
-
 import pytest
-from django.core.cache import cache
-from django.test import Client, override_settings
+from django.test import Client
 from django.urls import reverse
 from django.core import signing
 from users.models import CustomUser
@@ -765,78 +760,4 @@ class TestProfilView:
         response = client.post(reverse("profil"), data)
         assert response.status_code == 200
 
-
-class TestAdminTests:
-    """Tests for the admin_tests_view (CI monitoring page)."""
-
-    @pytest.mark.django_db
-    def test_anonymous_redirected(self, client):
-        response = client.get(reverse("admin_tests"))
-        assert response.status_code == 302
-        assert "/connexion/" in response["Location"]
-
-    @pytest.mark.django_db
-    def test_eleve_redirected_to_dashboard(self, client, eleve):
-        client.force_login(eleve)
-        response = client.get(reverse("admin_tests"))
-        assert response.status_code == 302
-        assert "tableau-de-bord" in response["Location"]
-
-    @pytest.mark.django_db
-    def test_admin_gets_200(self, client, admin_user):
-        client.force_login(admin_user)
-        with override_settings(GITHUB_REPO="", GITHUB_TOKEN=""):
-            response = client.get(reverse("admin_tests"))
-        assert response.status_code == 200
-
-    @pytest.mark.django_db
-    def test_unconfigured_shows_message(self, client, admin_user):
-        client.force_login(admin_user)
-        with override_settings(GITHUB_REPO="", GITHUB_TOKEN=""):
-            response = client.get(reverse("admin_tests"))
-        assert response.context["configured"] is False
-
-    @pytest.mark.django_db
-    def test_configured_has_context_keys(self, client, admin_user):
-        client.force_login(admin_user)
-        mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps({
-            "workflow_runs": [{
-                "id": 1,
-                "run_number": 42,
-                "status": "completed",
-                "conclusion": "success",
-                "created_at": "2024-01-01T00:00:00Z",
-                "updated_at": "2024-01-01T00:05:00Z",
-                "html_url": "https://github.com/test/repo/actions/runs/1",
-                "head_branch": "main",
-                "head_commit": {"message": "fix: something"},
-            }]
-        }).encode()
-        mock_response.__enter__ = lambda s: s
-        mock_response.__exit__ = MagicMock(return_value=False)
-
-        cache.delete("ci_runs_cache")
-
-        with override_settings(GITHUB_REPO="test/repo", GITHUB_TOKEN=""), \
-             patch("urllib.request.urlopen", return_value=mock_response):
-            response = client.get(reverse("admin_tests"))
-
-        assert response.context["configured"] is True
-        assert len(response.context["runs"]) == 1
-        assert response.context["nb_success"] == 1
-        assert response.context["nb_failure"] == 0
-
-    @pytest.mark.django_db
-    def test_api_error_handled_gracefully(self, client, admin_user):
-        client.force_login(admin_user)
-        cache.delete("ci_runs_cache")
-
-        with override_settings(GITHUB_REPO="test/repo", GITHUB_TOKEN=""), \
-             patch("urllib.request.urlopen", side_effect=URLError("connection failed")):
-            response = client.get(reverse("admin_tests"))
-
-        assert response.status_code == 200
-        assert response.context["error"] is not None
-        assert response.context["runs"] == []
 

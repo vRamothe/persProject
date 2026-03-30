@@ -25,18 +25,7 @@
         {% endif %}
       </div>
 
-      <!-- Bouton relancer -->
-      <button hx-post="{% url 'admin_run_tests' %}"
-              hx-target="#test-status"
-              hx-swap="outerHTML"
-              hx-indicator="#run-spinner"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors flex-shrink-0">
-        <svg id="run-spinner" class="htmx-indicator w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-        </svg>
-        Relancer les tests
-      </button>
+
     </div>
   </div>
 
