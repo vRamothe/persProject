@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -25,7 +26,7 @@ def terminer_lecon(request, lecon_pk):
     prog, _ = UserProgression.objects.get_or_create(user=user, lecon=lecon)
     if prog.statut != StatutLeconChoices.TERMINE:
         prog.statut = StatutLeconChoices.TERMINE
-        prog.termine_le = datetime.utcnow()
+        prog.termine_le = timezone.now()
         prog.save()
         _verifier_deblocage_chapitre_suivant(user, lecon.chapitre)
 
@@ -152,7 +153,7 @@ def soumettre_quiz(request, lecon_pk):
         prog, _ = UserProgression.objects.get_or_create(user=user, lecon=lecon)
         if prog.statut != StatutLeconChoices.TERMINE:
             prog.statut = StatutLeconChoices.TERMINE
-            prog.termine_le = datetime.utcnow()
+            prog.termine_le = timezone.now()
             prog.save()
         debloque_suivant = _verifier_deblocage_chapitre_suivant(user, lecon.chapitre)
     else:

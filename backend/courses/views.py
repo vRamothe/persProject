@@ -10,7 +10,7 @@ from django.views import View
 
 from .models import Matiere, Chapitre, Lecon, Question
 from collections import defaultdict
-from .utils.latex_parser import render_markdown_to_html
+from .utils.latex_parser import render_markdown_to_html, proteger_latex as _proteger_latex, restaurer_latex as _restaurer_latex
 
 logger = logging.getLogger(__name__)
 
@@ -526,7 +526,7 @@ def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug
 
     # Render lesson content (read-only, no progression)
     contenu_html = render_markdown_to_html(lecon.contenu, latex_to_svg=False)
-    
+
     youtube_id = _extraire_youtube_id(lecon.video_youtube_url)
     video_html = _generer_video_html(lecon, youtube_id)
 
