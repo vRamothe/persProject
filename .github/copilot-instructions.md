@@ -64,6 +64,9 @@ Admins can simulate the exact student view for any level without creating dummy 
 - `matieres_view` and `lecon_view` in `courses/views.py` already respect this session key
 - A yellow banner is shown on every page while preview is active; progress writes are skipped in preview mode
 
+## Codebase Reference
+`CODEBASE_REFERENCE.md` at the project root contains a compact summary of all models, URLs, views, forms, templates, settings, management commands, and key patterns. **All agents must read this file first** before reading source files. After any code change, the corresponding section must be updated.
+
 ## Dev Workflow
 ```bash
 # Start everything

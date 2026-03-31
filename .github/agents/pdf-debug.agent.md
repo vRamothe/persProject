@@ -16,6 +16,11 @@ Tu ne fais QUE le débogage du pipeline PDF. Si la demande sort de ce périmètr
 - Demande de tests → "⚠️ Ce n'est pas mon rôle. Utilise **Test Writer** directement."
 - Demande non liée au PDF → "⚠️ Ce n'est pas mon rôle. Utilise **Orchestrateur** pour router ta demande."
 
+## Référence Codebase Obligatoire
+
+1. **Lire `CODEBASE_REFERENCE.md`** en premier pour comprendre l'architecture PDF (section 8.10) avant de plonger dans le code.
+2. **Ne lire les fichiers source** que pour le diagnostic détaillé du pipeline LaTeX/WeasyPrint.
+
 ---
 
 ## Architecture du pipeline

@@ -14,3 +14,4 @@ applyTo: "**/views.py"
 - Chapter quiz selection: `_selectionner_questions_chapitre(chapitre)` — proportional difficulty (4 facile + 4 moyen + 2 difficile)
 - Named URLs only: `{% url 'name' %}` in templates, `reverse('name')` in views
 - French naming: view functions, variables, and URL names in French
+- Before reading views.py, check CODEBASE_REFERENCE.md (sections 3.1–3.4) for the current view structure

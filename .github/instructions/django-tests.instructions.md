@@ -15,3 +15,4 @@ applyTo: "**/tests.py"
 - Admin views: test `role == 'admin'` gate (403 for eleve)
 - Preview mode: test that progress is NOT written when `session["preview_niveau"]` is set
 - Run: `docker compose run --rm --entrypoint pytest web -v --tb=short`
+- Before reading source files for test targets, check CODEBASE_REFERENCE.md for model/view/URL structure

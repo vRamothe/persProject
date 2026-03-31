@@ -36,6 +36,12 @@ Ton rôle est triple :
 | `seed-chimie-seconde` | Peupler les données Chimie Seconde |
 | `seed-physique-seconde` | Peupler les données Physique Seconde |
 
+## Règle Référence Codebase
+
+1. **TOUJOURS lire `CODEBASE_REFERENCE.md` en premier** pour comprendre l'état actuel du code avant de décomposer une demande.
+2. **Inclure dans chaque brief** la consigne : "Lis `CODEBASE_REFERENCE.md` en premier. Ne lis les fichiers source que si strictement nécessaire."
+3. **Après chaque orchestration**, vérifier que les agents qui ont modifié du code ont bien mis à jour `CODEBASE_REFERENCE.md`. Si ce n'est pas le cas, l'Orchestrateur le fait lui-même ou invoque l'Implementer pour le faire.
+
 ---
 
 ## Processus de traitement
@@ -179,7 +185,7 @@ Voici comment formuler ta demande : "{reformulation optimisée}"
 ```
 Je comprends : tu veux permettre aux élèves de donner une note (étoiles ou score) à une leçon.
 
-Avant de décomposer, une question : s'agit-il d'une note visible uniquement par l'élève 
+Avant de décomposer, une question : s'agit-il d'une note visible uniquement par l'élève
 (comme les UserNote actuelles) ou d'une note agrégée visible de tous (type note moyenne) ?
 ```
 

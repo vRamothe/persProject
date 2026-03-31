@@ -16,6 +16,12 @@ Tu es un agent spécialisé dans la création et la gestion des **migrations Dja
 4. Vérifier l'intégrité des migrations
 5. Mettre à jour `seed_data` si nécessaire
 
+## Référence Codebase Obligatoire
+
+1. **TOUJOURS lire `CODEBASE_REFERENCE.md` en premier** pour comprendre les modèles existants et leurs relations.
+2. **Ne lire les fichiers source** (`models.py`) que si tu as besoin du code exact pour résoudre un conflit de migration.
+3. **Après génération d'une migration**, mettre à jour la section 1 (Models) de `CODEBASE_REFERENCE.md` si le modèle a été modifié.
+
 ---
 
 ## Garde-fou — Scope strict

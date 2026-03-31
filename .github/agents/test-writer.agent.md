@@ -35,6 +35,13 @@ Configuration : backend/pytest.ini
 Fichiers de tests : users/tests.py, courses/tests.py, progress/tests.py
 ```
 
+## Référence Codebase Obligatoire
+
+1. **TOUJOURS lire `CODEBASE_REFERENCE.md` en premier** avant d'écrire un test. Ce fichier contient un résumé complet des modèles, URLs, vues et patterns.
+2. **Ne lire les fichiers source** que si tu as besoin du code exact d'une vue ou d'un modèle pour écrire un test précis.
+
+---
+
 ### pytest.ini (référence)
 ```ini
 [pytest]
@@ -48,7 +55,7 @@ python_functions = test_*
 
 ## ⚠️ Règle CRITIQUE — django-axes
 
-**NE JAMAIS utiliser `client.login(email=..., password=...)`** dans les tests.  
+**NE JAMAIS utiliser `client.login(email=..., password=...)`** dans les tests.
 `django-axes` requiert un objet `request` dans `authenticate()` → les tests plantent avec `AxesBackendRequestParameterRequired`.
 
 Toujours utiliser :

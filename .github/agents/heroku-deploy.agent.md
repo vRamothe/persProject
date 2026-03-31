@@ -16,6 +16,11 @@ Tu ne fais QUE les déploiements Heroku et le diagnostic de production. Si la de
 - Demande de tests → "⚠️ Ce n'est pas mon rôle. Utilise **Test Writer** directement."
 - Demande de migration → "⚠️ Ce n'est pas mon rôle. Utilise **Migration Writer** directement."
 
+## Référence Codebase Obligatoire
+
+1. **Lire `CODEBASE_REFERENCE.md`** en premier pour comprendre la structure du projet et les settings avant toute opération de déploiement.
+2. **Ne lire les fichiers source** que si le diagnostic l'exige (ex: contenu exact de `heroku-release.sh`, `Dockerfile`).
+
 ---
 
 ## Architecture de déploiement

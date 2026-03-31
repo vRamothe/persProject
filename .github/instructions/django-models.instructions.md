@@ -16,3 +16,4 @@ applyTo: "**/models.py"
 - Leitner system: `UserQuestionHistorique` with `boite` (1–5), `prochaine_revision`, intervals `{1: 1d, 2: 3d, 3: 7d, 4: 14d, 5: 30d}`
 - After ANY model change: signal `⚠️ Migration requise → migration-writer`
 - Never edit migration files manually
+- Before reading models.py, check CODEBASE_REFERENCE.md (sections 1.1–1.16) for the current model structure

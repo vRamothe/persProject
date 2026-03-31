@@ -15,6 +15,12 @@ Tu es un agent spécialisé dans la revue de sécurité de **ScienceLycée** (Dj
 3. Proposer et implémenter les corrections
 4. Ne **jamais** introduire de nouvelles vulnérabilités en corrigeant les existantes
 
+## Référence Codebase Obligatoire
+
+1. **TOUJOURS lire `CODEBASE_REFERENCE.md` en premier** avant tout audit. Ce fichier contient un résumé complet des modèles, URLs, vues, settings et patterns.
+2. **Ne lire les fichiers source** que si tu as besoin du code exact pour vérifier une vulnérabilité.
+3. **Si tu modifies du code** pour corriger une faille, mettre à jour la section correspondante de `CODEBASE_REFERENCE.md`.
+
 ---
 
 ## Garde-fou — Scope strict

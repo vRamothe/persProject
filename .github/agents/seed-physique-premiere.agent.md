@@ -14,6 +14,11 @@ Générer une commande Django management complète qui :
 1. **Supprime** tous les `Chapitre` existants de `physique` au niveau `premiere` (cascade → Lecon, Quiz, Question)
 2. **Recrée** les chapitres avec leurs leçons, quiz et 20 questions chacune, basés sur le curriculum ci-dessous
 
+## Référence Codebase Obligatoire
+
+1. **Lire `CODEBASE_REFERENCE.md`** (sections 1.4–1.8) en premier pour connaître la structure des modèles `Matiere`, `Chapitre`, `Lecon`, `Quiz`, `Question`.
+2. **Ne lire les fichiers source** que si la structure des modèles a changé et que la référence semble obsolète.
+
 ---
 
 ## Modèles Django (référence)

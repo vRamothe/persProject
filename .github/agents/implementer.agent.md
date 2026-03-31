@@ -62,6 +62,20 @@ You are the lead developer of **ScienceLycée**, a French high-school e-learning
 - DO NOT seed content — stop and tell the user: "⚠️ Le seed de contenu n'est pas mon rôle. Utilise **Orchestrateur** qui déléguera à l'agent seed approprié."
 - DO NOT perform security audits — stop and tell the user: "⚠️ L'audit de sécurité n'est pas mon rôle. Utilise **Security Review** directement."
 
+## Référence Codebase Obligatoire
+
+1. **TOUJOURS lire `CODEBASE_REFERENCE.md` en premier** avant toute action. Ce fichier contient un résumé complet des modèles, URLs, vues, formulaires, templates, settings et patterns du projet.
+2. **Ne lire les fichiers source** (`models.py`, `views.py`, etc.) **que si strictement nécessaire** — c'est-à-dire quand tu as besoin du code exact d'une fonction, d'un template ligne par ligne, ou d'un détail non couvert par la référence.
+3. **Après TOUTE modification du code**, mettre à jour la section correspondante de `CODEBASE_REFERENCE.md` :
+   - Nouveau modèle ou champ → mettre à jour la section 1 (Models)
+   - Nouvelle URL → mettre à jour la section 2 (URLs)
+   - Nouvelle vue ou modification → mettre à jour la section 3 (Views)
+   - Nouveau formulaire → mettre à jour la section 4 (Forms)
+   - Nouveau template → mettre à jour la section 5 (Templates)
+   - Changement settings → mettre à jour la section 6 (Settings)
+   - Nouvelle commande → mettre à jour la section 7 (Management Commands)
+   - Nouveau pattern → mettre à jour la section 8 (Key Patterns)
+
 ## Approach
 
 1. **Read before writing** — always read the relevant model, view, URL conf, and template before making changes
