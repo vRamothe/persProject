@@ -1,6 +1,6 @@
 # Roadmap ScienceLycée — Index
 
-Ce dossier contient **36 fiches features** extraites de `ROADMAP.md` et `ROADMAP_ROLES.md`, classées par priorité d'implémentation.
+Ce dossier contient **37 fiches features** extraites de `ROADMAP.md` et `ROADMAP_ROLES.md`, classées par priorité d'implémentation.
 
 ## Légende
 
@@ -18,62 +18,64 @@ Ce dossier contient **36 fiches features** extraites de `ROADMAP.md` et `ROADMAP
 
 | # | Feature | Phase | LLM | Statut |
 |---|---------|-------|-----|--------|
-| 01 | [Paywall Visuel](01-paywall-visuel.md) | 2 — Monétisation | Sonnet | ⬜ |
-| 02 | [Stripe Paiement](02-stripe-paiement.md) | 2 — Monétisation | **Opus** | ⬜ |
-| 03 | [Social Media Content](03-social-media-content.md) | 3 — Acquisition | Sonnet | ⬜ |
-| 04 | [Optimisation Requêtes SQL](04-optimisation-requetes-sql.md) | 3 — Acquisition | Sonnet | ⬜ |
-| 05 | [Rétention Parents](05-retention-parents.md) | 3 — Acquisition | Sonnet | ⬜ |
-| 06 | [Responsive Mobile](06-responsive-mobile.md) | 3 — Acquisition | Sonnet | ⬜ |
-| 07 | [Modèles de Données Rôles](07-modeles-donnees-roles.md) | Rôles 1 — Data Models | **Opus** | ⬜ |
-| 08 | [Inscription Multi-Rôle](08-inscription-multi-role.md) | Rôles 2 — Registration | **Opus** | ⬜ |
-| 09 | [Inscription Enseignant](09-inscription-enseignant.md) | Rôles 2 — Registration | Sonnet | ⬜ |
-| 10 | [Inscription Parent](10-inscription-parent.md) | Rôles 2 — Registration | Sonnet | ⬜ |
-| 11 | [Recherche Liaison Élève](11-recherche-liaison-eleve.md) | Rôles 3 — Validation | Sonnet | ⬜ |
-| 12 | [Validation Liaison](12-validation-liaison.md) | Rôles 3 — Validation | Sonnet | ⬜ |
-| 13 | [Validation Liaisons](13-validation-liaisons.md) | Rôles 3 — Liaison | **Opus** | ⬜ |
-| 14 | [Dashboards par Rôle](14-dashboards-par-role.md) | Rôles 4 — Dashboards | **Opus** | ⬜ |
-| 15 | [Messagerie Interne](15-messagerie-interne.md) | Rôles 5 — Messaging | **Opus** | ⬜ |
-| 16 | [Quiz Chronométrés](16-quiz-chronometres.md) | 4 — Learning Experience | Sonnet | ⬜ |
-| 17 | [Feedback Immédiat](17-feedback-immediat.md) | 4 — Learning Experience | Sonnet | ⬜ |
-| 18 | [Glossaire & Fiches Formules](18-glossaire-fiches-formules.md) | 4 — Learning Experience | Sonnet | ⬜ |
-| 19 | [Exercices Interactifs](19-exercices-interactifs.md) | 4 — Learning Experience | **Opus** | ⬜ |
-| 20 | [Badges / Récompenses](20-badges-recompenses.md) | 5 — Gamification | Sonnet | ⬜ |
-| 21 | [Classement](21-classement.md) | 5 — Gamification | Sonnet | ⬜ |
-| 22 | [Notifications Enseignant](22-notifications-enseignant.md) | 5 — Gamification | Sonnet | ⬜ |
-| 23 | [Accessibilité](23-accessibilite.md) | 6 — Architecture | Sonnet | ⬜ |
-| 24 | [Système de Réservation](24-systeme-reservation.md) | 7 — Tutorat | **Opus** | ⬜ |
-| 25 | [Stripe Pre-auth / Capture](25-stripe-preauth-capture.md) | 7 — Tutorat | **Opus** | ⬜ |
-| 26 | [Sync Calendrier](26-sync-calendrier.md) | 7 — Tutorat | Sonnet | ⬜ |
-| 27 | [Facturation SAP](27-facturation-sap.md) | 7 — Tutorat | Sonnet | ⬜ |
-| 28 | [Tuteur IA Socratique](28-tuteur-ia-socratique.md) | 8 — IA | **Opus** | ⬜ |
-| 29 | [Génération Questions](29-generation-dynamique-questions.md) | 8 — IA | **Opus** | ⬜ |
-| 30 | [PWA Manifest & SW](30-pwa-manifest-sw.md) | 9 — PWA | Sonnet | ⬜ |
-| 31 | [Mode Hors-Ligne](31-mode-hors-ligne.md) | 9 — PWA | Sonnet | ⬜ |
-| 32 | [Web Push Notifications](32-web-push-notifications.md) | 9 — PWA | **Opus** | ⬜ |
-| 33 | [Contenu Privé / UGC](33-contenu-prive-ugc.md) | 10 — Scale | **Opus** | ⬜ |
-| 34 | [Analytics Granulaires](34-analytics-granulaires-temps.md) | 10 — Scale | Sonnet | ⬜ |
-| 35 | [Cache Redis](35-cache-redis.md) | 10 — Scale | Sonnet | ⬜ |
-| 36 | [Gels de Série](36-gels-de-serie.md) | 10 — Scale | Sonnet | ⬜ |
+| 01 | [Leçons Publiques avec Blur Premium](01-lecons-publiques-blur.md) | 1 — Product & Proof | Sonnet | ⬜ |
+| 02 | [Paywall Visuel](02-paywall-visuel.md) | 1 — Product & Proof | Sonnet | ⬜ |
+| 03 | [Intégration Stripe](03-integration-stripe.md) | 1 — Product & Proof | **Opus** | ⬜ |
+| 04 | [Bêta Test Élèves](04-beta-test-eleves.md) | 1 — Product & Proof | Sonnet | ⬜ |
+| 05 | [Social Proof Landing](05-social-proof-landing.md) | 1 — Product & Proof | Sonnet | ⬜ |
+| 06 | [Upsell Sprint Bac](06-upsell-sprint-bac.md) | 2 — Monétisation | Sonnet | ⬜ |
+| 07 | [Marketing Local](07-marketing-local.md) | 3 — Acquisition | Sonnet | ⬜ |
+| 08 | [Optimisation Requêtes SQL](08-optimisation-requetes.md) | 3 — Acquisition | Sonnet | ⬜ |
+| 09 | [Contenu Social Snackable](09-contenu-social-snackable.md) | 3 — Acquisition | Sonnet | ⬜ |
+| 10 | [Rétention Parents Email](10-retention-parents-email.md) | 3 — Acquisition | Sonnet | ⬜ |
+| 11 | [Audit Mobile Responsiveness](11-audit-mobile-responsiveness.md) | 3 — Acquisition | Sonnet | ⬜ |
+| 12 | [Modèles de Données Multi-Rôles](12-modeles-donnees-multi-roles.md) | Rôles 1 — Data Models | **Opus** | ⬜ |
+| 13 | [Inscription Multi-Rôles](13-inscription-multi-roles.md) | Rôles 2 — Registration | **Opus** | ⬜ |
+| 14 | [Validation Liaisons](14-validation-liaisons.md) | Rôles 3 — Liaison | **Opus** | ⬜ |
+| 15 | [Dashboards par Rôle](15-dashboards-par-role.md) | Rôles 4 — Dashboards | **Opus** | ⬜ |
+| 16 | [Messagerie Interne](16-messagerie-interne.md) | Rôles 5 — Messaging | **Opus** | ⬜ |
+| 17 | [Quiz Chronométrés](17-quiz-chronometres.md) | 4 — Learning Experience | Sonnet | ⬜ |
+| 18 | [Feedback Immédiat](18-feedback-immediat.md) | 4 — Learning Experience | Sonnet | ⬜ |
+| 19 | [Glossaire & Fiches Formules](19-glossaire-fiches-formules.md) | 4 — Learning Experience | Sonnet | ⬜ |
+| 20 | [Exercices Interactifs](20-exercices-interactifs.md) | 4 — Learning Experience | **Opus** | ⬜ |
+| 21 | [Badges / Récompenses](21-badges-recompenses.md) | 5 — Gamification | Sonnet | ⬜ |
+| 22 | [Classement](22-classement.md) | 5 — Gamification | Sonnet | ⬜ |
+| 23 | [Notifications Enseignant](23-notifications-enseignant.md) | 5 — Gamification | Sonnet | ⬜ |
+| 24 | [Accessibilité](24-accessibilite.md) | 6 — Architecture | Sonnet | ⬜ |
+| 25 | [Système de Réservation](25-systeme-reservation.md) | 7 — Tutorat | **Opus** | ⬜ |
+| 26 | [Stripe Pre-auth / Capture](26-stripe-preauth-capture.md) | 7 — Tutorat | **Opus** | ⬜ |
+| 27 | [Sync Calendrier](27-sync-calendrier.md) | 7 — Tutorat | Sonnet | ⬜ |
+| 28 | [Facturation SAP](28-facturation-sap.md) | 7 — Tutorat | Sonnet | ⬜ |
+| 29 | [Tuteur IA Socratique](29-tuteur-ia-socratique.md) | 8 — IA | **Opus** | ⬜ |
+| 30 | [Génération Questions](30-generation-dynamique-questions.md) | 8 — IA | **Opus** | ⬜ |
+| 31 | [PWA Manifest & SW](31-pwa-manifest-sw.md) | 9 — PWA | Sonnet | ⬜ |
+| 32 | [Mode Hors-Ligne](32-mode-hors-ligne.md) | 9 — PWA | Sonnet | ⬜ |
+| 33 | [Web Push Notifications](33-web-push-notifications.md) | 9 — PWA | **Opus** | ⬜ |
+| 34 | [Contenu Privé / UGC](34-contenu-prive-ugc.md) | 10 — Scale | **Opus** | ⬜ |
+| 35 | [Analytics Granulaires](35-analytics-granulaires-temps.md) | 10 — Scale | Sonnet | ⬜ |
+| 36 | [Cache Redis](36-cache-redis.md) | 10 — Scale | Sonnet | ⬜ |
+| 37 | [Gels de Série](37-gels-de-serie.md) | 10 — Scale | Sonnet | ⬜ |
 
 ---
 
 ## Répartition LLM
 
-- **Opus requis** : 13 features (01, 02, 07, 08, 13, 14, 15, 19, 24, 25, 28, 29, 32, 33)
-- **Sonnet suffisant** : 23 features
+- **Opus requis** : 13 features (03, 12, 13, 14, 15, 16, 20, 25, 26, 29, 30, 33, 34)
+- **Sonnet suffisant** : 24 features
 
 ## Par phase
 
 | Phase | Features | Nb |
 |-------|----------|----|
-| 2 — Monétisation | 01, 02 | 2 |
-| 3 — Acquisition | 03, 04, 05, 06 | 4 |
-| Rôles 1-3 | 07, 08, 09, 10, 11, 12, 13 | 7 |
-| Rôles 4-5 | 14, 15 | 2 |
-| 4 — Learning Experience | 16, 17, 18, 19 | 4 |
-| 5 — Gamification | 20, 21, 22 | 3 |
-| 6 — Architecture | 23 | 1 |
-| 7 — Tutorat | 24, 25, 26, 27 | 4 |
-| 8 — IA | 28, 29 | 2 |
-| 9 — PWA | 30, 31, 32 | 3 |
-| 10 — Scale | 33, 34, 35, 36 | 4 |
+| 1 — Product & Proof | 01, 02, 03, 04, 05 | 5 |
+| 2 — Monétisation | 06 | 1 |
+| 3 — Acquisition | 07, 08, 09, 10, 11 | 5 |
+| Rôles 1-3 | 12, 13, 14 | 3 |
+| Rôles 4-5 | 15, 16 | 2 |
+| 4 — Learning Experience | 17, 18, 19, 20 | 4 |
+| 5 — Gamification | 21, 22, 23 | 3 |
+| 6 — Architecture | 24 | 1 |
+| 7 — Tutorat | 25, 26, 27, 28 | 4 |
+| 8 — IA | 29, 30 | 2 |
+| 9 — PWA | 31, 32, 33 | 3 |
+| 10 — Scale | 34, 35, 36, 37 | 4 |
