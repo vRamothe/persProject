@@ -16,10 +16,11 @@ _Compact reference for AI agents. Read this instead of re-reading source files._
 | `niveau` | `CharField(20)` | choices=`NiveauChoices`, blank, null |
 | `is_active` | `BooleanField` | default=True |
 | `is_staff` | `BooleanField` | default=False |
+| `is_beta` | `BooleanField` | default=False — bêta-testeur (accès premium gratuit) |
 | `date_joined` | `DateTimeField` | auto_now_add |
 | `updated_at` | `DateTimeField` | auto_now |
 
-Properties: `nom_complet`, `initiales`, `is_admin`, `is_eleve`
+Properties: `nom_complet`, `initiales`, `is_admin`, `is_eleve`, `is_beta_testeur`
 
 Manager: `CustomUserManager` — `REQUIRED_FIELDS = ["prenom", "nom"]`
 
@@ -334,7 +335,7 @@ Handlers: `handler404` → `config.views.custom_404`, `handler500` → `config.v
 | `admin_test_report_view` | `@login_required` | Admin: test report iframe wrapper | Parses `test_report.html` for stats |
 | `admin_serve_test_report` | `@login_required` | Admin: serves raw test_report.html | For iframe src |
 
-Private helpers: `_envoyer_email_verification(request, user)`, `_debloquer_premiers_chapitres(user)`, `_user_has_active_subscription(user)`
+Private helpers: `_envoyer_email_verification(request, user)`, `_debloquer_premiers_chapitres(user)`, `_user_has_active_subscription(user)` (returns True for beta users before querying Abonnement)
 
 | View | Decorators | Purpose | Key Logic |
 |------|-----------|---------|-----------|
@@ -519,6 +520,7 @@ All widgets use Tailwind classes: `w-full px-4 py-2.5 rounded-lg border border-g
 | `seed_chimie_orga_terminale` | `seed_chimie_orga_terminale.py` | Chimie orga Terminale content |
 | `pad_quiz_questions` | `pad_quiz_questions.py` | Pads quizzes to ensure minimum question count |
 | `import_questions` | `import_questions.py` | CSV import: columns `quiz_lecon_slug`, `texte`, `type`, `reponse_correcte`, `options`, `tolerances`, `difficulte`; supports `--dry-run` |
+| `create_beta_accounts` | `create_beta_accounts.py` | Creates beta-tester student accounts with premium access; args: `email:niveau` or `--csv`; `--dry-run`; `--no-email`; sets `is_beta=True`, unlocks first chapters |
 
 ---
 

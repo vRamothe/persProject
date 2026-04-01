@@ -21,9 +21,11 @@ logger = logging.getLogger(__name__)
 
 
 def _user_has_active_subscription(user):
-    """Vérifie si l'utilisateur a un abonnement actif."""
+    """Vérifie si l'utilisateur a un abonnement actif (ou est bêta-testeur)."""
     if not user.is_authenticated:
         return False
+    if user.is_beta:
+        return True
     from .models import Abonnement
     return Abonnement.objects.filter(user=user, statut="actif").exists()
 

@@ -17,7 +17,12 @@
         {{ eleve.prenom.0|upper }}{{ eleve.nom.0|upper }}
       </div>
       <div>
-        <h2 class="text-xl font-bold text-gray-900">{{ eleve.nom_complet }}</h2>
+        <h2 class="text-xl font-bold text-gray-900">
+          {{ eleve.nom_complet }}
+          {% if eleve.is_beta %}
+          <span class="ml-2 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 align-middle">Bêta-testeur</span>
+          {% endif %}
+        </h2>
         <p class="text-sm text-gray-500">{{ eleve.email }}
           {% if eleve.niveau %}
           · <span class="font-medium

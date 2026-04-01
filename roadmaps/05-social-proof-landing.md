@@ -20,7 +20,7 @@ Ajouter une section de témoignages sur la page d'accueil publique (`accueil.htm
 
 - La page d'accueil (`/`) affiche une section "Ce qu'en disent nos élèves" avec 3-5 témoignages
 - Chaque témoignage card contient : citation (2-3 phrases), prénom + initiale du nom, niveau
-- Un badge de confiance "Conçu par un enseignant certifié — Grasse (06)" est visible
+- Un badge de confiance "Conçu par un enseignant Docteur en Physique Chimie quantique avec 15 ans d'experience — Grasse (06)" est visible
 - La section est responsive (1 colonne mobile, 2-3 colonnes desktop)
 - Le dark mode fonctionne via les overrides globaux existants
 

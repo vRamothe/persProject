@@ -27,7 +27,7 @@ backend/
 ```
 
 ## Key Models
-- `users.CustomUser` — email login, `role` (admin|eleve), `niveau` (seconde|premiere|terminale)
+- `users.CustomUser` — email login, `role` (admin|eleve), `niveau` (seconde|premiere|terminale), `is_beta` (BooleanField, default=False) — marque les bêta-testeurs qui accèdent au contenu premium sans abonnement Stripe
 - `courses.Matiere` — physique / chimie / mathematiques
 - `courses.Chapitre` — belongs to Matiere + niveau, has `ordre` and `score_minimum_deblocage`
 - `courses.Lecon` — belongs to Chapitre, `contenu` in Markdown
@@ -114,6 +114,13 @@ Admin credentials from `.env`: `FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`.
 - **Security**: webhook authenticated via `stripe.Webhook.construct_event()` signature verification; no card data transits server (Stripe Checkout hosted)
 - **Customer Portal**: users manage subscription (cancel, change plan) via Stripe portal accessible from profile page
 - **Paywall modal** (`_paywall_modal.html`): CTA posts `plan` to `{% url 'checkout' %}` with CSRF token
+
+## Beta Testing
+- `CustomUser.is_beta` (BooleanField, default=False) — grants premium access without Stripe subscription
+- `_user_has_active_subscription(user)` checks `is_beta` before querying `Abonnement`
+- Management command: `python manage.py create_beta_accounts email1@test.com:seconde email2@test.com:premiere` (or `--csv file.csv`)
+- Flags: `--dry-run`, `--no-email`
+- Admin panel shows amber "Beta" badge for beta-testers
 
 ## Conventions
 - Views are function-based with `@login_required`; use CBV only when there is a clear reason

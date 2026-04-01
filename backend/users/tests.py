@@ -1097,3 +1097,221 @@ class TestUserHasActiveSubscription:
         assert _user_has_active_subscription(eleve_stripe) is False
 
 
+# ============================================================
+# Batch — Beta-test system
+# ============================================================
+
+
+@pytest.fixture
+def eleve_beta(db):
+    return CustomUser.objects.create_user(
+        email="beta@test.com",
+        password="TestPass123!",
+        prenom="Bêta",
+        nom="Testeur",
+        role="eleve",
+        niveau="terminale",
+        is_beta=True,
+    )
+
+
+@pytest.fixture
+def matiere_beta(db):
+    return Matiere.objects.create(nom="chimie")
+
+
+@pytest.fixture
+def chapitre_beta(db, matiere_beta):
+    return Chapitre.objects.create(
+        matiere=matiere_beta,
+        niveau="terminale",
+        ordre=1,
+        titre="Chapitre Bêta",
+        description="Chapitre pour tests bêta",
+    )
+
+
+@pytest.fixture
+def lecon_premium_beta(db, chapitre_beta):
+    return Lecon.objects.create(
+        chapitre=chapitre_beta,
+        ordre=1,
+        titre="Leçon Premium Bêta",
+        contenu="# Premium\n\nContenu premium pour bêta.",
+        duree_estimee=25,
+        gratuit=False,
+    )
+
+
+class TestCustomUserIsBeta:
+    """Tests pour le champ is_beta et la property is_beta_testeur."""
+
+    @pytest.mark.django_db
+    def test_is_beta_default_false(self):
+        user = CustomUser.objects.create_user(
+            email="default_beta@test.com",
+            password="TestPass123!",
+            prenom="Test",
+            nom="Default",
+            role="eleve",
+            niveau="seconde",
+        )
+        assert user.is_beta is False
+
+    @pytest.mark.django_db
+    def test_is_beta_testeur_property_true(self, eleve_beta):
+        assert eleve_beta.is_beta_testeur is True
+
+    @pytest.mark.django_db
+    def test_is_beta_testeur_property_false(self, eleve):
+        assert eleve.is_beta_testeur is False
+
+
+class TestUserHasActiveSubscriptionBeta:
+    """Tests pour _user_has_active_subscription avec le flag bêta."""
+
+    @pytest.mark.django_db
+    def test_beta_user_without_subscription_returns_true(self, eleve_beta):
+        from users.views import _user_has_active_subscription
+
+        assert _user_has_active_subscription(eleve_beta) is True
+
+    @pytest.mark.django_db
+    def test_non_beta_user_without_subscription_returns_false(self, eleve):
+        from users.views import _user_has_active_subscription
+
+        assert _user_has_active_subscription(eleve) is False
+
+    @pytest.mark.django_db
+    def test_beta_user_with_active_subscription_returns_true(self, eleve_beta):
+        from users.views import _user_has_active_subscription
+        from django.utils import timezone
+
+        Abonnement.objects.create(
+            user=eleve_beta,
+            stripe_customer_id="cus_beta123",
+            stripe_subscription_id="sub_beta123",
+            plan="mensuel",
+            statut="actif",
+            date_debut=timezone.now(),
+        )
+        assert _user_has_active_subscription(eleve_beta) is True
+
+
+class TestBetaPremiumAccess:
+    """Tests d'accès au contenu premium pour les bêta-testeurs."""
+
+    @pytest.mark.django_db
+    def test_beta_eleve_accesses_premium_lecon(
+        self, client, eleve_beta, chapitre_beta, lecon_premium_beta
+    ):
+        from progress.models import ChapitreDebloque
+
+        ChapitreDebloque.objects.create(user=eleve_beta, chapitre=chapitre_beta)
+        client.force_login(eleve_beta)
+        url = reverse("lecon", kwargs={"lecon_pk": lecon_premium_beta.pk})
+        response = client.get(url)
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_non_beta_eleve_redirected_from_premium_lecon(
+        self, client, eleve, matiere_beta, chapitre_beta, lecon_premium_beta
+    ):
+        from progress.models import ChapitreDebloque
+
+        # eleve fixture has niveau=terminale, matching chapitre_beta
+        ChapitreDebloque.objects.create(user=eleve, chapitre=chapitre_beta)
+        client.force_login(eleve)
+        url = reverse("lecon", kwargs={"lecon_pk": lecon_premium_beta.pk})
+        response = client.get(url)
+        assert response.status_code == 302
+        expected_url = reverse(
+            "lecon_publique",
+            kwargs={
+                "matiere_slug": matiere_beta.slug,
+                "niveau": chapitre_beta.niveau,
+                "chapitre_slug": chapitre_beta.slug,
+                "lecon_slug": lecon_premium_beta.slug,
+            },
+        )
+        assert response["Location"] == expected_url
+
+
+class TestCreateBetaAccountsCommand:
+    """Tests pour la commande create_beta_accounts."""
+
+    @pytest.mark.django_db
+    def test_creates_beta_user(self):
+        from django.core.management import call_command
+        from io import StringIO
+
+        out = StringIO()
+        call_command(
+            "create_beta_accounts",
+            "newbeta@test.com:seconde",
+            stdout=out,
+        )
+        user = CustomUser.objects.get(email="newbeta@test.com")
+        assert user.is_beta is True
+        assert user.role == "eleve"
+        assert user.is_active is True
+        assert user.niveau == "seconde"
+
+    @pytest.mark.django_db
+    def test_existing_email_sets_is_beta(self):
+        from django.core.management import call_command
+        from io import StringIO
+
+        user = CustomUser.objects.create_user(
+            email="existing@test.com",
+            password="TestPass123!",
+            prenom="Exist",
+            nom="User",
+            role="eleve",
+            niveau="premiere",
+        )
+        assert user.is_beta is False
+
+        out = StringIO()
+        call_command(
+            "create_beta_accounts",
+            "existing@test.com:premiere",
+            stdout=out,
+        )
+        user.refresh_from_db()
+        assert user.is_beta is True
+
+    @pytest.mark.django_db
+    def test_dry_run_does_not_create_user(self):
+        from django.core.management import call_command
+        from io import StringIO
+
+        out = StringIO()
+        call_command(
+            "create_beta_accounts",
+            "dryrun@test.com:terminale",
+            "--dry-run",
+            stdout=out,
+        )
+        assert not CustomUser.objects.filter(email="dryrun@test.com").exists()
+
+
+class TestAdminBetaBadge:
+    """Tests pour le badge Bêta dans les pages admin."""
+
+    @pytest.mark.django_db
+    def test_admin_utilisateurs_shows_beta_badge(self, client, admin_user, eleve_beta):
+        client.force_login(admin_user)
+        response = client.get(reverse("admin_utilisateurs"))
+        assert response.status_code == 200
+        assert "Beta" in response.content.decode()
+
+    @pytest.mark.django_db
+    def test_admin_eleve_detail_shows_beta_badge(self, client, admin_user, eleve_beta):
+        client.force_login(admin_user)
+        url = reverse("admin_eleve_detail", kwargs={"user_id": eleve_beta.pk})
+        response = client.get(url)
+        assert response.status_code == 200
+        assert "Bêta-testeur" in response.content.decode()
+
+

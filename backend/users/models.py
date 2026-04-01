@@ -33,6 +33,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
     is_active = models.BooleanField(default=True, verbose_name="Compte actif")
     is_staff = models.BooleanField(default=False, verbose_name="Accès admin Django")
+    is_beta = models.BooleanField(default=False, verbose_name="Bêta-testeur")
     date_joined = models.DateTimeField(auto_now_add=True, verbose_name="Date d'inscription")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Dernière mise à jour")
 
@@ -64,6 +65,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     @property
     def is_eleve(self):
         return self.role == RoleChoices.ELEVE
+
+    @property
+    def is_beta_testeur(self):
+        return self.is_beta
 
 
 class ConnexionLog(models.Model):
