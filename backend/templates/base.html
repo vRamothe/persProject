@@ -146,6 +146,16 @@
     html.dark .prose td              { color: #d1d5db !important; border-bottom-color: #374151 !important; }
     html.dark .prose tr:nth-child(even) td { background: #1f2937 !important; }
 
+    /* Paywall blur (dark mode) */
+    html.dark .paywall-blur-overlay {
+        background: linear-gradient(to bottom,
+            rgba(17,24,39,0) 0%,
+            rgba(17,24,39,0.7) 30%,
+            rgba(17,24,39,0.95) 70%,
+            rgba(17,24,39,1) 100%
+        ) !important;
+    }
+
     /* ===================== SIDEBAR LIGHT MODE ===================== */
     /* The sidebar uses dark-indigo classes by default (bg-indigo-950, etc.)
        which doubles as the dark-mode look. In light mode we override them. */

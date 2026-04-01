@@ -11,6 +11,7 @@ from django.views import View
 from .models import Matiere, Chapitre, Lecon, Question
 from collections import defaultdict
 from .utils.latex_parser import render_markdown_to_html, proteger_latex as _proteger_latex, restaurer_latex as _restaurer_latex
+from .utils.truncate import tronquer_contenu_markdown
 
 logger = logging.getLogger(__name__)
 
@@ -502,7 +503,7 @@ def catalogue_matiere_view(request, matiere_slug):
 
 
 def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug):
-    """Affichage public d'une leçon gratuite (sans login)."""
+    """Affichage public d'une leçon (gratuite ou premium avec blur)."""
     matiere = get_object_or_404(Matiere, slug=matiere_slug)
     chapitre = get_object_or_404(
         Chapitre, matiere=matiere, niveau=niveau, slug=chapitre_slug
@@ -512,20 +513,25 @@ def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug
         chapitre=chapitre, slug=lecon_slug,
     )
 
-    # Non-free lesson → redirect to login
-    if not lecon.gratuit:
-        from django.urls import reverse
-        from urllib.parse import urlencode
-        login_url = reverse("connexion")
-        next_url = request.get_full_path()
-        return redirect(f"{login_url}?{urlencode({'next': next_url})}")
+    est_premium = not lecon.gratuit
+    user_a_acces = (
+        request.user.is_authenticated and (
+            request.user.is_admin or
+            getattr(request.user, 'is_premium', False)
+        )
+    )
 
-    # Authenticated user → redirect to the full lesson view with progression
-    if request.user.is_authenticated:
+    # Admin with full access → redirect to internal view
+    if request.user.is_authenticated and request.user.is_admin:
         return redirect("lecon", lecon_pk=lecon.pk)
 
-    # Render lesson content (read-only, no progression)
-    contenu_html = render_markdown_to_html(lecon.contenu, latex_to_svg=False)
+    if est_premium and not user_a_acces:
+        contenu_md, a_ete_tronque = tronquer_contenu_markdown(lecon.contenu, max_mots=2000)
+    else:
+        contenu_md = lecon.contenu
+        a_ete_tronque = False
+
+    contenu_html = render_markdown_to_html(contenu_md, latex_to_svg=False)
 
     youtube_id = _extraire_youtube_id(lecon.video_youtube_url)
     video_html = _generer_video_html(lecon, youtube_id)
@@ -542,6 +548,8 @@ def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug
     meta_description = _re.sub(r'[#*_\[\]()>`$]', '', lecon.contenu)
     meta_description = ' '.join(meta_description.split())[:160]
 
+    est_floute = est_premium and not user_a_acces
+
     return render(request, "courses/lecon_publique.html", {
         "lecon": lecon,
         "chapitre": chapitre,
@@ -550,6 +558,9 @@ def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug
         "youtube_id": youtube_id,
         "video_in_content": video_in_content,
         "meta_description": meta_description,
+        "est_premium": est_premium,
+        "est_floute": est_floute,
+        "a_ete_tronque": a_ete_tronque,
     })
 
 

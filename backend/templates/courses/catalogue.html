@@ -69,7 +69,7 @@
         {% with chap=chap_item.chapitre %}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden"
              x-data="{ open: false }">
-          
+
           <!-- Chapter header -->
           <button @click="open = !open" class="w-full px-5 py-4 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors text-left">
             <div class="min-w-0">
@@ -108,7 +108,11 @@
                              {% else %}bg-purple-100 text-purple-700{% endif %}">Gratuit</span>
               {% else %}
                 <span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs bg-gray-100 text-gray-400">🔒</span>
-                <span class="flex-1 min-w-0 text-gray-400 truncate">{{ l.titre }}</span>
+                <a href="{% url 'lecon_publique' matiere_slug=matiere.slug niveau=chap.niveau chapitre_slug=chap.slug lecon_slug=l.slug %}"
+                   class="flex-1 min-w-0 text-gray-500 hover:text-indigo-600 transition-colors truncate">
+                    {{ l.titre }}
+                </a>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Premium</span>
               {% endif %}
               <span class="text-xs text-gray-400 flex-shrink-0">{{ l.duree_estimee }} min</span>
             </div>

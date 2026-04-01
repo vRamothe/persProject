@@ -6,7 +6,7 @@
 | **Phase** | 1 — Product & Proof |
 | **Type** | Business |
 | **LLM recommandé** | Sonnet (suffisant — CSS blur, truncation serveur, modal Alpine.js, pas de nouvelle dépendance) |
-| **Statut** | ⬜ À faire |
+| **Statut** | ✅ Fait |
 | **Priorité** | 1 (bloquant pour #02 Paywall et #03 Stripe) |
 | **Dépendances** | Aucune |
 | **Bloque** | #02 Paywall Visuel, #03 Intégration Stripe |

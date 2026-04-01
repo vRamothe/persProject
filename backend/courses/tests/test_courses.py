@@ -122,7 +122,7 @@ class TestPublicPages:
         )
         assert response.status_code == 200
 
-    def test_non_free_lesson_redirects_to_login(self, client, lecon_payante):
+    def test_non_free_lesson_shows_blur_anonymous(self, client, lecon_payante):
         chapitre = lecon_payante.chapitre
         response = client.get(
             reverse("lecon_publique", kwargs={
@@ -132,10 +132,10 @@ class TestPublicPages:
                 "lecon_slug": lecon_payante.slug,
             })
         )
-        assert response.status_code == 302
-        assert "connexion" in response.url
+        assert response.status_code == 200
+        assert "paywall-blur-container" in response.content.decode()
 
-    def test_authenticated_user_redirected_to_pk_view(self, client, eleve, lecon_gratuite):
+    def test_authenticated_eleve_sees_public_page(self, client, eleve, lecon_gratuite):
         client.force_login(eleve)
         chapitre = lecon_gratuite.chapitre
         response = client.get(
@@ -146,8 +146,7 @@ class TestPublicPages:
                 "lecon_slug": lecon_gratuite.slug,
             })
         )
-        assert response.status_code == 302
-        assert f"/cours/lecon/{lecon_gratuite.pk}/" in response.url
+        assert response.status_code == 200
 
 
 class TestSitemap:

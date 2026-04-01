@@ -90,6 +90,16 @@ docker compose exec web python manage.py shell
 
 Admin credentials from `.env`: `FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`.
 
+## Paywall / Premium Lessons
+- `Lecon.gratuit` (`BooleanField`, default=`False`) — determines if a lesson is fully public or premium
+- Premium lessons on public URLs show truncated content (~2000 words) + CSS blur overlay + paywall modal
+- Server-side truncation via `courses/utils/truncate.py` → `tronquer_contenu_markdown(contenu, max_mots=2000)`
+- CSS classes: `.paywall-blur-container`, `.paywall-blur-content`, `.paywall-blur-overlay`, `.paywall-cta` — defined in `lecon_publique.html`
+- Dark mode override: `html.dark .paywall-blur-overlay` in `base.html` (no `dark:` classes in child templates)
+- Paywall modal: `templates/components/_paywall_modal.html` — Alpine.js, included via `{% include %}` in `lecon_publique.html`
+- Access check: `user_a_acces = request.user.is_admin or getattr(request.user, 'is_premium', False)` — `is_premium` is a stub (always `False`) until Stripe integration
+- Listings (`catalogue.html`, `accueil.html`): premium lessons show 🔒 cadenas + "Premium" badge as clickable links
+
 ## Conventions
 - Views are function-based with `@login_required`; use CBV only when there is a clear reason
 - URLs are named — always use `{% url 'name' %}` in templates

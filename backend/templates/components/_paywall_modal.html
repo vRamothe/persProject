@@ -1,0 +1,98 @@
+<!-- Paywall Modal -->
+<div x-show="showPaywall" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @keydown.escape.window="showPaywall = false" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="display: none;">
+
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showPaywall = false"></div>
+
+    <!-- Modal content -->
+    <div x-show="showPaywall" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8 sm:translate-y-4 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-8 sm:translate-y-4 sm:scale-95" class="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" @click.stop>
+
+        <!-- Close button -->
+        <button @click="showPaywall = false" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors z-10">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+
+        <div class="p-6 sm:p-8">
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-2xl bg-indigo-100 flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl">🎓</span>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900">Débloquez tout ScienceLycée</h2>
+                <p class="text-gray-500 mt-2 text-sm">Accédez à l'intégralité des cours, quiz et révisions de la Seconde à la Terminale.</p>
+            </div>
+
+            <!-- Pricing cards -->
+            <div class="space-y-3 mb-6" x-data="{ plan: 'annuel' }">
+                <!-- Annual plan -->
+                <label @click="plan = 'annuel'" :class="plan === 'annuel' ? 'border-indigo-500 ring-2 ring-indigo-200 bg-indigo-50/50' : 'border-gray-200 hover:border-gray-300'" class="relative block rounded-xl border-2 p-4 cursor-pointer transition-all">
+                    <div class="absolute -top-2.5 left-4">
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-600 text-white">-48%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-gray-900">Annuel</p>
+                            <p class="text-sm text-gray-500">Soit 9,92 €/mois</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-2xl font-extrabold text-gray-900">119 €</p>
+                            <p class="text-xs text-gray-400">/an</p>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Monthly plan -->
+                <label @click="plan = 'mensuel'" :class="plan === 'mensuel' ? 'border-indigo-500 ring-2 ring-indigo-200 bg-indigo-50/50' : 'border-gray-200 hover:border-gray-300'" class="block rounded-xl border-2 p-4 cursor-pointer transition-all">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-gray-900">Mensuel</p>
+                            <p class="text-sm text-gray-500">Sans engagement</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-2xl font-extrabold text-gray-900">19 €</p>
+                            <p class="text-xs text-gray-400">/mois</p>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- CTA button -->
+                <a href="#" class="block w-full text-center px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all mt-4">
+                    {% if request.user.is_authenticated %}
+                    Passer à Premium
+                    {% else %}
+                    Créer un compte et s'abonner
+                    {% endif %}
+                </a>
+
+                <p class="text-center text-xs text-gray-400 mt-2">Paiement sécurisé par Stripe. Annulation à tout moment.</p>
+            </div>
+
+            <!-- Features list -->
+            <div class="border-t border-gray-100 pt-4">
+                <p class="text-xs font-semibold text-gray-500 uppercase mb-3">Inclus dans Premium</p>
+                <ul class="space-y-2">
+                    <li class="flex items-center gap-2 text-sm text-gray-700">
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Toutes les leçons en Physique, Chimie et Maths
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-gray-700">
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Quiz interactifs avec corrections détaillées
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-gray-700">
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Révisions par répétition espacée
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-gray-700">
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Suivi de progression et tableau de bord
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-gray-700">
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Export PDF des leçons
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

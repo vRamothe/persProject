@@ -324,13 +324,15 @@ Private helpers: `_envoyer_email_verification(request, user)`, `_debloquer_premi
 | `quiz_chapitre_view` | `@login_required` | Display chapter quiz | `_selectionner_questions_chapitre()`: 4 facile + 4 moyen + 2 difficile (10 total) |
 | `revisions_view` | `@login_required` | Spaced repetition quiz | Leitner: due questions (≤today), ordered by box asc, max 10 |
 | `soumettre_revisions` | `@login_required` | Submit revision answers | Rate-limited; IDOR check on niveau; updates Leitner boxes |
-| `catalogue_matiere_view` | — (public) | Public subject catalogue | Lists chapters by niveau with lesson list; shows `gratuit` badge |
-| `lecon_publique_view` | — (public) | Public free lesson view | Non-free → redirect to login; authenticated → redirect to PK view |
+| `catalogue_matiere_view` | — (public) | Public subject catalogue | Lists chapters by niveau with lesson list; shows `gratuit` badge; premium lessons clickable with lock+Premium badge |
+| `lecon_publique_view` | — (public) | Public lesson view (free or premium with blur) | Premium: truncates to 2000 words + blur overlay + paywall modal; admin → redirect to PK view; `est_premium`, `est_floute`, `a_ete_tronque` context vars |
 | `accueil_view` | — (public) | Homepage for anon users | All matières + chapitres + leçons with gratuit flag |
 | `recherche_view` | `@login_required` | Full-text search | PostgreSQL `SearchVector` on titre (A) + contenu (B); min 2 chars; max 20 results |
 | `lecon_pdf_view` | `@login_required` | PDF export | WeasyPrint; LaTeX→SVG via `render_markdown_to_html(latex_to_svg=True)` |
 
 Private helpers: `_selectionner_questions_chapitre(chapitre, nb_total=10)`, `_extraire_youtube_id(url)`, `_generer_video_html(lecon, youtube_id)`
+
+Utility: `courses/utils/truncate.py` — `tronquer_contenu_markdown(contenu, max_mots=2000)` → `(contenu_tronque, a_ete_tronque)`
 
 ### 3.4 `progress/views.py`
 
@@ -373,6 +375,7 @@ All widgets use Tailwind classes: `w-full px-4 py-2.5 rounded-lg border border-g
 | Template | Description |
 |----------|-------------|
 | `nav_item.html` | Reusable sidebar nav item |
+| `_paywall_modal.html` | Alpine.js paywall modal (pricing cards, feature list, Stripe CTA stub) |
 
 ### 5.3 `courses/`
 
@@ -585,3 +588,14 @@ Parses `backend/test_report.html`; status: `green` (0 failures), `orange` (1-3 f
 - PostgreSQL `SearchVector("titre", weight="A") + SearchVector("contenu", weight="B")`, config=`french`
 - Min query length: 2 chars; max results: 20
 - Students filtered by `chapitre__niveau=user.niveau`; admins see all
+
+### 8.12 Paywall Blur (Premium Lessons)
+
+- `Lecon.gratuit` determines access: `True` = full public access, `False` = premium with blur
+- **Server-side truncation**: `tronquer_contenu_markdown(contenu, max_mots=2000)` in `courses/utils/truncate.py` — cuts at last `\n\n` before word limit; returns `(contenu, a_ete_tronque)`
+- **CSS blur**: `.paywall-blur-container` with `.paywall-blur-overlay` (gradient + `backdrop-filter: blur(4px)`) + `.paywall-blur-content` (`user-select: none`) — defined in `lecon_publique.html` `<style>`
+- **Dark mode**: `html.dark .paywall-blur-overlay` override in `base.html` (gradient uses `rgba(17,24,39,…)`)
+- **Paywall modal**: `templates/components/_paywall_modal.html` — Alpine.js modal with pricing cards (Mensuel 19€, Annuel 119€), feature list, Stripe CTA stub (`href="#"`)
+- **Access logic** in `lecon_publique_view`: `est_premium = not lecon.gratuit`; `user_a_acces = admin or is_premium`; admin → redirect to PK view; premium + no access → truncate + blur; context vars: `est_premium`, `est_floute`, `a_ete_tronque`
+- **Listings** (`catalogue.html`, `accueil.html`): premium lessons show 🔒 + "Premium" badge + are clickable links to public page with blur
+- **Stub**: `getattr(request.user, 'is_premium', False)` → always `False` until Stripe integration (#03)

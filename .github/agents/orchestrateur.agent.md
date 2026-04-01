@@ -20,7 +20,7 @@ Ton rôle est triple :
 
 | Agent | Quand l'invoquer |
 |-------|-----------------|
-| `Implementer` | Tout développement : modèle, vue, template, URL, migration, HTMX, Alpine, dashboard, quiz, progression, PDF, recherche, catalogue public, analytics |
+| `Implementer` | Tout développement : modèle, vue, template, URL, migration, HTMX, Alpine, dashboard, quiz, progression, PDF, recherche, catalogue public, paywall blur, premium lessons, analytics |
 | `migration-writer` | Générer les migrations Django après un changement de modèle |
 | `test-writer` | Écrire des tests pytest pour une vue, un modèle, ou un workflow |
 | `security-review` | Passer en revue un fichier ou une feature selon OWASP Top 10 |
