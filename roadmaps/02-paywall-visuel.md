@@ -6,7 +6,8 @@
 | **Phase** | 1 — Product & Proof |
 | **Type** | Business |
 | **LLM recommandé** | Sonnet (suffisant) |
-| **Statut** | ⬜ À faire |
+| **Statut** | ✅ Fait |
+| **Implémenté le** | 2025 (approx.) |
 | **Priorité** | 2 (bloquant pour Stripe) |
 | **Dépendances** | Aucune |
 | **Bloque** | #03 Integration Stripe |

@@ -11,7 +11,7 @@
 | # | Task | Type | LLM | Status |
 |---|------|------|-----|--------|
 | 1 | ~~**Open "hook" content (SEO & storefront)**~~ | Business | Sonnet | ✅ |
-| 2 | **Visual paywall** | Business | Sonnet | ⬜ |
+| 2 | ~~**Visual paywall**~~ | Business | Sonnet | ✅ |
 | 3 | **Stripe integration** | Business | **Opus** | ⬜ |
 | 4 | ~~**Password reset flow**~~ | Tech | Sonnet | ✅ |
 | 5 | ~~**Custom error pages (404, 500)**~~ | Tech | Sonnet | ✅ |

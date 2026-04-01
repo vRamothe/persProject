@@ -204,3 +204,55 @@ class TestLeconPubliqueView:
         response = client.get(_url_publique(lecon_gratuite))
         assert response.status_code == 302
         assert f"/cours/lecon/{lecon_gratuite.pk}/" in response["Location"]
+
+
+# ===========================================================================
+# Tests paywall visuel — catalogue & accueil
+# ===========================================================================
+
+
+class TestPaywallVisuel:
+    """Tests du rendu paywall (cadenas, badge Premium, modal) sur catalogue et accueil."""
+
+    @pytest.mark.django_db
+    def test_catalogue_shows_lock_icon_on_premium_lessons(self, client, matiere, lecon_premium_courte):
+        """GET catalogue d'une matière avec leçon premium → 🔒 présent."""
+        url = reverse("catalogue_matiere", kwargs={"matiere_slug": matiere.slug})
+        response = client.get(url)
+        assert response.status_code == 200
+        html = response.content.decode()
+        assert "🔒" in html
+
+    @pytest.mark.django_db
+    def test_catalogue_no_lock_on_free_lessons(self, client, matiere, chapitre):
+        """GET catalogue avec uniquement des leçons gratuites → aucun 🔒."""
+        # Créer uniquement des leçons gratuites (sans utiliser la fixture premium)
+        Lecon.objects.filter(chapitre=chapitre, gratuit=False).delete()
+        Lecon.objects.create(
+            chapitre=chapitre,
+            titre="Leçon gratuite A",
+            contenu="Contenu A",
+            ordre=10,
+            gratuit=True,
+        )
+        url = reverse("catalogue_matiere", kwargs={"matiere_slug": matiere.slug})
+        response = client.get(url)
+        assert response.status_code == 200
+        html = response.content.decode()
+        assert "🔒" not in html
+
+    @pytest.mark.django_db
+    def test_paywall_modal_markup_present(self, client, lecon_premium_courte):
+        """GET leçon premium en anonyme → composant Alpine showPaywall inclus."""
+        response = client.get(_url_publique(lecon_premium_courte))
+        assert response.status_code == 200
+        html = response.content.decode()
+        assert "showPaywall" in html
+
+    @pytest.mark.django_db
+    def test_accueil_shows_lock_icon_on_premium_lessons(self, client, lecon_premium_courte):
+        """GET / en anonyme avec leçon premium → 🔒 présent."""
+        response = client.get(reverse("home"))
+        assert response.status_code == 200
+        html = response.content.decode()
+        assert "🔒" in html
