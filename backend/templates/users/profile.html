@@ -142,5 +142,34 @@
     </form>
   </div>
 
+  <!-- Abonnement Premium -->
+  {% if not user.is_admin %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100">
+      <h3 class="font-bold text-gray-800">Abonnement Premium</h3>
+    </div>
+    <div class="px-6 py-5">
+      {% if user.abonnement and user.abonnement.statut == 'actif' %}
+      <div class="flex items-center gap-3 mb-4">
+        <span class="inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Actif
+        </span>
+        <span class="text-sm text-gray-500 capitalize">Plan {{ user.abonnement.get_plan_display }}</span>
+      </div>
+      <p class="text-sm text-gray-600 mb-4">Abonné depuis le {{ user.abonnement.date_debut|date:"d/m/Y" }}</p>
+      <a href="{% url 'portail_abonnement' %}" class="inline-block text-sm font-semibold px-5 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-900 text-white transition-colors shadow-sm">
+        Gérer mon abonnement
+      </a>
+      {% else %}
+      <p class="text-sm text-gray-600 mb-4">Vous n'avez pas d'abonnement Premium actif. Accédez à l'intégralité des cours, quiz et révisions.</p>
+      <a href="{% url 'matieres' %}" class="inline-block text-sm font-semibold px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm">
+        Découvrir Premium
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}

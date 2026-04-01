@@ -233,6 +233,12 @@ def lecon_view(request, lecon_pk):
         if not ChapitreDebloque.objects.filter(user=user, chapitre=chapitre).exists():
             return redirect("matieres")
 
+    # Vérifier l'accès premium côté serveur
+    if not lecon.gratuit and not user.is_admin:
+        from users.views import _user_has_active_subscription
+        if not _user_has_active_subscription(user):
+            return redirect("lecon_publique", matiere_slug=chapitre.matiere.slug, niveau=chapitre.niveau, chapitre_slug=chapitre.slug, lecon_slug=lecon.slug)
+
     # En mode prévisualisation, ne pas écrire de données de progression
     preview_niveau = request.session.get("preview_niveau") if user.is_admin else None
     if preview_niveau:
@@ -295,6 +301,12 @@ def quiz_view(request, lecon_pk):
     if not user.is_admin:
         if not ChapitreDebloque.objects.filter(user=user, chapitre=chapitre).exists():
             return redirect("matieres")
+
+    # Vérifier l'accès premium côté serveur
+    if not lecon.gratuit and not user.is_admin:
+        from users.views import _user_has_active_subscription
+        if not _user_has_active_subscription(user):
+            return redirect("lecon_publique", matiere_slug=chapitre.matiere.slug, niveau=chapitre.niveau, chapitre_slug=chapitre.slug, lecon_slug=lecon.slug)
 
     if not lecon.has_quiz:
         return redirect("lecon", lecon_pk=lecon_pk)
@@ -514,10 +526,11 @@ def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug
     )
 
     est_premium = not lecon.gratuit
+    from users.views import _user_has_active_subscription
     user_a_acces = (
         request.user.is_authenticated and (
             request.user.is_admin or
-            getattr(request.user, 'is_premium', False)
+            _user_has_active_subscription(request.user)
         )
     )
 
@@ -642,6 +655,12 @@ def lecon_pdf_view(request, lecon_pk):
     # Vérification d'accès niveau
     if not user.is_admin and lecon.chapitre.niveau != user.niveau:
         return redirect("matieres")
+
+    # Vérifier l'accès premium côté serveur
+    if not lecon.gratuit and not user.is_admin:
+        from users.views import _user_has_active_subscription
+        if not _user_has_active_subscription(user):
+            return redirect("lecon_publique", matiere_slug=lecon.chapitre.matiere.slug, niveau=lecon.chapitre.niveau, chapitre_slug=lecon.chapitre.slug, lecon_slug=lecon.slug)
 
     # Rendu Markdown → HTML avec compilation LaTeX en SVG pour le PDF
     contenu_html = render_markdown_to_html(lecon.contenu, latex_to_svg=True)

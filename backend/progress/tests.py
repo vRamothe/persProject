@@ -404,6 +404,8 @@ class TestUserNote:
     def test_lecon_view_context_contains_note(self, client, eleve, lecon, chapitre):
         from progress.models import UserNote, ChapitreDebloque
         ChapitreDebloque.objects.create(user=eleve, chapitre=chapitre)
+        lecon.gratuit = True
+        lecon.save(update_fields=["gratuit"])
         note = UserNote.objects.create(user=eleve, lecon=lecon, contenu="noter quelque chose")
         client.force_login(eleve)
         response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon.pk}))

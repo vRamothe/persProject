@@ -37,6 +37,7 @@ backend/
 - `progress.UserProgression` — per (user, lecon) statut: non_commence / en_cours / termine
 - `progress.UserQuizResultat` — best score, nb_tentatives, passe bool
 - `progress.ChapitreDebloque` — unlocking mechanism
+- `users.Abonnement` — OneToOne → CustomUser, Stripe IDs, `plan` (mensuel|annuel), `statut` (actif|annule|expire), indexed on (user, statut)
 
 ## Colour System (per subject)
 ```python
@@ -97,8 +98,22 @@ Admin credentials from `.env`: `FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`.
 - CSS classes: `.paywall-blur-container`, `.paywall-blur-content`, `.paywall-blur-overlay`, `.paywall-cta` — defined in `lecon_publique.html`
 - Dark mode override: `html.dark .paywall-blur-overlay` in `base.html` (no `dark:` classes in child templates)
 - Paywall modal: `templates/components/_paywall_modal.html` — Alpine.js, included via `{% include %}` in `lecon_publique.html`
-- Access check: `user_a_acces = request.user.is_admin or getattr(request.user, 'is_premium', False)` — `is_premium` is a stub (always `False`) until Stripe integration
+- Access check: `_user_has_active_subscription(user)` from `users/views.py` — `Abonnement.objects.filter(user=user, statut='actif').exists()`; admins bypass
+- Premium access enforced server-side in `lecon_view`, `quiz_view`, `lecon_pdf_view`, and `lecon_publique_view`
 - Listings (`catalogue.html`, `accueil.html`): premium lessons show 🔒 cadenas + "Premium" badge as clickable links
+
+## Stripe Integration
+- **Package**: `stripe` in `requirements.txt`
+- **Model**: `users.Abonnement` — OneToOne to CustomUser, stores `stripe_customer_id`, `stripe_subscription_id`, `plan`, `statut`
+- **Views** (`users/views.py`): `creer_checkout_session` (POST), `stripe_webhook` (POST, @csrf_exempt), `portail_client` (GET), `checkout_success`, `checkout_cancel`
+- **URLs**: `checkout`, `stripe_webhook`, `portail_abonnement`, `checkout_success`, `checkout_cancel`
+- **Helper**: `_user_has_active_subscription(user)` — single SQL EXISTS query
+- **Settings** (`config/settings/base.py`): `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL` — all via `python-decouple`
+- **Webhook events**: `checkout.session.completed` → activate, `customer.subscription.updated/deleted` → update status
+- **Idempotence**: `update_or_create` + `transaction.atomic()` in all webhook handlers
+- **Security**: webhook authenticated via `stripe.Webhook.construct_event()` signature verification; no card data transits server (Stripe Checkout hosted)
+- **Customer Portal**: users manage subscription (cancel, change plan) via Stripe portal accessible from profile page
+- **Paywall modal** (`_paywall_modal.html`): CTA posts `plan` to `{% url 'checkout' %}` with CSRF token
 
 ## Conventions
 - Views are function-based with `@login_required`; use CBV only when there is a clear reason

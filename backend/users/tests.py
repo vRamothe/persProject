@@ -761,3 +761,339 @@ class TestProfilView:
         assert response.status_code == 200
 
 
+# ---------------------------------------------------------------------------
+# Stripe Integration Tests
+# ---------------------------------------------------------------------------
+
+import json
+from unittest.mock import patch, MagicMock
+from users.models import Abonnement
+from courses.models import Matiere, Chapitre, Lecon
+
+
+@pytest.fixture
+def eleve_stripe(db):
+    return CustomUser.objects.create_user(
+        email="stripe_eleve@test.com",
+        password="TestPass123!",
+        prenom="Marie",
+        nom="Curie",
+        role="eleve",
+        niveau="terminale",
+    )
+
+
+@pytest.fixture
+def admin_stripe(db):
+    return CustomUser.objects.create_user(
+        email="stripe_admin@test.com",
+        password="AdminPass123!",
+        prenom="Admin",
+        nom="Stripe",
+        role="admin",
+        is_staff=True,
+    )
+
+
+@pytest.fixture
+def matiere_stripe(db):
+    return Matiere.objects.create(nom="physique")
+
+
+@pytest.fixture
+def chapitre_stripe(db, matiere_stripe):
+    return Chapitre.objects.create(
+        matiere=matiere_stripe,
+        niveau="terminale",
+        ordre=1,
+        titre="Mécanique",
+        description="Chapitre mécanique",
+    )
+
+
+@pytest.fixture
+def lecon_premium(db, chapitre_stripe):
+    return Lecon.objects.create(
+        chapitre=chapitre_stripe,
+        ordre=1,
+        titre="Forces et interactions",
+        contenu="# Forces\n\nContenu premium.",
+        duree_estimee=30,
+        gratuit=False,
+    )
+
+
+@pytest.fixture
+def lecon_gratuite_stripe(db, chapitre_stripe):
+    return Lecon.objects.create(
+        chapitre=chapitre_stripe,
+        ordre=2,
+        titre="Introduction mécanique",
+        contenu="# Intro\n\nContenu gratuit.",
+        duree_estimee=15,
+        gratuit=True,
+    )
+
+
+@pytest.fixture
+def abonnement_actif(db, eleve_stripe):
+    from django.utils import timezone
+
+    return Abonnement.objects.create(
+        user=eleve_stripe,
+        stripe_customer_id="cus_test123",
+        stripe_subscription_id="sub_test123",
+        plan="mensuel",
+        statut="actif",
+        date_debut=timezone.now(),
+    )
+
+
+class TestStripeCheckout:
+    @pytest.mark.django_db
+    @patch("users.views.stripe.checkout.Session.create")
+    @patch("users.views.stripe.Customer.create")
+    def test_creer_checkout_session_redirects_to_stripe(
+        self, mock_customer_create, mock_session_create, client, eleve_stripe
+    ):
+        mock_customer_create.return_value = MagicMock(id="cus_new123")
+        mock_session = MagicMock()
+        mock_session.url = "https://checkout.stripe.com/test_session"
+        mock_session_create.return_value = mock_session
+
+        client.force_login(eleve_stripe)
+        response = client.post(reverse("checkout"), {"plan": "mensuel"})
+        assert response.status_code == 302
+        assert response["Location"] == "https://checkout.stripe.com/test_session"
+        mock_session_create.assert_called_once()
+
+    @pytest.mark.django_db
+    @patch("users.views.stripe.checkout.Session.create")
+    @patch("users.views.stripe.Customer.create")
+    def test_creer_checkout_session_annual(
+        self, mock_customer_create, mock_session_create, client, eleve_stripe, settings
+    ):
+        mock_customer_create.return_value = MagicMock(id="cus_new456")
+        mock_session = MagicMock()
+        mock_session.url = "https://checkout.stripe.com/annual_session"
+        mock_session_create.return_value = mock_session
+
+        settings.STRIPE_PRICE_ANNUAL = "price_annual_test"
+
+        client.force_login(eleve_stripe)
+        response = client.post(reverse("checkout"), {"plan": "annuel"})
+        assert response.status_code == 302
+
+        call_kwargs = mock_session_create.call_args[1]
+        assert call_kwargs["line_items"][0]["price"] == "price_annual_test"
+
+    @pytest.mark.django_db
+    def test_checkout_requires_login(self, client):
+        response = client.post(reverse("checkout"), {"plan": "mensuel"})
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+
+class TestStripeWebhook:
+    def _build_webhook_payload(self, event_type, data_object, event_id="evt_test1"):
+        return {
+            "id": event_id,
+            "type": event_type,
+            "data": {"object": data_object},
+        }
+
+    @pytest.mark.django_db
+    @patch("users.views.stripe.Webhook.construct_event")
+    def test_webhook_checkout_completed_creates_abonnement(
+        self, mock_construct, client, eleve_stripe
+    ):
+        event_data = self._build_webhook_payload(
+            "checkout.session.completed",
+            {
+                "metadata": {
+                    "user_id": str(eleve_stripe.pk),
+                    "plan": "mensuel",
+                },
+                "customer": "cus_webhook123",
+                "subscription": "sub_webhook123",
+            },
+        )
+        mock_construct.return_value = event_data
+
+        response = client.post(
+            reverse("stripe_webhook"),
+            data=json.dumps(event_data),
+            content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="sig_test",
+        )
+        assert response.status_code == 200
+
+        abo = Abonnement.objects.get(user=eleve_stripe)
+        assert abo.statut == "actif"
+        assert abo.stripe_customer_id == "cus_webhook123"
+        assert abo.stripe_subscription_id == "sub_webhook123"
+        assert abo.plan == "mensuel"
+
+    @pytest.mark.django_db
+    @patch("users.views.stripe.Webhook.construct_event")
+    def test_webhook_subscription_deleted_deactivates(
+        self, mock_construct, client, eleve_stripe, abonnement_actif
+    ):
+        event_data = self._build_webhook_payload(
+            "customer.subscription.deleted",
+            {
+                "id": "sub_test123",
+                "status": "canceled",
+            },
+        )
+        mock_construct.return_value = event_data
+
+        response = client.post(
+            reverse("stripe_webhook"),
+            data=json.dumps(event_data),
+            content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="sig_test",
+        )
+        assert response.status_code == 200
+
+        abonnement_actif.refresh_from_db()
+        assert abonnement_actif.statut == "annule"
+
+    @pytest.mark.django_db
+    @patch("users.views.stripe.Webhook.construct_event")
+    def test_webhook_rejects_invalid_signature(self, mock_construct, client):
+        import stripe as _stripe
+
+        mock_construct.side_effect = _stripe.error.SignatureVerificationError(
+            "Invalid signature", "sig_header"
+        )
+
+        response = client.post(
+            reverse("stripe_webhook"),
+            data=b"bad_payload",
+            content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="bad_sig",
+        )
+        assert response.status_code == 400
+
+    @pytest.mark.django_db
+    @patch("users.views.stripe.Webhook.construct_event")
+    def test_webhook_idempotent_on_duplicate_event(
+        self, mock_construct, client, eleve_stripe
+    ):
+        event_data = self._build_webhook_payload(
+            "checkout.session.completed",
+            {
+                "metadata": {
+                    "user_id": str(eleve_stripe.pk),
+                    "plan": "annuel",
+                },
+                "customer": "cus_idem123",
+                "subscription": "sub_idem123",
+            },
+            event_id="evt_duplicate",
+        )
+        mock_construct.return_value = event_data
+
+        for _ in range(2):
+            response = client.post(
+                reverse("stripe_webhook"),
+                data=json.dumps(event_data),
+                content_type="application/json",
+                HTTP_STRIPE_SIGNATURE="sig_test",
+            )
+            assert response.status_code == 200
+
+        assert Abonnement.objects.filter(user=eleve_stripe).count() == 1
+
+
+class TestPremiumLessonAccess:
+    def _lecon_publique_url(self, matiere, lecon):
+        return reverse(
+            "lecon_publique",
+            kwargs={
+                "matiere_slug": matiere.slug,
+                "niveau": lecon.chapitre.niveau,
+                "chapitre_slug": lecon.chapitre.slug,
+                "lecon_slug": lecon.slug,
+            },
+        )
+
+    @pytest.mark.django_db
+    def test_premium_lesson_requires_active_subscription(
+        self, client, eleve_stripe, matiere_stripe, lecon_premium
+    ):
+        client.force_login(eleve_stripe)
+        url = self._lecon_publique_url(matiere_stripe, lecon_premium)
+        response = client.get(url)
+        assert response.status_code == 200
+        assert response.context["est_floute"] is True
+
+    @pytest.mark.django_db
+    def test_premium_lesson_accessible_with_active_subscription(
+        self, client, eleve_stripe, matiere_stripe, lecon_premium, abonnement_actif
+    ):
+        client.force_login(eleve_stripe)
+        url = self._lecon_publique_url(matiere_stripe, lecon_premium)
+        response = client.get(url)
+        assert response.status_code == 200
+        assert response.context["est_floute"] is False
+
+    @pytest.mark.django_db
+    def test_admin_bypasses_subscription_check(
+        self, client, admin_stripe, matiere_stripe, lecon_premium
+    ):
+        client.force_login(admin_stripe)
+        url = self._lecon_publique_url(matiere_stripe, lecon_premium)
+        response = client.get(url)
+        # Admin gets redirected to internal lecon view
+        assert response.status_code == 302
+        expected_url = reverse("lecon", kwargs={"lecon_pk": lecon_premium.pk})
+        assert response["Location"] == expected_url
+
+
+class TestPortailClient:
+    @pytest.mark.django_db
+    @patch("users.views.stripe.billing_portal.Session.create")
+    def test_portail_client_redirects_to_stripe(
+        self, mock_portal_create, client, eleve_stripe, abonnement_actif
+    ):
+        mock_session = MagicMock()
+        mock_session.url = "https://billing.stripe.com/portal_session"
+        mock_portal_create.return_value = mock_session
+
+        client.force_login(eleve_stripe)
+        response = client.get(reverse("portail_abonnement"))
+        assert response.status_code == 302
+        assert response["Location"] == "https://billing.stripe.com/portal_session"
+
+    @pytest.mark.django_db
+    def test_portail_client_no_subscription(self, client, eleve_stripe):
+        client.force_login(eleve_stripe)
+        response = client.get(reverse("portail_abonnement"))
+        assert response.status_code == 302
+        assert "/profil/" in response["Location"]
+
+
+class TestUserHasActiveSubscription:
+    @pytest.mark.django_db
+    def test_user_has_active_subscription_true(self, eleve_stripe, abonnement_actif):
+        from users.views import _user_has_active_subscription
+
+        assert _user_has_active_subscription(eleve_stripe) is True
+
+    @pytest.mark.django_db
+    def test_user_has_active_subscription_false(self, eleve_stripe):
+        from users.views import _user_has_active_subscription
+
+        assert _user_has_active_subscription(eleve_stripe) is False
+
+    @pytest.mark.django_db
+    def test_user_has_active_subscription_annule(self, eleve_stripe, abonnement_actif):
+        from users.views import _user_has_active_subscription
+
+        abonnement_actif.statut = "annule"
+        abonnement_actif.save()
+        assert _user_has_active_subscription(eleve_stripe) is False
+
+

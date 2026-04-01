@@ -20,6 +20,14 @@ from .models import CustomUser, ConnexionLog
 logger = logging.getLogger(__name__)
 
 
+def _user_has_active_subscription(user):
+    """Vérifie si l'utilisateur a un abonnement actif."""
+    if not user.is_authenticated:
+        return False
+    from .models import Abonnement
+    return Abonnement.objects.filter(user=user, statut="actif").exists()
+
+
 class ConnexionView(View):
     template_name = "registration/login.html"
 
@@ -692,5 +700,176 @@ def admin_serve_test_report(request):
         report_path.read_text(encoding="utf-8"),
         content_type="text/html",
     )
+
+
+# ---------------------------------------------------------------------------
+# Stripe / Abonnement
+# ---------------------------------------------------------------------------
+
+import stripe
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.db import transaction
+from django.utils import timezone
+
+
+@login_required
+@require_POST
+def creer_checkout_session(request):
+    """Crée une session Stripe Checkout et redirige."""
+    plan = request.POST.get("plan", "mensuel")
+    if plan not in ("mensuel", "annuel"):
+        return HttpResponse("Plan invalide.", status=400)
+
+    price_id = settings.STRIPE_PRICE_MONTHLY if plan == "mensuel" else settings.STRIPE_PRICE_ANNUAL
+
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
+    # Récupérer ou créer le Stripe Customer
+    from .models import Abonnement
+    try:
+        abonnement = Abonnement.objects.get(user=request.user)
+        customer_id = abonnement.stripe_customer_id
+    except Abonnement.DoesNotExist:
+        customer = stripe.Customer.create(
+            email=request.user.email,
+            name=request.user.nom_complet,
+            metadata={"user_id": str(request.user.pk)},
+        )
+        customer_id = customer.id
+
+    session = stripe.checkout.Session.create(
+        customer=customer_id,
+        payment_method_types=["card"],
+        line_items=[{"price": price_id, "quantity": 1}],
+        mode="subscription",
+        success_url=request.build_absolute_uri("/checkout-success/") + "?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url=request.build_absolute_uri("/checkout-cancel/"),
+        metadata={"user_id": str(request.user.pk), "plan": plan},
+    )
+
+    return redirect(session.url, status=303)
+
+
+@csrf_exempt
+@require_POST
+def stripe_webhook(request):
+    """Traite les événements Stripe via webhook."""
+    payload = request.body
+    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except (ValueError, stripe.error.SignatureVerificationError):
+        logger.warning("Webhook Stripe: signature invalide")
+        return HttpResponse(status=400)
+
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
+    if event["type"] == "checkout.session.completed":
+        _handle_checkout_completed(event["data"]["object"])
+    elif event["type"] in ("customer.subscription.updated", "customer.subscription.deleted"):
+        _handle_subscription_change(event["data"]["object"])
+
+    return HttpResponse(status=200)
+
+
+def _handle_checkout_completed(session):
+    """Traite un checkout.session.completed."""
+    from .models import Abonnement, PlanChoices, StatutAbonnementChoices
+
+    user_id = session.get("metadata", {}).get("user_id")
+    plan = session.get("metadata", {}).get("plan", "mensuel")
+    customer_id = session.get("customer")
+    subscription_id = session.get("subscription")
+
+    if not user_id or not customer_id:
+        logger.error("Webhook checkout.session.completed: user_id ou customer_id manquant")
+        return
+
+    try:
+        user = CustomUser.objects.get(pk=int(user_id))
+    except (CustomUser.DoesNotExist, ValueError):
+        logger.error(f"Webhook: utilisateur {user_id} introuvable")
+        return
+
+    with transaction.atomic():
+        Abonnement.objects.update_or_create(
+            user=user,
+            defaults={
+                "stripe_customer_id": customer_id,
+                "stripe_subscription_id": subscription_id or "",
+                "plan": plan,
+                "statut": StatutAbonnementChoices.ACTIF,
+                "date_debut": timezone.now(),
+                "date_fin": None,
+            },
+        )
+    logger.info(f"Abonnement activé pour {user.email} (plan: {plan})")
+
+
+def _handle_subscription_change(subscription):
+    """Traite subscription.updated ou subscription.deleted."""
+    from .models import Abonnement, StatutAbonnementChoices
+
+    subscription_id = subscription.get("id")
+    status = subscription.get("status")
+
+    if not subscription_id:
+        return
+
+    try:
+        abonnement = Abonnement.objects.get(stripe_subscription_id=subscription_id)
+    except Abonnement.DoesNotExist:
+        logger.warning(f"Webhook: abonnement Stripe {subscription_id} introuvable")
+        return
+
+    with transaction.atomic():
+        if status in ("canceled", "unpaid", "past_due"):
+            abonnement.statut = StatutAbonnementChoices.ANNULE
+            abonnement.date_fin = timezone.now()
+        elif status == "active":
+            abonnement.statut = StatutAbonnementChoices.ACTIF
+            abonnement.date_fin = None
+        else:
+            abonnement.statut = StatutAbonnementChoices.EXPIRE
+            abonnement.date_fin = timezone.now()
+        abonnement.save()
+    logger.info(f"Abonnement {subscription_id}: statut → {abonnement.statut}")
+
+
+@login_required
+def portail_client(request):
+    """Redirige vers le Stripe Customer Portal."""
+    from .models import Abonnement
+
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
+    try:
+        abonnement = Abonnement.objects.get(user=request.user, statut="actif")
+    except Abonnement.DoesNotExist:
+        messages.error(request, "Aucun abonnement actif trouvé.")
+        return redirect("profil")
+
+    session = stripe.billing_portal.Session.create(
+        customer=abonnement.stripe_customer_id,
+        return_url=request.build_absolute_uri("/profil/"),
+    )
+
+    return redirect(session.url)
+
+
+@login_required
+def checkout_success(request):
+    """Page de confirmation après paiement réussi."""
+    return render(request, "users/checkout_success.html")
+
+
+@login_required
+def checkout_cancel(request):
+    """Page d'annulation de checkout."""
+    return render(request, "users/checkout_cancel.html")
 
 

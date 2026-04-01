@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser, Abonnement
 
 
 @admin.register(CustomUser)
@@ -25,3 +25,11 @@ class CustomUserAdmin(UserAdmin):
     )
 
     readonly_fields = ["date_joined"]
+
+
+@admin.register(Abonnement)
+class AbonnementAdmin(admin.ModelAdmin):
+    list_display = ("user", "plan", "statut", "date_debut", "date_fin")
+    list_filter = ("plan", "statut")
+    search_fields = ("user__email", "stripe_customer_id", "stripe_subscription_id")
+    readonly_fields = ("stripe_customer_id", "stripe_subscription_id", "created_at", "updated_at")

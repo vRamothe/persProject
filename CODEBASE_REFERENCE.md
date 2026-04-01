@@ -31,14 +31,32 @@ Manager: `CustomUserManager` — `REQUIRED_FIELDS = ["prenom", "nom"]`
 | `timestamp` | `DateTimeField` | auto_now_add |
 | `ip` | `GenericIPAddressField` | null, blank |
 
-### 1.3 Choices (users)
+### 1.3 `users.Abonnement`
+
+| Field | Type | Constraints |
+|-------|------|-------------|
+| `user` | `OneToOne → CustomUser` | on_delete=CASCADE, related_name=`abonnement` |
+| `stripe_customer_id` | `CharField(255)` | |
+| `stripe_subscription_id` | `CharField(255)` | blank, default="" |
+| `plan` | `CharField(20)` | choices=`PlanChoices` |
+| `statut` | `CharField(20)` | choices=`StatutAbonnementChoices`, default=`actif` |
+| `date_debut` | `DateTimeField` | |
+| `date_fin` | `DateTimeField` | null, blank |
+| `created_at` | `DateTimeField` | auto_now_add |
+| `updated_at` | `DateTimeField` | auto_now |
+
+`indexes`: `[user, statut]`
+
+### 1.4 Choices (users)
 
 ```python
-NiveauChoices: seconde | premiere | terminale
-RoleChoices:   admin | eleve
+NiveauChoices:              seconde | premiere | terminale
+RoleChoices:                admin | eleve
+PlanChoices:                mensuel | annuel
+StatutAbonnementChoices:    actif | annule | expire
 ```
 
-### 1.4 `courses.Matiere`
+### 1.5 `courses.Matiere`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -49,7 +67,7 @@ RoleChoices:   admin | eleve
 
 Properties: `couleurs` (from `MATIERE_COULEURS`), `icone_svg`
 
-### 1.5 `courses.Chapitre`
+### 1.6 `courses.Chapitre`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -65,7 +83,7 @@ Properties: `couleurs` (from `MATIERE_COULEURS`), `icone_svg`
 
 `unique_together`: `[matiere, niveau, ordre]`, `[matiere, niveau, slug]`
 
-### 1.6 `courses.Lecon`
+### 1.7 `courses.Lecon`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -86,7 +104,7 @@ Properties: `couleurs` (from `MATIERE_COULEURS`), `icone_svg`
 Properties: `has_quiz`
 Methods: `get_lecon_precedente()`, `get_lecon_suivante()`
 
-### 1.7 `courses.Quiz`
+### 1.8 `courses.Quiz`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -97,7 +115,7 @@ Methods: `get_lecon_precedente()`, `get_lecon_suivante()`
 
 Method: `get_total_points()`
 
-### 1.8 `courses.Question`
+### 1.9 `courses.Question`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -112,7 +130,7 @@ Method: `get_total_points()`
 | `points` | `PositiveIntegerField` | default=1 |
 | `ordre` | `PositiveIntegerField` | default=1 |
 
-### 1.9 Choices (courses)
+### 1.10 Choices (courses)
 
 ```python
 MatiereChoices:       physique | chimie | mathematiques
@@ -121,7 +139,7 @@ TypeQuestionChoices:  qcm | vrai_faux | texte_libre
 DifficulteChoices:    facile | moyen | difficile
 ```
 
-### 1.10 `progress.UserProgression`
+### 1.11 `progress.UserProgression`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -133,7 +151,7 @@ DifficulteChoices:    facile | moyen | difficile
 
 `unique_together`: `[user, lecon]`
 
-### 1.11 `progress.UserQuizResultat`
+### 1.12 `progress.UserQuizResultat`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -148,7 +166,7 @@ DifficulteChoices:    facile | moyen | difficile
 
 `unique_together`: `[user, quiz]`
 
-### 1.12 `progress.ChapitreDebloque`
+### 1.13 `progress.ChapitreDebloque`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -158,7 +176,7 @@ DifficulteChoices:    facile | moyen | difficile
 
 `unique_together`: `[user, chapitre]`
 
-### 1.13 `progress.UserChapitreQuizResultat`
+### 1.14 `progress.UserChapitreQuizResultat`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -173,7 +191,7 @@ DifficulteChoices:    facile | moyen | difficile
 
 `unique_together`: `[user, chapitre]`
 
-### 1.14 `progress.UserQuestionHistorique`
+### 1.15 `progress.UserQuestionHistorique`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -189,7 +207,7 @@ DifficulteChoices:    facile | moyen | difficile
 `unique_together`: `[user, question]`
 Method: `enregistrer_reponse(correcte)` — moves box up/down + sets next revision date
 
-### 1.15 `progress.UserNote`
+### 1.16 `progress.UserNote`
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -201,7 +219,7 @@ Method: `enregistrer_reponse(correcte)` — moves box up/down + sets next revisi
 
 `unique_together`: `[user, lecon]`
 
-### 1.16 Constants
+### 1.17 Constants
 
 ```python
 StatutLeconChoices: non_commence | en_cours | termine
@@ -250,6 +268,11 @@ Handlers: `handler404` → `config.views.custom_404`, `handler500` → `config.v
 | `admin_analytics` | `/admin-panel/analytics/` | `admin_analytics_view` | GET |
 | `admin_test_report` | `/admin-panel/rapport-tests/` | `admin_test_report_view` | GET |
 | `admin_serve_report` | `/admin-panel/rapport-tests/raw/` | `admin_serve_test_report` | GET |
+| `checkout` | `/checkout/` | `creer_checkout_session` | POST |
+| `stripe_webhook` | `/stripe-webhook/` | `stripe_webhook` | POST |
+| `portail_abonnement` | `/portail-abonnement/` | `portail_client` | GET |
+| `checkout_success` | `/checkout-success/` | `checkout_success` | GET |
+| `checkout_cancel` | `/checkout-cancel/` | `checkout_cancel` | GET |
 
 ### 2.3 `courses/urls.py` (prefix: `/cours/`)
 
@@ -311,7 +334,17 @@ Handlers: `handler404` → `config.views.custom_404`, `handler500` → `config.v
 | `admin_test_report_view` | `@login_required` | Admin: test report iframe wrapper | Parses `test_report.html` for stats |
 | `admin_serve_test_report` | `@login_required` | Admin: serves raw test_report.html | For iframe src |
 
-Private helpers: `_envoyer_email_verification(request, user)`, `_debloquer_premiers_chapitres(user)`
+Private helpers: `_envoyer_email_verification(request, user)`, `_debloquer_premiers_chapitres(user)`, `_user_has_active_subscription(user)`
+
+| View | Decorators | Purpose | Key Logic |
+|------|-----------|---------|-----------|
+| `creer_checkout_session` | `@login_required`, `@require_POST` | Creates Stripe Checkout session | Validates plan ∈ {mensuel, annuel} → 400; Gets/creates Stripe Customer; redirects to Stripe |
+| `stripe_webhook` | `@csrf_exempt`, `@require_POST` | Stripe webhook handler | Signature verification; handles `checkout.session.completed`, `subscription.updated/deleted` |
+| `portail_client` | `@login_required` | Redirects to Stripe Customer Portal | Requires active `Abonnement` |
+| `checkout_success` | `@login_required` | Post-payment success page | |
+| `checkout_cancel` | `@login_required` | Payment cancelled page | |
+
+Private helpers: `_handle_checkout_completed(session)`, `_handle_subscription_change(subscription)`
 
 ### 3.3 `courses/views.py`
 
@@ -319,8 +352,8 @@ Private helpers: `_envoyer_email_verification(request, user)`, `_debloquer_premi
 |------|-----------|---------|-----------|
 | `matieres_view` | `@login_required` | List subjects + chapters | Respects `preview_niveau` session; admin sees all niveaux; student filtered by niveau |
 | `chapitre_view` | `@login_required` | Chapter detail: list lessons | Checks niveau + unlock; shows chapter quiz CTA if all lessons done |
-| `lecon_view` | `@login_required` | Display lesson (Markdown→HTML) | Auto-marks `en_cours`; skips writes in preview; renders video (YouTube/file); injects note |
-| `quiz_view` | `@login_required` | Display quiz | Random sample of 5 from all questions; hidden `question_ids` field |
+| `lecon_view` | `@login_required` | Display lesson (Markdown→HTML) | **Premium check**: non-gratuit + no subscription → redirect to `lecon_publique`; auto-marks `en_cours`; skips writes in preview; renders video (YouTube/file); injects note |
+| `quiz_view` | `@login_required` | Display quiz | **Premium check**: non-gratuit + no subscription → redirect to `lecon_publique`; random sample of 5 from all questions; hidden `question_ids` field |
 | `quiz_chapitre_view` | `@login_required` | Display chapter quiz | `_selectionner_questions_chapitre()`: 4 facile + 4 moyen + 2 difficile (10 total) |
 | `revisions_view` | `@login_required` | Spaced repetition quiz | Leitner: due questions (≤today), ordered by box asc, max 10 |
 | `soumettre_revisions` | `@login_required` | Submit revision answers | Rate-limited; IDOR check on niveau; updates Leitner boxes |
@@ -328,7 +361,7 @@ Private helpers: `_envoyer_email_verification(request, user)`, `_debloquer_premi
 | `lecon_publique_view` | — (public) | Public lesson view (free or premium with blur) | Premium: truncates to 2000 words + blur overlay + paywall modal; admin → redirect to PK view; `est_premium`, `est_floute`, `a_ete_tronque` context vars |
 | `accueil_view` | — (public) | Homepage for anon users | All matières + chapitres + leçons with gratuit flag |
 | `recherche_view` | `@login_required` | Full-text search | PostgreSQL `SearchVector` on titre (A) + contenu (B); min 2 chars; max 20 results |
-| `lecon_pdf_view` | `@login_required` | PDF export | WeasyPrint; LaTeX→SVG via `render_markdown_to_html(latex_to_svg=True)` |
+| `lecon_pdf_view` | `@login_required` | PDF export | **Premium check**: non-gratuit + no subscription → redirect to `lecon_publique`; WeasyPrint; LaTeX→SVG via `render_markdown_to_html(latex_to_svg=True)` |
 
 Private helpers: `_selectionner_questions_chapitre(chapitre, nb_total=10)`, `_extraire_youtube_id(url)`, `_generer_video_html(lecon, youtube_id)`
 
@@ -375,7 +408,7 @@ All widgets use Tailwind classes: `w-full px-4 py-2.5 rounded-lg border border-g
 | Template | Description |
 |----------|-------------|
 | `nav_item.html` | Reusable sidebar nav item |
-| `_paywall_modal.html` | Alpine.js paywall modal (pricing cards, feature list, Stripe CTA stub) |
+| `_paywall_modal.html` | Alpine.js paywall modal (pricing cards, feature list, Stripe checkout form) |
 
 ### 5.3 `courses/`
 
@@ -427,7 +460,9 @@ All widgets use Tailwind classes: `w-full px-4 py-2.5 rounded-lg border border-g
 
 | Template | Description |
 |----------|-------------|
-| `profile.html` | User profile + password change |
+| `profile.html` | User profile + password change + subscription management |
+| `checkout_success.html` | Post-payment success confirmation |
+| `checkout_cancel.html` | Payment cancellation page |
 
 ---
 
@@ -451,6 +486,11 @@ All widgets use Tailwind classes: `w-full px-4 py-2.5 rounded-lg border border-g
 | `AXES_COOLOFF_TIME` | 1 (hour) |
 | `AXES_RESET_ON_SUCCESS` | True |
 | `AXES_BEHIND_REVERSE_PROXY` | True |
+| `STRIPE_SECRET_KEY` | from `.env` (decouple) |
+| `STRIPE_PUBLISHABLE_KEY` | from `.env` (decouple) |
+| `STRIPE_WEBHOOK_SECRET` | from `.env` (decouple) |
+| `STRIPE_PRICE_MONTHLY` | from `.env` (decouple) |
+| `STRIPE_PRICE_ANNUAL` | from `.env` (decouple) |
 | `INSTALLED_APPS` | django defaults + `django_htmx`, `axes`, `users`, `courses`, `progress`, `django.contrib.sitemaps`, `django.contrib.postgres` |
 | `AUTHENTICATION_BACKENDS` | `AxesStandaloneBackend`, `ModelBackend` |
 | `MIDDLEWARE` (order) | SecurityMiddleware → WhiteNoise → Session → Common → Csrf → Auth → Axes → Messages → XFrame → Htmx |
@@ -595,7 +635,19 @@ Parses `backend/test_report.html`; status: `green` (0 failures), `orange` (1-3 f
 - **Server-side truncation**: `tronquer_contenu_markdown(contenu, max_mots=2000)` in `courses/utils/truncate.py` — cuts at last `\n\n` before word limit; returns `(contenu, a_ete_tronque)`
 - **CSS blur**: `.paywall-blur-container` with `.paywall-blur-overlay` (gradient + `backdrop-filter: blur(4px)`) + `.paywall-blur-content` (`user-select: none`) — defined in `lecon_publique.html` `<style>`
 - **Dark mode**: `html.dark .paywall-blur-overlay` override in `base.html` (gradient uses `rgba(17,24,39,…)`)
-- **Paywall modal**: `templates/components/_paywall_modal.html` — Alpine.js modal with pricing cards (Mensuel 19€, Annuel 119€), feature list, Stripe CTA stub (`href="#"`)
-- **Access logic** in `lecon_publique_view`: `est_premium = not lecon.gratuit`; `user_a_acces = admin or is_premium`; admin → redirect to PK view; premium + no access → truncate + blur; context vars: `est_premium`, `est_floute`, `a_ete_tronque`
+- **Paywall modal**: `templates/components/_paywall_modal.html` — Alpine.js modal with pricing cards (Mensuel 19€, Annuel 119€), feature list, Stripe checkout form (POST to `{% url 'checkout' %}` for auth users, link to inscription for anon)
+- **Access logic** in `lecon_publique_view`: `est_premium = not lecon.gratuit`; `user_a_acces = admin or _user_has_active_subscription(user)`; admin → redirect to PK view; premium + no access → truncate + blur; context vars: `est_premium`, `est_floute`, `a_ete_tronque`
 - **Listings** (`catalogue.html`, `accueil.html`): premium lessons show 🔒 + "Premium" badge + are clickable links to public page with blur
-- **Stub**: `getattr(request.user, 'is_premium', False)` → always `False` until Stripe integration (#03)
+
+### 8.13 Stripe Integration
+
+- **Package**: `stripe==11.4.1` in `requirements.txt`
+- **Settings**: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL` — all via `python-decouple` `config()` with empty defaults
+- **Model**: `users.Abonnement` (OneToOne to `CustomUser`) — stores `stripe_customer_id`, `stripe_subscription_id`, `plan`, `statut`, `date_debut`, `date_fin`
+- **Checkout flow**: `creer_checkout_session` → Stripe Checkout → webhook `checkout.session.completed` → `Abonnement.update_or_create` (idempotent, `transaction.atomic`)
+- **Webhook security**: `@csrf_exempt` + `stripe.Webhook.construct_event()` signature verification; returns 400 on invalid signature
+- **Subscription lifecycle**: webhook handles `customer.subscription.updated` / `customer.subscription.deleted` → updates `statut` to `actif` / `annule` / `expire`
+- **Access check**: `_user_has_active_subscription(user)` — `Abonnement.objects.filter(user=user, statut="actif").exists()`; replaces the old `getattr(request.user, 'is_premium', False)` stub
+- **Customer Portal**: `portail_client` view redirects to Stripe Billing Portal for subscription management
+- **Profile page**: shows subscription status + Stripe portal link if active, upgrade CTA if not
+- **Admin**: `AbonnementAdmin` registered with list_display, filters, search

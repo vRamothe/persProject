@@ -136,6 +136,13 @@ FIRST_ADMIN_PASSWORD = config("FIRST_ADMIN_PASSWORD", default="Admin1234!")
 FIRST_ADMIN_PRENOM = config("FIRST_ADMIN_PRENOM", default="Administrateur")
 FIRST_ADMIN_NOM = config("FIRST_ADMIN_NOM", default="Principal")
 
+# Stripe
+STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
+STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY", default="")
+STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
+STRIPE_PRICE_MONTHLY = config("STRIPE_PRICE_MONTHLY", default="")
+STRIPE_PRICE_ANNUAL = config("STRIPE_PRICE_ANNUAL", default="")
+
 # Logging structuré (stdout pour Heroku log drains)
 LOGGING = {
     "version": 1,

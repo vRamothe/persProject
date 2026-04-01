@@ -84,3 +84,52 @@ class ConnexionLog(models.Model):
 
     def __str__(self):
         return f"{self.user.email} — {self.timestamp}"
+
+
+class PlanChoices(models.TextChoices):
+    MENSUEL = "mensuel", "Mensuel"
+    ANNUEL = "annuel", "Annuel"
+
+
+class StatutAbonnementChoices(models.TextChoices):
+    ACTIF = "actif", "Actif"
+    ANNULE = "annule", "Annulé"
+    EXPIRE = "expire", "Expiré"
+
+
+class Abonnement(models.Model):
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="abonnement",
+        verbose_name="Utilisateur",
+    )
+    stripe_customer_id = models.CharField(
+        max_length=255, verbose_name="Stripe Customer ID"
+    )
+    stripe_subscription_id = models.CharField(
+        max_length=255, blank=True, default="", verbose_name="Stripe Subscription ID"
+    )
+    plan = models.CharField(
+        max_length=20, choices=PlanChoices.choices, verbose_name="Plan"
+    )
+    statut = models.CharField(
+        max_length=20,
+        choices=StatutAbonnementChoices.choices,
+        default=StatutAbonnementChoices.ACTIF,
+        verbose_name="Statut",
+    )
+    date_debut = models.DateTimeField(verbose_name="Date de début")
+    date_fin = models.DateTimeField(null=True, blank=True, verbose_name="Date de fin")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Créé le")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Mis à jour le")
+
+    class Meta:
+        verbose_name = "Abonnement"
+        verbose_name_plural = "Abonnements"
+        indexes = [
+            models.Index(fields=["user", "statut"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user.email} — {self.plan} ({self.statut})"

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block page_title %}Paiement annulé{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto py-16 text-center">
+    <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </div>
+    <h1 class="text-2xl font-bold text-gray-900 mb-3">Paiement annulé</h1>
+    <p class="text-gray-600 mb-8">Vous avez annulé le processus de paiement. Aucun montant n'a été prélevé.</p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="{% url 'tableau_de_bord' %}" class="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition-colors">
+            Retour au tableau de bord
+        </a>
+        <a href="{% url 'matieres' %}" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors">
+            Continuer à explorer
+        </a>
+    </div>
+</div>
+{% endblock %}

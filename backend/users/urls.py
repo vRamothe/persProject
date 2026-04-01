@@ -28,6 +28,12 @@ urlpatterns = [
     path("reinitialiser/termine/", auth_views.PasswordResetCompleteView.as_view(
         template_name="registration/password_reset_complete.html",
     ), name="password_reset_complete"),
+    # Stripe / Abonnement
+    path("checkout/", views.creer_checkout_session, name="checkout"),
+    path("stripe-webhook/", views.stripe_webhook, name="stripe_webhook"),
+    path("portail-abonnement/", views.portail_client, name="portail_abonnement"),
+    path("checkout-success/", views.checkout_success, name="checkout_success"),
+    path("checkout-cancel/", views.checkout_cancel, name="checkout_cancel"),
     # Admin panel
     path("admin-panel/utilisateurs/", views.admin_utilisateurs, name="admin_utilisateurs"),
     path("admin-panel/utilisateurs/<int:user_id>/toggle/", views.admin_toggle_actif, name="admin_toggle_actif"),

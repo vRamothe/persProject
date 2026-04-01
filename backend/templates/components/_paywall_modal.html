@@ -56,13 +56,19 @@
                 </label>
 
                 <!-- CTA button -->
-                <a href="#" class="block w-full text-center px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all mt-4">
+                <form method="post" action="{% url 'checkout' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="plan" :value="plan">
                     {% if request.user.is_authenticated %}
-                    Passer à Premium
+                    <button type="submit" class="block w-full text-center px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all mt-4">
+                        Passer à Premium
+                    </button>
                     {% else %}
-                    Créer un compte et s'abonner
+                    <a href="{% url 'inscription' %}" class="block w-full text-center px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all mt-4">
+                        Créer un compte et s'abonner
+                    </a>
                     {% endif %}
-                </a>
+                </form>
 
                 <p class="text-center text-xs text-gray-400 mt-2">Paiement sécurisé par Stripe. Annulation à tout moment.</p>
             </div>
