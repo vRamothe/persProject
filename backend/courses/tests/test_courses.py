@@ -73,16 +73,39 @@ def lecon_payante(chapitre):
 
 class TestSlugGeneration:
     def test_matiere_slug_auto_generated(self, matiere):
+        """
+        Teste: le slug de Matiere est auto-généré à partir du nom
+        Raison: un slug incorrect casserait les URLs publiques du catalogue
+        Features: slugs, modèle Matiere
+        Criticité: moyenne
+        """
         assert matiere.slug == "mathematiques"
 
     def test_chapitre_slug_auto_generated(self, chapitre):
+        """
+        Teste: le slug de Chapitre est auto-généré à partir du titre
+        Raison: un slug incorrect casserait les URLs publiques du catalogue
+        Features: slugs, modèle Chapitre
+        Criticité: moyenne
+        """
         assert chapitre.slug == "les-suites-numeriques"
 
     def test_lecon_slug_auto_generated(self, lecon_gratuite):
+        """
+        Teste: le slug de Lecon est auto-généré à partir du titre
+        Raison: un slug incorrect casserait les URLs SEO des leçons publiques
+        Features: slugs, modèle Lecon
+        Criticité: moyenne
+        """
         assert lecon_gratuite.slug == "definition-et-premiers-exemples"
 
     def test_slug_unique_within_scope(self, chapitre):
-        """Two lessons in the same chapter cannot have the same slug."""
+        """
+        Teste: deux leçons dans le même chapitre ne peuvent pas avoir le même slug, mais deux chapitres différents le peuvent
+        Raison: collision de slugs provoquerait des URLs ambiguës dans le catalogue public
+        Features: slugs, unicité par scope parent, URLs publiques
+        Criticité: moyenne
+        """
         Lecon.objects.create(
             chapitre=chapitre,
             titre="Test unique",
@@ -105,12 +128,24 @@ class TestSlugGeneration:
 
 class TestPublicPages:
     def test_catalogue_accessible_anonymous(self, client, matiere):
+        """
+        Teste: le catalogue matière est accessible sans authentification
+        Raison: les pages publiques doivent rester ouvertes pour le SEO et la conversion
+        Features: catalogue public, accès anonyme
+        Criticité: haute
+        """
         response = client.get(
             reverse("catalogue_matiere", kwargs={"matiere_slug": "mathematiques"})
         )
         assert response.status_code == 200
 
     def test_free_lesson_accessible_anonymous(self, client, lecon_gratuite):
+        """
+        Teste: une leçon gratuite est accessible sans authentification
+        Raison: les leçons gratuites servent d'aperçu pour convertir les visiteurs
+        Features: leçon publique, accès anonyme, gratuit
+        Criticité: haute
+        """
         chapitre = lecon_gratuite.chapitre
         response = client.get(
             reverse("lecon_publique", kwargs={
@@ -123,6 +158,12 @@ class TestPublicPages:
         assert response.status_code == 200
 
     def test_non_free_lesson_shows_blur_anonymous(self, client, lecon_payante):
+        """
+        Teste: une leçon premium affiche le blur paywall pour un visiteur anonyme
+        Raison: le contenu premium doit être protégé visuellement pour inciter à l'abonnement
+        Features: paywall, blur, leçon premium, accès anonyme
+        Criticité: haute
+        """
         chapitre = lecon_payante.chapitre
         response = client.get(
             reverse("lecon_publique", kwargs={
@@ -136,6 +177,12 @@ class TestPublicPages:
         assert "paywall-blur-container" in response.content.decode()
 
     def test_authenticated_eleve_sees_public_page(self, client, eleve, lecon_gratuite):
+        """
+        Teste: un élève authentifié peut accéder à la page publique d'une leçon gratuite
+        Raison: la page publique ne doit pas bloquer les utilisateurs connectés
+        Features: leçon publique, accès authentifié, gratuit
+        Criticité: moyenne
+        """
         client.force_login(eleve)
         chapitre = lecon_gratuite.chapitre
         response = client.get(
@@ -151,56 +198,122 @@ class TestPublicPages:
 
 class TestSitemap:
     def test_sitemap_accessible_anonymous(self, client, matiere):
+        """
+        Teste: le sitemap XML est accessible sans authentification
+        Raison: les moteurs de recherche doivent pouvoir accéder au sitemap pour l'indexation
+        Features: sitemap, SEO, accès anonyme
+        Criticité: moyenne
+        """
         response = client.get("/sitemap.xml")
         assert response.status_code == 200
 
     def test_sitemap_content_type_xml(self, client, matiere):
+        """
+        Teste: le sitemap renvoie un Content-Type XML valide
+        Raison: un Content-Type incorrect empêcherait l'indexation par les moteurs de recherche
+        Features: sitemap, SEO, headers HTTP
+        Criticité: basse
+        """
         response = client.get("/sitemap.xml")
         assert "xml" in response["Content-Type"]
 
     def test_sitemap_valid_xml(self, client, matiere):
+        """
+        Teste: le sitemap est un document XML valide et parsable
+        Raison: un XML malformé serait rejeté par Google Search Console
+        Features: sitemap, SEO, validation XML
+        Criticité: basse
+        """
         import xml.etree.ElementTree as ET
         response = client.get("/sitemap.xml")
         ET.fromstring(response.content)  # should not raise
 
     def test_sitemap_contains_free_lesson_url(self, client, lecon_gratuite):
+        """
+        Teste: le sitemap contient l'URL de la leçon gratuite
+        Raison: les leçons gratuites doivent être indexées pour le référencement
+        Features: sitemap, SEO, leçon gratuite
+        Criticité: moyenne
+        """
         response = client.get("/sitemap.xml")
         assert lecon_gratuite.slug.encode() in response.content
 
     def test_sitemap_does_not_contain_non_free_lesson(self, client, lecon_payante):
+        """
+        Teste: le sitemap exclut les leçons premium
+        Raison: indexer du contenu payant flouté dégraderait l'expérience utilisateur Google
+        Features: sitemap, SEO, leçon premium, paywall
+        Criticité: moyenne
+        """
         response = client.get("/sitemap.xml")
         assert lecon_payante.slug.encode() not in response.content
 
     def test_sitemap_has_catalogue_urls(self, client, matiere):
+        """
+        Teste: le sitemap contient les URLs du catalogue par matière
+        Raison: les pages catalogue doivent être indexées pour capter le trafic organique
+        Features: sitemap, SEO, catalogue public
+        Criticité: moyenne
+        """
         response = client.get("/sitemap.xml")
         assert b"mathematiques" in response.content
 
 
 class TestRecherche:
     def test_recherche_returns_200(self, client, eleve):
+        """
+        Teste: la recherche renvoie 200 pour un élève authentifié avec une requête valide
+        Raison: la recherche est une feature essentielle de navigation dans le contenu
+        Features: recherche full-text, accès authentifié
+        Criticité: moyenne
+        """
         client.force_login(eleve)
         response = client.get(reverse("recherche"), {"q": "suites"})
         assert response.status_code == 200
 
     def test_recherche_short_query_returns_empty(self, client, eleve):
+        """
+        Teste: une requête trop courte renvoie zéro résultat
+        Raison: éviter des recherches coûteuses sur des termes non significatifs
+        Features: recherche full-text, validation requête
+        Criticité: basse
+        """
         client.force_login(eleve)
         response = client.get(reverse("recherche"), {"q": "a"})
         assert response.status_code == 200
         assert len(response.context["results"]) == 0
 
     def test_recherche_anonymous_redirected(self, client):
+        """
+        Teste: un visiteur anonyme est redirigé vers la connexion pour la recherche
+        Raison: la recherche expose du contenu filtré par niveau, elle requiert une session
+        Features: recherche full-text, contrôle d'accès
+        Criticité: haute
+        """
         response = client.get(reverse("recherche"), {"q": "suites"})
         assert response.status_code == 302
 
 
 class TestDifficulte:
     def test_question_default_difficulte_is_moyen(self, db, matiere, chapitre):
+        """
+        Teste: la difficulté par défaut d'une question est MOYEN
+        Raison: garantir que les questions sans difficulté explicite sont classées moyen pour l'équilibrage du quiz chapitre
+        Features: modèle Question, difficulté, valeur par défaut
+        Criticité: moyenne
+        """
         lecon = Lecon.objects.create(chapitre=chapitre, titre="L", contenu="c", ordre=5)
         quiz = Quiz.objects.create(lecon=lecon, titre="Q")
         q = Question.objects.create(quiz=quiz, texte="?", type="qcm", reponse_correcte="0", ordre=1)
         assert q.difficulte == DifficulteChoices.MOYEN
 
     def test_selectionner_questions_chapitre_balanced(self, db, matiere, chapitre):
+        """
+        Teste: la sélection de questions respecte la répartition 4 facile + 4 moyen + 2 difficile
+        Raison: un déséquilibre rendrait le quiz chapitre trop facile ou trop difficile
+        Features: quiz chapitre, sélection proportionnelle, difficulté
+        Criticité: moyenne
+        """
         from courses.views import _selectionner_questions_chapitre
         lecon = Lecon.objects.create(chapitre=chapitre, titre="L", contenu="c", ordre=6)
         quiz = Quiz.objects.create(lecon=lecon, titre="Q")
@@ -220,6 +333,12 @@ class TestDifficulte:
         assert nb_difficile == 2
 
     def test_selectionner_no_duplicates(self, db, matiere, chapitre):
+        """
+        Teste: la sélection de questions ne contient aucun doublon
+        Raison: des questions dupliquées fausseraient le score et l'expérience du quiz chapitre
+        Features: quiz chapitre, sélection de questions, intégrité
+        Criticité: moyenne
+        """
         from courses.views import _selectionner_questions_chapitre
         lecon = Lecon.objects.create(chapitre=chapitre, titre="L2", contenu="c", ordre=7)
         quiz = Quiz.objects.create(lecon=lecon, titre="Q2")
@@ -230,6 +349,12 @@ class TestDifficulte:
         assert len(ids) == len(set(ids))
 
     def test_selectionner_small_pool_returns_all(self, db, matiere, chapitre):
+        """
+        Teste: quand le pool de questions est inférieur au nombre demandé, toutes les questions sont retournées
+        Raison: éviter une erreur ou un quiz vide quand le contenu est encore en création
+        Features: quiz chapitre, sélection de questions, fallback petit pool
+        Criticité: basse
+        """
         from courses.views import _selectionner_questions_chapitre
         lecon = Lecon.objects.create(chapitre=chapitre, titre="L3", contenu="c", ordre=8)
         quiz = Quiz.objects.create(lecon=lecon, titre="Q3")
@@ -239,6 +364,12 @@ class TestDifficulte:
         assert len(selection) == 6
 
     def test_selectionner_empty_pool_returns_empty(self, db, matiere, chapitre):
+        """
+        Teste: un chapitre sans questions renvoie une liste vide sans erreur
+        Raison: éviter un crash si un quiz chapitre est déclenché avant l'ajout de contenu
+        Features: quiz chapitre, sélection de questions, edge case vide
+        Criticité: basse
+        """
         from courses.views import _selectionner_questions_chapitre
         # chapitre without any questions
         chap_empty = Chapitre.objects.create(matiere=matiere, niveau="terminale", titre="Vide", ordre=99)
@@ -248,6 +379,12 @@ class TestDifficulte:
 
 class TestImportQuestions:
     def test_valid_csv_creates_question(self, tmp_path, db, matiere, chapitre):
+        """
+        Teste: un CSV valide crée correctement la question en base
+        Raison: l'import CSV est le flux principal d'ajout de contenu en masse
+        Features: import CSV, commande management, création Question
+        Criticité: moyenne
+        """
         from django.core.management import call_command
         lecon = Lecon.objects.create(chapitre=chapitre, titre="Import test", contenu="c", ordre=9)
         quiz = Quiz.objects.create(lecon=lecon, titre="Q import")
@@ -261,6 +398,12 @@ class TestImportQuestions:
         assert Question.objects.filter(quiz=quiz, texte="Qu'est-ce?").exists()
 
     def test_dry_run_creates_no_question(self, tmp_path, db, matiere, chapitre):
+        """
+        Teste: le mode --dry-run n'insère aucune question en base
+        Raison: le dry-run doit permettre de valider un CSV sans effet de bord
+        Features: import CSV, dry-run, sécurité des données
+        Criticité: moyenne
+        """
         from django.core.management import call_command
         lecon = Lecon.objects.create(chapitre=chapitre, titre="Dry run", contenu="c", ordre=10)
         quiz = Quiz.objects.create(lecon=lecon, titre="Q dry")
@@ -274,6 +417,12 @@ class TestImportQuestions:
         assert Question.objects.filter(quiz=quiz).count() == 0
 
     def test_invalid_lecon_slug_skips_row(self, tmp_path, db):
+        """
+        Teste: une ligne avec un slug de leçon inexistant est ignorée sans crash
+        Raison: un CSV mal rédigé ne doit pas interrompre l'import ni corrompre les données
+        Features: import CSV, robustesse, validation slug
+        Criticité: moyenne
+        """
         from django.core.management import call_command
         csv_content = (
             "quiz_lecon_slug,texte,type,reponse_correcte,options,tolerances,explication,points,ordre,difficulte\n"
@@ -285,6 +434,12 @@ class TestImportQuestions:
         assert Question.objects.count() == 0
 
     def test_missing_reponse_correcte_skips_row(self, tmp_path, db, matiere, chapitre):
+        """
+        Teste: une ligne sans réponse correcte est ignorée sans crash
+        Raison: une question sans réponse rendrait le quiz non évaluable
+        Features: import CSV, validation données, robustesse
+        Criticité: moyenne
+        """
         from django.core.management import call_command
         lecon = Lecon.objects.create(chapitre=chapitre, titre="Skip rep", contenu="c", ordre=11)
         Quiz.objects.create(lecon=lecon, titre="Q skip")
@@ -305,25 +460,48 @@ class TestImportQuestions:
 
 class TestMatieresView:
     def test_matieres_requires_login(self, client):
+        """
+        Teste: la vue matières redirige vers la connexion pour un visiteur anonyme
+        Raison: l'accès aux matières nécessite une session pour filtrer par niveau
+        Features: vue matières, contrôle d'accès, @login_required
+        Criticité: haute
+        """
         response = client.get(reverse("matieres"))
         assert response.status_code == 302
         assert "/connexion/" in response["Location"]
 
     @pytest.mark.django_db
     def test_matieres_returns_200_for_eleve(self, client, eleve, matiere):
+        """
+        Teste: un élève authentifié obtient 200 sur la page matières
+        Raison: vérifier que la page principale de navigation fonctionne pour le rôle élève
+        Features: vue matières, accès élève
+        Criticité: moyenne
+        """
         client.force_login(eleve)
         response = client.get(reverse("matieres"))
         assert response.status_code == 200
 
     @pytest.mark.django_db
     def test_matieres_context_contains_matieres_data(self, client, eleve, matiere):
+        """
+        Teste: le contexte contient la clé matieres_data nécessaire au template
+        Raison: l'absence de cette clé provoquerait une erreur de rendu du template
+        Features: vue matières, contexte template
+        Criticité: basse
+        """
         client.force_login(eleve)
         response = client.get(reverse("matieres"))
         assert "matieres_data" in response.context
 
     @pytest.mark.django_db
     def test_matieres_filters_by_niveau(self, client, eleve, matiere):
-        """Eleve terminale sees only terminale chapitres."""
+        """
+        Teste: un élève terminale ne voit que les chapitres de son niveau
+        Raison: afficher des chapitres d'un autre niveau créerait de la confusion et des erreurs d'accès
+        Features: vue matières, filtrage par niveau, rôle élève
+        Criticité: haute
+        """
         Chapitre.objects.create(matiere=matiere, niveau="terminale", titre="Chap Term", ordre=1)
         Chapitre.objects.create(matiere=matiere, niveau="seconde", titre="Chap Sec", ordre=1)
         client.force_login(eleve)
@@ -334,7 +512,12 @@ class TestMatieresView:
 
     @pytest.mark.django_db
     def test_admin_sees_all_niveaux(self, client, admin_user, matiere):
-        """Admin with no preview session gets 200 (admin browse mode)."""
+        """
+        Teste: un admin sans session preview obtient le mode admin browse avec tous les niveaux
+        Raison: l'admin doit pouvoir parcourir tout le contenu sans restriction de niveau
+        Features: vue matières, rôle admin, admin browse mode
+        Criticité: moyenne
+        """
         Chapitre.objects.create(matiere=matiere, niveau="terminale", titre="Chap T", ordre=1)
         Chapitre.objects.create(matiere=matiere, niveau="seconde", titre="Chap S", ordre=1)
         client.force_login(admin_user)
@@ -345,12 +528,24 @@ class TestMatieresView:
 
 class TestChapitreView:
     def test_chapitre_requires_login(self, client, chapitre):
+        """
+        Teste: la vue chapitre redirige vers la connexion pour un visiteur anonyme
+        Raison: un accès non authentifié au contenu de chapitre doit être bloqué
+        Features: vue chapitre, contrôle d'accès, @login_required
+        Criticité: haute
+        """
         response = client.get(reverse("chapitre", kwargs={"chapitre_pk": chapitre.pk}))
         assert response.status_code == 302
         assert "/connexion/" in response["Location"]
 
     @pytest.mark.django_db
     def test_wrong_niveau_redirects(self, client, eleve, matiere):
+        """
+        Teste: un élève terminale est redirigé s'il tente d'accéder à un chapitre de seconde
+        Raison: le filtrage par niveau empêche l'accès à du contenu hors programme
+        Features: vue chapitre, filtrage par niveau, sécurité d'accès
+        Criticité: haute
+        """
         chap_sec = Chapitre.objects.create(matiere=matiere, niveau="seconde", titre="Chap Sec", ordre=1)
         client.force_login(eleve)
         response = client.get(reverse("chapitre", kwargs={"chapitre_pk": chap_sec.pk}))
@@ -358,13 +553,24 @@ class TestChapitreView:
 
     @pytest.mark.django_db
     def test_locked_chapitre_redirects(self, client, eleve, chapitre):
-        """Eleve without ChapitreDebloque is redirected."""
+        """
+        Teste: un élève sans ChapitreDebloque est redirigé depuis la vue chapitre
+        Raison: le mécanisme de déblocage progressif doit empêcher l'accès prématuré
+        Features: vue chapitre, déblocage progressif, progression
+        Criticité: haute
+        """
         client.force_login(eleve)
         response = client.get(reverse("chapitre", kwargs={"chapitre_pk": chapitre.pk}))
         assert response.status_code == 302
 
     @pytest.mark.django_db
     def test_unlocked_chapitre_returns_200(self, client, eleve, chapitre):
+        """
+        Teste: un élève avec chapitre débloqué obtient 200 sur la vue chapitre
+        Raison: vérifier que le mécanisme de déblocage autorise correctement l'accès
+        Features: vue chapitre, déblocage progressif, accès élève
+        Criticité: moyenne
+        """
         from progress.models import ChapitreDebloque
         ChapitreDebloque.objects.create(user=eleve, chapitre=chapitre)
         client.force_login(eleve)
@@ -373,6 +579,12 @@ class TestChapitreView:
 
     @pytest.mark.django_db
     def test_chapitre_context_has_lecons_data(self, client, eleve, chapitre, lecon_gratuite):
+        """
+        Teste: le contexte contient lecons_data et nb_lecons pour le template
+        Raison: l'absence de ces clés provoquerait une erreur de rendu dans le template chapitre
+        Features: vue chapitre, contexte template, liste des leçons
+        Criticité: basse
+        """
         from progress.models import ChapitreDebloque
         ChapitreDebloque.objects.create(user=eleve, chapitre=chapitre)
         client.force_login(eleve)
@@ -382,6 +594,12 @@ class TestChapitreView:
 
     @pytest.mark.django_db
     def test_admin_bypasses_unlock_check(self, client, admin_user, chapitre):
+        """
+        Teste: un admin accède au chapitre sans ChapitreDebloque
+        Raison: l'admin doit pouvoir consulter tout le contenu sans restriction de déblocage
+        Features: vue chapitre, rôle admin, bypass déblocage
+        Criticité: moyenne
+        """
         client.force_login(admin_user)
         response = client.get(reverse("chapitre", kwargs={"chapitre_pk": chapitre.pk}))
         assert response.status_code == 200
@@ -389,12 +607,24 @@ class TestChapitreView:
 
 class TestLeconView:
     def test_lecon_requires_login(self, client, lecon_gratuite):
+        """
+        Teste: la vue leçon redirige vers la connexion pour un visiteur anonyme
+        Raison: l'accès au contenu pédagogique nécessite une authentification
+        Features: vue leçon, contrôle d'accès, @login_required
+        Criticité: haute
+        """
         response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk}))
         assert response.status_code == 302
         assert "/connexion/" in response["Location"]
 
     @pytest.mark.django_db
     def test_wrong_niveau_redirects(self, client, eleve, matiere):
+        """
+        Teste: un élève terminale est redirigé s'il tente d'accéder à une leçon de seconde
+        Raison: le filtrage par niveau empêche l'accès à du contenu hors programme
+        Features: vue leçon, filtrage par niveau, sécurité d'accès
+        Criticité: haute
+        """
         chap_sec = Chapitre.objects.create(matiere=matiere, niveau="seconde", titre="Chap Sec L", ordre=1)
         lecon_sec = Lecon.objects.create(chapitre=chap_sec, titre="Lecon Sec", contenu="c", ordre=1)
         client.force_login(eleve)
@@ -403,12 +633,24 @@ class TestLeconView:
 
     @pytest.mark.django_db
     def test_locked_chapitre_redirects(self, client, eleve, lecon_gratuite):
+        """
+        Teste: un élève sans chapitre débloqué est redirigé depuis la vue leçon
+        Raison: le déblocage progressif doit empêcher l'accès aux leçons d'un chapitre verrouillé
+        Features: vue leçon, déblocage progressif, progression
+        Criticité: haute
+        """
         client.force_login(eleve)
         response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk}))
         assert response.status_code == 302
 
     @pytest.mark.django_db
     def test_lecon_returns_200_when_unlocked(self, client, eleve, lecon_gratuite):
+        """
+        Teste: un élève avec chapitre débloqué obtient 200 sur la vue leçon
+        Raison: vérifier que l'accès est autorisé quand toutes les conditions sont remplies
+        Features: vue leçon, déblocage progressif, accès élève
+        Criticité: moyenne
+        """
         from progress.models import ChapitreDebloque
         ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
         client.force_login(eleve)
@@ -417,6 +659,12 @@ class TestLeconView:
 
     @pytest.mark.django_db
     def test_lecon_marks_en_cours_on_first_access(self, client, eleve, lecon_gratuite):
+        """
+        Teste: la première visite d'une leçon crée une UserProgression en statut en_cours
+        Raison: la progression doit être tracée automatiquement dès le premier accès
+        Features: vue leçon, UserProgression, tracking progression
+        Criticité: moyenne
+        """
         from progress.models import ChapitreDebloque, UserProgression
         ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
         client.force_login(eleve)
@@ -426,6 +674,12 @@ class TestLeconView:
 
     @pytest.mark.django_db
     def test_lecon_context_has_contenu_html(self, client, eleve, lecon_gratuite):
+        """
+        Teste: le contexte contient la clé contenu_html pour le rendu Markdown
+        Raison: l'absence de cette clé empêcherait l'affichage du contenu de la leçon
+        Features: vue leçon, rendu Markdown, contexte template
+        Criticité: basse
+        """
         from progress.models import ChapitreDebloque
         ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
         client.force_login(eleve)
@@ -434,12 +688,24 @@ class TestLeconView:
 
     @pytest.mark.django_db
     def test_admin_bypasses_unlock(self, client, admin_user, lecon_gratuite):
+        """
+        Teste: un admin accède à la leçon sans ChapitreDebloque
+        Raison: l'admin doit pouvoir consulter tout le contenu sans restriction
+        Features: vue leçon, rôle admin, bypass déblocage
+        Criticité: moyenne
+        """
         client.force_login(admin_user)
         response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk}))
         assert response.status_code == 200
 
     @pytest.mark.django_db
     def test_lecon_second_access_keeps_en_cours(self, client, eleve, lecon_gratuite):
+        """
+        Teste: un deuxième accès à la leçon conserve le statut en_cours sans le réinitialiser
+        Raison: la progression ne doit pas régresser ou créer de doublons lors de visites répétées
+        Features: vue leçon, UserProgression, idempotence
+        Criticité: moyenne
+        """
         from progress.models import ChapitreDebloque, UserProgression
         ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
         client.force_login(eleve)
@@ -452,12 +718,24 @@ class TestLeconView:
 
 class TestQuizDisplayView:
     def test_quiz_requires_login(self, client, lecon_gratuite):
+        """
+        Teste: la vue quiz redirige vers la connexion pour un visiteur anonyme
+        Raison: l'accès aux quiz nécessite une authentification pour tracker les résultats
+        Features: vue quiz, contrôle d'accès, @login_required
+        Criticité: haute
+        """
         response = client.get(reverse("quiz", kwargs={"lecon_pk": lecon_gratuite.pk}))
         assert response.status_code == 302
         assert "/connexion/" in response["Location"]
 
     @pytest.mark.django_db
     def test_quiz_returns_200_with_questions(self, client, eleve, lecon_gratuite):
+        """
+        Teste: un élève avec chapitre débloqué et quiz existant obtient 200
+        Raison: vérifier le fonctionnement nominal de la vue quiz avec des questions
+        Features: vue quiz, affichage questions, accès élève
+        Criticité: moyenne
+        """
         from progress.models import ChapitreDebloque
         ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
         quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Test Quiz")
@@ -473,6 +751,12 @@ class TestQuizDisplayView:
 
     @pytest.mark.django_db
     def test_quiz_no_quiz_redirects_to_lecon(self, client, eleve, lecon_gratuite):
+        """
+        Teste: une leçon sans quiz redirige l'élève vers la page leçon
+        Raison: éviter une erreur 500 si le quiz n'existe pas encore pour cette leçon
+        Features: vue quiz, redirection, robustesse
+        Criticité: moyenne
+        """
         from progress.models import ChapitreDebloque
         ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
         client.force_login(eleve)
@@ -482,6 +766,12 @@ class TestQuizDisplayView:
 
     @pytest.mark.django_db
     def test_quiz_context_has_question_ids(self, client, eleve, lecon_gratuite):
+        """
+        Teste: le contexte contient question_ids et questions pour le template quiz
+        Raison: ces clés sont nécessaires au formulaire HTMX de soumission du quiz
+        Features: vue quiz, contexte template, formulaire quiz
+        Criticité: basse
+        """
         from progress.models import ChapitreDebloque
         ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
         quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Test Quiz")
@@ -498,6 +788,12 @@ class TestQuizDisplayView:
 
     @pytest.mark.django_db
     def test_quiz_selects_max_5_questions(self, client, eleve, lecon_gratuite):
+        """
+        Teste: la vue quiz sélectionne au maximum 5 questions même si le quiz en contient plus
+        Raison: limiter le nombre de questions par session pour une expérience pédagogique optimale
+        Features: vue quiz, sélection questions, limite 5 questions
+        Criticité: moyenne
+        """
         from progress.models import ChapitreDebloque
         ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
         quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Big Quiz")
@@ -512,6 +808,12 @@ class TestQuizDisplayView:
         assert len(response.context["questions"]) <= 5
 
     def test_header_only_csv_no_crash(self, tmp_path, db):
+        """
+        Teste: un fichier CSV avec seulement l'en-tête ne provoque pas de crash
+        Raison: un CSV vide (sans lignes de données) doit être géré gracieusement
+        Features: import CSV, robustesse, validation fichier
+        Criticité: basse
+        """
         from django.core.management import call_command
         csv_content = "quiz_lecon_slug,texte,type,reponse_correcte,options,tolerances,explication,points,ordre,difficulte\n"
         csv_file = tmp_path / "empty.csv"
@@ -519,6 +821,12 @@ class TestQuizDisplayView:
         call_command("import_questions", str(csv_file))
 
     def test_qcm_options_parsed_as_json(self, tmp_path, db, matiere, chapitre):
+        """
+        Teste: les options QCM au format JSON dans le CSV sont correctement parsées en liste Python
+        Raison: un parsing incorrect des options rendrait les questions QCM inutilisables
+        Features: import CSV, parsing JSON, questions QCM
+        Criticité: moyenne
+        """
         from django.core.management import call_command
         lecon = Lecon.objects.create(chapitre=chapitre, titre="QCM opts", contenu="c", ordre=12)
         Quiz.objects.create(lecon=lecon, titre="Q qcm")
@@ -542,18 +850,36 @@ class TestRevisionsView:
     """Tests for the revisions_view (spaced repetition page)."""
 
     def test_revisions_requires_login(self, client):
+        """
+        Teste: la vue révisions redirige vers la connexion pour un visiteur anonyme
+        Raison: les révisions sont liées à l'historique personnel de l'élève
+        Features: vue révisions, contrôle d'accès, @login_required
+        Criticité: haute
+        """
         response = client.get(reverse("revisions"))
         assert response.status_code == 302
         assert "/connexion/" in response["Location"]
 
     @pytest.mark.django_db
     def test_revisions_returns_200(self, client, eleve):
+        """
+        Teste: un élève authentifié obtient 200 sur la page révisions
+        Raison: vérifier le fonctionnement nominal de la page répétition espacée
+        Features: vue révisions, accès élève, répétition espacée
+        Criticité: moyenne
+        """
         client.force_login(eleve)
         response = client.get(reverse("revisions"))
         assert response.status_code == 200
 
     @pytest.mark.django_db
     def test_revisions_context_has_box_display(self, client, eleve):
+        """
+        Teste: le contexte contient box_display, nb_dues et total_historiques pour le template
+        Raison: ces clés sont nécessaires à l'affichage des boîtes Leitner et du compteur de révisions
+        Features: vue révisions, contexte template, système Leitner
+        Criticité: basse
+        """
         client.force_login(eleve)
         response = client.get(reverse("revisions"))
         assert "box_display" in response.context
@@ -562,6 +888,12 @@ class TestRevisionsView:
 
     @pytest.mark.django_db
     def test_revisions_shows_due_questions(self, client, eleve, lecon_gratuite):
+        """
+        Teste: les questions dont la date de révision est aujourd'hui apparaissent dans le contexte
+        Raison: le système Leitner doit présenter les questions dues au bon moment
+        Features: vue révisions, répétition espacée, questions dues
+        Criticité: moyenne
+        """
         from progress.models import UserQuestionHistorique
         from datetime import date
         quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Rev Q")
@@ -579,6 +911,12 @@ class TestRevisionsView:
 
     @pytest.mark.django_db
     def test_revisions_hides_future_questions(self, client, eleve, lecon_gratuite):
+        """
+        Teste: les questions dont la révision est dans le futur ne sont pas affichées
+        Raison: présenter des questions non dues casserait le rythme de répétition espacée
+        Features: vue révisions, répétition espacée, filtrage temporel
+        Criticité: moyenne
+        """
         from progress.models import UserQuestionHistorique
         from datetime import date, timedelta
         quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Rev Q2")
@@ -600,24 +938,48 @@ class TestSoumettreRevisions:
     """Tests for soumettre_revisions view (revision quiz submission)."""
 
     def test_soumettre_revisions_requires_login(self, client):
+        """
+        Teste: la soumission de révisions redirige vers la connexion pour un visiteur anonyme
+        Raison: les résultats de révision sont liés au profil utilisateur
+        Features: soumission révisions, contrôle d'accès, @login_required
+        Criticité: haute
+        """
         response = client.post(reverse("soumettre_revisions"))
         assert response.status_code == 302
         assert "/connexion/" in response["Location"]
 
     @pytest.mark.django_db
     def test_get_redirects_to_revisions(self, client, eleve):
+        """
+        Teste: une requête GET sur soumettre_revisions redirige vers la page révisions
+        Raison: la soumission ne doit se faire que via POST pour éviter les doubles soumissions
+        Features: soumission révisions, méthode HTTP, redirection
+        Criticité: basse
+        """
         client.force_login(eleve)
         response = client.get(reverse("soumettre_revisions"))
         assert response.status_code == 302
 
     @pytest.mark.django_db
     def test_soumettre_revisions_empty_ids_redirects(self, client, eleve):
+        """
+        Teste: une soumission avec question_ids vide redirige sans erreur
+        Raison: éviter un crash si le formulaire est soumis sans sélection de questions
+        Features: soumission révisions, validation données, robustesse
+        Criticité: basse
+        """
         client.force_login(eleve)
         response = client.post(reverse("soumettre_revisions"), {"question_ids": ""})
         assert response.status_code == 302
 
     @pytest.mark.django_db
     def test_soumettre_revisions_renders_resultat(self, client, eleve, lecon_gratuite):
+        """
+        Teste: une soumission valide affiche la page résultat avec les corrections
+        Raison: vérifier le parcours complet de soumission et d'affichage des résultats
+        Features: soumission révisions, évaluation réponses, page résultat
+        Criticité: moyenne
+        """
         from progress.models import UserQuestionHistorique
         from datetime import date
         from django.core.cache import cache
@@ -639,6 +1001,12 @@ class TestSoumettreRevisions:
 
     @pytest.mark.django_db
     def test_soumettre_revisions_updates_leitner(self, client, eleve, lecon_gratuite):
+        """
+        Teste: une bonne réponse en révision fait progresser la question dans la boîte Leitner suivante
+        Raison: le système de répétition espacée repose sur la progression entre boîtes
+        Features: soumission révisions, système Leitner, mise à jour boîte
+        Criticité: moyenne
+        """
         from progress.models import UserQuestionHistorique
         from datetime import date
         from django.core.cache import cache
@@ -667,25 +1035,45 @@ class TestSoumettreRevisions:
 class TestAccueilView:
     @pytest.mark.django_db
     def test_accueil_accessible_anonymous(self, client):
-        """GET "/" sans authentification → 200."""
+        """
+        Teste: la page d'accueil est accessible sans authentification avec un code 200
+        Raison: la landing page doit être publique pour attirer de nouveaux utilisateurs
+        Features: page accueil, accès public, SEO
+        Criticité: haute
+        """
         response = client.get("/")
         assert response.status_code == 200
 
     @pytest.mark.django_db
     def test_accueil_renders_accueil_template(self, client):
-        """La page d'accueil utilise le template courses/accueil.html."""
+        """
+        Teste: la page d'accueil utilise le template courses/accueil.html
+        Raison: vérifier que le bon template est utilisé pour éviter un rendu inattendu
+        Features: page accueil, template, rendu
+        Criticité: basse
+        """
         response = client.get("/")
         assert "courses/accueil.html" in [t.name for t in response.templates]
 
     @pytest.mark.django_db
     def test_accueil_context_has_matieres_data(self, client, matiere):
-        """Le contexte contient 'matieres_data'."""
+        """
+        Teste: le contexte de la page d'accueil contient matieres_data
+        Raison: cette clé est nécessaire pour afficher les matières sur la landing page
+        Features: page accueil, contexte template, liste matières
+        Criticité: basse
+        """
         response = client.get("/")
         assert "matieres_data" in response.context
 
     @pytest.mark.django_db
     def test_authenticated_user_redirected_to_dashboard(self, client, eleve):
-        """Un utilisateur connecté sur "/" est redirigé vers le tableau de bord."""
+        """
+        Teste: un utilisateur connecté sur "/" est redirigé vers le tableau de bord
+        Raison: les élèves connectés doivent accéder directement à leur espace personnalisé
+        Features: page accueil, redirection, tableau de bord
+        Criticité: moyenne
+        """
         client.force_login(eleve)
         response = client.get("/")
         assert response.status_code == 302
@@ -696,26 +1084,62 @@ class TestYoutubeHelper:
     """Tests unitaires pour _extraire_youtube_id."""
 
     def test_standard_url(self):
+        """
+        Teste: extraction de l'ID YouTube depuis une URL standard youtube.com/watch?v=
+        Raison: c'est le format d'URL le plus courant collé par les enseignants
+        Features: helper YouTube, extraction ID, URL standard
+        Criticité: basse
+        """
         from courses.views import _extraire_youtube_id
         assert _extraire_youtube_id("https://www.youtube.com/watch?v=dQw4w9WgXcQ") == "dQw4w9WgXcQ"
 
     def test_short_url(self):
+        """
+        Teste: extraction de l'ID YouTube depuis une URL courte youtu.be/
+        Raison: les URL courtes sont fréquemment utilisées dans les partages
+        Features: helper YouTube, extraction ID, URL courte
+        Criticité: basse
+        """
         from courses.views import _extraire_youtube_id
         assert _extraire_youtube_id("https://youtu.be/dQw4w9WgXcQ") == "dQw4w9WgXcQ"
 
     def test_embed_url(self):
+        """
+        Teste: extraction de l'ID YouTube depuis une URL embed youtube.com/embed/
+        Raison: les vidéos intégrées utilisent ce format dans les iframes
+        Features: helper YouTube, extraction ID, URL embed
+        Criticité: basse
+        """
         from courses.views import _extraire_youtube_id
         assert _extraire_youtube_id("https://www.youtube.com/embed/dQw4w9WgXcQ") == "dQw4w9WgXcQ"
 
     def test_none_input(self):
+        """
+        Teste: un input None retourne None sans erreur
+        Raison: la leçon peut ne pas avoir de vidéo YouTube associée
+        Features: helper YouTube, robustesse, valeur nulle
+        Criticité: basse
+        """
         from courses.views import _extraire_youtube_id
         assert _extraire_youtube_id(None) is None
 
     def test_empty_string(self):
+        """
+        Teste: une chaîne vide retourne None sans erreur
+        Raison: un champ vidéo vide ne doit pas provoquer d'exception
+        Features: helper YouTube, robustesse, chaîne vide
+        Criticité: basse
+        """
         from courses.views import _extraire_youtube_id
         assert _extraire_youtube_id("") is None
 
     def test_invalid_url(self):
+        """
+        Teste: une URL invalide (non YouTube) retourne None sans erreur
+        Raison: une URL malformée collée par erreur ne doit pas crasher la page
+        Features: helper YouTube, robustesse, validation URL
+        Criticité: basse
+        """
         from courses.views import _extraire_youtube_id
         assert _extraire_youtube_id("not a youtube url") is None
 
@@ -724,6 +1148,12 @@ class TestLatexHelpers:
     """Tests unitaires pour _proteger_latex et _restaurer_latex."""
 
     def test_proteger_inline_latex(self):
+        """
+        Teste: les expressions LaTeX inline $...$ sont remplacées par des placeholders
+        Raison: protéger le LaTeX inline du traitement Markdown qui casserait la syntaxe
+        Features: helper LaTeX, protection inline, rendu Markdown
+        Criticité: moyenne
+        """
         from courses.views import _proteger_latex
         texte = "Voici $x^2$ et $y$"
         result, placeholders = _proteger_latex(texte)
@@ -732,6 +1162,12 @@ class TestLatexHelpers:
         assert "$y$" not in result
 
     def test_proteger_display_latex(self):
+        """
+        Teste: les expressions LaTeX display $$...$$ sont remplacées par des placeholders
+        Raison: protéger le LaTeX display du traitement Markdown qui casserait la syntaxe
+        Features: helper LaTeX, protection display, rendu Markdown
+        Criticité: moyenne
+        """
         from courses.views import _proteger_latex
         texte = "Voici $$E=mc^2$$"
         result, placeholders = _proteger_latex(texte)
@@ -739,6 +1175,12 @@ class TestLatexHelpers:
         assert "$$E=mc^2$$" not in result
 
     def test_restaurer_restores_original(self):
+        """
+        Teste: la restauration des placeholders reconstitue le texte LaTeX original
+        Raison: le cycle complet protéger/restaurer doit être sans perte pour l'affichage KaTeX
+        Features: helper LaTeX, restauration, intégrité contenu
+        Criticité: moyenne
+        """
         from courses.views import _proteger_latex, _restaurer_latex
         original = "Voici $x^2$ et $$E=mc^2$$"
         protected, placeholders = _proteger_latex(original)
@@ -746,6 +1188,12 @@ class TestLatexHelpers:
         assert restored == original
 
     def test_no_latex_unchanged(self):
+        """
+        Teste: un texte sans LaTeX reste inchangé après protection
+        Raison: la fonction ne doit pas altérer le contenu non-LaTeX
+        Features: helper LaTeX, cas sans LaTeX, idempotence
+        Criticité: basse
+        """
         from courses.views import _proteger_latex
         texte = "No LaTeX here"
         result, placeholders = _proteger_latex(texte)
@@ -753,6 +1201,12 @@ class TestLatexHelpers:
         assert len(placeholders) == 0
 
     def test_mixed_inline_and_display(self):
+        """
+        Teste: un texte mélangeant LaTeX inline et display est correctement protégé
+        Raison: les leçons mélangent souvent les deux formats dans le même contenu
+        Features: helper LaTeX, protection mixte, inline et display
+        Criticité: moyenne
+        """
         from courses.views import _proteger_latex
         texte = "Inline $a+b$ puis display $$\\int_0^1 x\\,dx$$"
         result, placeholders = _proteger_latex(texte)
@@ -764,7 +1218,12 @@ class TestLatexHelpers:
 class TestCatalogueView:
     @pytest.mark.django_db
     def test_catalogue_nonexistent_matiere_returns_404(self, client):
-        """Slug inexistant → 404."""
+        """
+        Teste: un slug de matière inexistant retourne une erreur 404
+        Raison: éviter un crash 500 sur une URL de catalogue avec un slug invalide
+        Features: vue catalogue, gestion 404, robustesse URL
+        Criticité: moyenne
+        """
         response = client.get(
             reverse("catalogue_matiere", kwargs={"matiere_slug": "inexistant"})
         )
@@ -772,7 +1231,12 @@ class TestCatalogueView:
 
     @pytest.mark.django_db
     def test_catalogue_context_has_niveaux_data(self, client, matiere):
-        """Le contexte contient 'niveaux_data'."""
+        """
+        Teste: le contexte du catalogue contient la clé niveaux_data
+        Raison: cette clé est nécessaire pour afficher la structure par niveaux dans le template
+        Features: vue catalogue, contexte template, structure niveaux
+        Criticité: basse
+        """
         response = client.get(
             reverse("catalogue_matiere", kwargs={"matiere_slug": matiere.slug})
         )
@@ -781,7 +1245,12 @@ class TestCatalogueView:
 
     @pytest.mark.django_db
     def test_catalogue_contains_chapitre_titles(self, client, chapitre):
-        """Le HTML contient le titre du chapitre."""
+        """
+        Teste: le HTML du catalogue contient le titre du chapitre existant
+        Raison: vérifier que les chapitres sont bien affichés dans le catalogue public
+        Features: vue catalogue, affichage chapitres, rendu HTML
+        Criticité: basse
+        """
         response = client.get(
             reverse("catalogue_matiere", kwargs={"matiere_slug": chapitre.matiere.slug})
         )
@@ -790,7 +1259,12 @@ class TestCatalogueView:
 
     @pytest.mark.django_db
     def test_catalogue_accessible_when_authenticated(self, client, eleve, matiere):
-        """La page catalogue est aussi accessible aux utilisateurs connectés."""
+        """
+        Teste: le catalogue est aussi accessible aux utilisateurs connectés
+        Raison: un élève connecté doit pouvoir consulter le catalogue public sans erreur
+        Features: vue catalogue, accès authentifié, compatibilité
+        Criticité: basse
+        """
         client.force_login(eleve)
         response = client.get(
             reverse("catalogue_matiere", kwargs={"matiere_slug": matiere.slug})
@@ -801,18 +1275,33 @@ class TestCatalogueView:
 class TestErrorPages:
     @pytest.mark.django_db
     def test_404_returns_404_status(self, client):
-        """GET sur une URL inexistante → 404."""
+        """
+        Teste: une URL inexistante retourne bien un code 404
+        Raison: le handler 404 personnalisé doit retourner le bon code HTTP
+        Features: page 404, gestion erreurs, handler personnalisé
+        Criticité: moyenne
+        """
         response = client.get("/cette-url-nexiste-pas/")
         assert response.status_code == 404
 
     @pytest.mark.django_db
     def test_404_contains_message(self, client):
-        """La page 404 contient un message d'erreur."""
+        """
+        Teste: la page 404 contient un message d'erreur compréhensible
+        Raison: l'utilisateur doit comprendre qu'il est sur une page introuvable
+        Features: page 404, UX erreur, message utilisateur
+        Criticité: basse
+        """
         response = client.get("/cette-url-nexiste-pas/")
         assert b"introuvable" in response.content or b"404" in response.content
 
     def test_500_template_exists(self):
-        """Le template 500.html existe et est chargeable."""
+        """
+        Teste: le template 500.html existe et est chargeable par Django
+        Raison: une erreur 500 avec un template manquant donnerait une page blanche
+        Features: page 500, gestion erreurs, template
+        Criticité: moyenne
+        """
         from django.template.loader import get_template
         template = get_template("500.html")
         assert template is not None

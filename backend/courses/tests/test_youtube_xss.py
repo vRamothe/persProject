@@ -4,8 +4,10 @@ from courses.views import _extraire_youtube_id, _generer_video_html
 
 def test_extraire_youtube_id_is_safe():
     """
-    Vérifie que l'expression régulière n'extrait que l'ID de 11 caractères
-    et ignore les tentatives d'injection XSS dans l'URL.
+    Teste: L'extraction d'ID YouTube ignore les tentatives d'injection XSS dans l'URL
+    Raison: Un attaquant pourrait injecter du JavaScript via une URL YouTube malveillante
+    Features: extraction YouTube, sécurité XSS
+    Criticité: haute
     """
     malicious_urls = [
         # XSS collé après un ID valide
@@ -28,8 +30,10 @@ def test_extraire_youtube_id_is_safe():
 
 def test_generer_video_html_escapes_title():
     """
-    Vérifie que le titre de la leçon est bien échappé pour empêcher 
-    les attaques XSS par évasion de l'attribut HTML 'title'.
+    Teste: Le titre de la leçon est échappé HTML pour empêcher l'injection XSS via l'attribut title
+    Raison: Un titre malveillant pourrait fermer l'attribut et injecter un événement JavaScript
+    Features: rendu vidéo, sécurité XSS, échappement HTML
+    Criticité: haute
     """
     class MockLecon:
         # Titre malveillant cherchant à fermer l'attribut title et injecter un événement
@@ -43,6 +47,6 @@ def test_generer_video_html_escapes_title():
 
     # Le guillemet doit être échappé (en &quot; ou similaire par Django)
     assert 'title="Vidéo de test&quot; onload=&quot;alert(&#x27;XSS&#x27;)&quot;"' in html
-    
+
     # La chaîne brute dangereuse ne doit pas se trouver dans le HTML final
     assert 'Vidéo de test" onload="alert' not in html

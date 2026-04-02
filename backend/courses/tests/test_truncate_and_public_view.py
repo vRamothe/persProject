@@ -105,14 +105,24 @@ def lecon_premium_courte(chapitre):
 
 class TestTronquerContenuMarkdown:
     def test_tronquer_contenu_court(self):
-        """Contenu < 2000 mots → retourné intact, a_ete_tronque=False."""
+        """
+        Teste: Contenu < 2000 mots retourné intact avec a_ete_tronque=False
+        Raison: Vérifie que la truncation ne modifie pas un contenu court
+        Features: truncation markdown, paywall
+        Criticité: moyenne
+        """
         contenu = "Un deux trois quatre cinq."
         resultat, a_ete_tronque = tronquer_contenu_markdown(contenu)
         assert resultat == contenu
         assert a_ete_tronque is False
 
     def test_tronquer_contenu_long(self):
-        """Contenu > 2000 mots → tronqué, a_ete_tronque=True, ≤ 2000 mots."""
+        """
+        Teste: Contenu > 2000 mots tronqué avec a_ete_tronque=True et ≤ 2000 mots en sortie
+        Raison: Vérifie que le contenu premium long est bien coupé pour le paywall
+        Features: truncation markdown, paywall
+        Criticité: moyenne
+        """
         contenu = _generer_contenu_long(2500)
         resultat, a_ete_tronque = tronquer_contenu_markdown(contenu)
         assert a_ete_tronque is True
@@ -120,7 +130,12 @@ class TestTronquerContenuMarkdown:
         assert nb_mots_resultat <= 2000
 
     def test_tronquer_coupe_sur_paragraphe(self):
-        """La coupure se fait sur \\n\\n, pas au milieu d'une phrase."""
+        """
+        Teste: La coupure se fait sur une frontière de paragraphe, pas au milieu d'une phrase
+        Raison: Évite un rendu cassé avec du Markdown tronqué en plein milieu de texte
+        Features: truncation markdown, rendu public
+        Criticité: moyenne
+        """
         # Construire un contenu avec des paragraphes clairs
         paragraphes = []
         for i in range(250):
@@ -137,7 +152,12 @@ class TestTronquerContenuMarkdown:
         assert contenu.startswith(resultat)
 
     def test_tronquer_contenu_vide(self):
-        """Contenu vide → retourné intact."""
+        """
+        Teste: Contenu vide retourné intact sans erreur
+        Raison: Cas limite — la fonction ne doit pas planter sur une chaîne vide
+        Features: truncation markdown
+        Criticité: basse
+        """
         resultat, a_ete_tronque = tronquer_contenu_markdown("")
         assert resultat == ""
         assert a_ete_tronque is False
@@ -161,13 +181,23 @@ def _url_publique(lecon):
 class TestLeconPubliqueView:
     @pytest.mark.django_db
     def test_premium_lecon_publique_no_redirect(self, client, lecon_premium_courte):
-        """GET leçon premium en anonyme → status 200 (plus de redirect)."""
+        """
+        Teste: GET leçon premium en anonyme retourne un status 200 sans redirection
+        Raison: Les visiteurs anonymes doivent voir l'aperçu tronqué, pas être redirigés
+        Features: lecon_publique_view, accès premium
+        Criticité: haute
+        """
         response = client.get(_url_publique(lecon_premium_courte))
         assert response.status_code == 200
 
     @pytest.mark.django_db
     def test_premium_lecon_publique_content_truncated(self, client, lecon_premium_longue):
-        """GET leçon premium en anonyme → le texte au-delà des ~2000 mots est absent."""
+        """
+        Teste: GET leçon premium en anonyme — le texte au-delà des ~2000 mots est absent du HTML
+        Raison: Le contenu premium ne doit pas fuiter au-delà de la troncature côté serveur
+        Features: lecon_publique_view, truncation markdown, accès premium
+        Criticité: haute
+        """
         response = client.get(_url_publique(lecon_premium_longue))
         assert response.status_code == 200
         html = response.content.decode()
@@ -175,7 +205,12 @@ class TestLeconPubliqueView:
 
     @pytest.mark.django_db
     def test_premium_lecon_publique_blur_classes_present(self, client, lecon_premium_courte):
-        """Le HTML contient la div paywall-blur-container pour une leçon premium en anonyme."""
+        """
+        Teste: Le HTML contient la div paywall-blur-container pour une leçon premium en anonyme
+        Raison: Le blur CSS doit être appliqué pour signaler visuellement le contenu premium
+        Features: lecon_publique_view, paywall blur
+        Criticité: moyenne
+        """
         response = client.get(_url_publique(lecon_premium_courte))
         html = response.content.decode()
         # Vérifier la div blur (pas juste la définition CSS)
@@ -183,14 +218,24 @@ class TestLeconPubliqueView:
 
     @pytest.mark.django_db
     def test_premium_lecon_publique_cta_present(self, client, lecon_premium_courte):
-        """Le bouton 'Débloquer cette leçon' est présent pour une leçon premium."""
+        """
+        Teste: Le bouton 'Débloquer cette leçon' est présent pour une leçon premium en anonyme
+        Raison: Le CTA de conversion doit être visible pour inciter à l'abonnement
+        Features: lecon_publique_view, paywall CTA
+        Criticité: moyenne
+        """
         response = client.get(_url_publique(lecon_premium_courte))
         html = response.content.decode()
         assert "bloquer cette le" in html.lower()
 
     @pytest.mark.django_db
     def test_free_lecon_publique_no_blur(self, client, lecon_gratuite):
-        """GET leçon gratuite → pas de div paywall-blur-container."""
+        """
+        Teste: GET leçon gratuite — pas de div paywall-blur-container dans le HTML
+        Raison: Les leçons gratuites ne doivent jamais afficher le blur paywall
+        Features: lecon_publique_view, paywall blur, leçons gratuites
+        Criticité: moyenne
+        """
         response = client.get(_url_publique(lecon_gratuite))
         assert response.status_code == 200
         html = response.content.decode()
@@ -199,7 +244,12 @@ class TestLeconPubliqueView:
 
     @pytest.mark.django_db
     def test_admin_redirected_to_lecon_view(self, client, admin_user, lecon_gratuite):
-        """Un admin authentifié est redirigé vers la vue lecon PK."""
+        """
+        Teste: Un admin authentifié est redirigé vers la vue leçon par PK
+        Raison: Les admins doivent accéder à la vue complète, pas à la vue publique tronquée
+        Features: lecon_publique_view, redirection admin
+        Criticité: moyenne
+        """
         client.force_login(admin_user)
         response = client.get(_url_publique(lecon_gratuite))
         assert response.status_code == 302
@@ -216,7 +266,12 @@ class TestPaywallVisuel:
 
     @pytest.mark.django_db
     def test_catalogue_shows_lock_icon_on_premium_lessons(self, client, matiere, lecon_premium_courte):
-        """GET catalogue d'une matière avec leçon premium → 🔒 présent."""
+        """
+        Teste: GET catalogue d'une matière avec leçon premium — icône 🔒 présente
+        Raison: L'indicateur visuel premium doit apparaître pour informer les visiteurs
+        Features: catalogue, paywall visuel, badge premium
+        Criticité: moyenne
+        """
         url = reverse("catalogue_matiere", kwargs={"matiere_slug": matiere.slug})
         response = client.get(url)
         assert response.status_code == 200
@@ -225,7 +280,12 @@ class TestPaywallVisuel:
 
     @pytest.mark.django_db
     def test_catalogue_no_lock_on_free_lessons(self, client, matiere, chapitre):
-        """GET catalogue avec uniquement des leçons gratuites → aucun 🔒."""
+        """
+        Teste: GET catalogue avec uniquement des leçons gratuites — aucun 🔒 affiché
+        Raison: Les leçons gratuites ne doivent pas afficher d'indicateur de verrouillage
+        Features: catalogue, paywall visuel, leçons gratuites
+        Criticité: moyenne
+        """
         # Créer uniquement des leçons gratuites (sans utiliser la fixture premium)
         Lecon.objects.filter(chapitre=chapitre, gratuit=False).delete()
         Lecon.objects.create(
@@ -243,7 +303,12 @@ class TestPaywallVisuel:
 
     @pytest.mark.django_db
     def test_paywall_modal_markup_present(self, client, lecon_premium_courte):
-        """GET leçon premium en anonyme → composant Alpine showPaywall inclus."""
+        """
+        Teste: GET leçon premium en anonyme — composant Alpine showPaywall inclus dans le HTML
+        Raison: La modal paywall doit être rendue pour permettre la conversion Stripe
+        Features: lecon_publique_view, paywall modal, Stripe checkout
+        Criticité: moyenne
+        """
         response = client.get(_url_publique(lecon_premium_courte))
         assert response.status_code == 200
         html = response.content.decode()
@@ -251,7 +316,12 @@ class TestPaywallVisuel:
 
     @pytest.mark.django_db
     def test_accueil_shows_lock_icon_on_premium_lessons(self, client, lecon_premium_courte):
-        """GET / en anonyme avec leçon premium → 🔒 présent."""
+        """
+        Teste: GET page d'accueil en anonyme avec leçon premium — icône 🔒 présente
+        Raison: Le cadenas premium doit apparaître aussi sur la page d'accueil
+        Features: accueil, paywall visuel, badge premium
+        Criticité: moyenne
+        """
         response = client.get(reverse("home"))
         assert response.status_code == 200
         html = response.content.decode()
