@@ -136,6 +136,15 @@ FIRST_ADMIN_PASSWORD = config("FIRST_ADMIN_PASSWORD", default="Admin1234!")
 FIRST_ADMIN_PRENOM = config("FIRST_ADMIN_PRENOM", default="Administrateur")
 FIRST_ADMIN_NOM = config("FIRST_ADMIN_NOM", default="Principal")
 
+# Email (Brevo SMTP)
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="support@sciencelycee.fr")
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = config("EMAIL_HOST", default="smtp-relay.brevo.com")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+
 # Stripe
 STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
 STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY", default="")
