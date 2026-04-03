@@ -122,6 +122,28 @@ Admin credentials from `.env`: `FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`.
 - Flags: `--dry-run`, `--no-email`
 - Admin panel shows amber "Beta" badge for beta-testers
 
+## Email / SMTP Configuration
+- **Provider**: Brevo (SendinBlue alternative SMTP relay)
+- **Server**: `smtp-relay.brevo.com:587` (TLS)
+- **Config** (`config/settings/base.py`): 
+  - `EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"`
+  - `DEFAULT_FROM_EMAIL`, `EMAIL_HOST`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_PORT`, `EMAIL_USE_TLS`
+  - All read from `.env` via `python-decouple.config()` 
+- **Dev**: `.env` file (local, not committed)
+- **Prod (Heroku)**: `heroku config:set EMAIL_* ...` (secure config vars, no GitHub exposure)
+- **Use cases**: Email verification (registration), password reset, password change confirmation
+- **Sending**: `send_mail(subject, message, from_email, recipient_list)` from `django.core.mail`
+- **.env template** (for developers):
+  ```
+  DEFAULT_FROM_EMAIL=adminsciencelycee@gmail.com
+  EMAIL_HOST=smtp-relay.brevo.com
+  EMAIL_HOST_USER=a6fe06001@smtp-brevo.com
+  EMAIL_HOST_PASSWORD=xsmtpsib-...
+  EMAIL_PORT=587
+  EMAIL_USE_TLS=True
+  ```
+- **.env is in .gitignore** — secrets never committed to GitHub, Heroku injects them at runtime
+
 ## Conventions
 - Views are function-based with `@login_required`; use CBV only when there is a clear reason
 - URLs are named — always use `{% url 'name' %}` in templates

@@ -492,6 +492,13 @@ All widgets use Tailwind classes: `w-full px-4 py-2.5 rounded-lg border border-g
 | `STRIPE_WEBHOOK_SECRET` | from `.env` (decouple) |
 | `STRIPE_PRICE_MONTHLY` | from `.env` (decouple) |
 | `STRIPE_PRICE_ANNUAL` | from `.env` (decouple) |
+| `DEFAULT_FROM_EMAIL` | from `.env` — sender email (e.g. `adminsciencelycee@gmail.com`) |
+| `EMAIL_BACKEND` | `django.core.mail.backends.smtp.EmailBackend` |
+| `EMAIL_HOST` | from `.env` — SMTP server (e.g. `smtp-relay.brevo.com` for Brevo) |
+| `EMAIL_HOST_USER` | from `.env` — SMTP username (e.g. Brevo relay address) |
+| `EMAIL_HOST_PASSWORD` | from `.env` — SMTP password (e.g. Brevo API key) |
+| `EMAIL_PORT` | from `.env` — SMTP port (default 587 for TLS) |
+| `EMAIL_USE_TLS` | from `.env` (cast=bool) — TLS encryption enabled |
 | `INSTALLED_APPS` | django defaults + `django_htmx`, `axes`, `users`, `courses`, `progress`, `django.contrib.sitemaps`, `django.contrib.postgres` |
 | `AUTHENTICATION_BACKENDS` | `AxesStandaloneBackend`, `ModelBackend` |
 | `MIDDLEWARE` (order) | SecurityMiddleware → WhiteNoise → Session → Common → Csrf → Auth → Axes → Messages → XFrame → Htmx |
