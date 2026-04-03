@@ -5,6 +5,7 @@ Usage : python manage.py seed_chimie_orga_terminale
 """
 
 from django.core.management.base import BaseCommand
+from django.utils.text import slugify
 
 
 class Command(BaseCommand):
@@ -51,6 +52,7 @@ class Command(BaseCommand):
             ordre=1,
             defaults={
                 "titre": "Représentations et groupes caractéristiques",
+                "slug": slugify("Représentations et groupes caractéristiques"),
                 "duree_estimee": 35,
                 "contenu": LECON1_CONTENU,
             },
@@ -86,6 +88,7 @@ class Command(BaseCommand):
             ordre=2,
             defaults={
                 "titre": "Nomenclature en chimie organique",
+                "slug": slugify("Nomenclature en chimie organique"),
                 "duree_estimee": 35,
                 "contenu": LECON2_CONTENU,
             },
@@ -121,6 +124,7 @@ class Command(BaseCommand):
             ordre=3,
             defaults={
                 "titre": "Isomérie de constitution et stéréoisomérie",
+                "slug": slugify("Isomérie de constitution et stéréoisomérie"),
                 "duree_estimee": 35,
                 "contenu": LECON3_CONTENU,
             },

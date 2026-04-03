@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.utils.text import slugify
 
 
 PLAN_ENRICHISSEMENT_TERMINALE = {
@@ -253,8 +254,10 @@ class Command(BaseCommand):
             ordre=lecon_data["ordre"],
             defaults={
                 "titre": lecon_data["titre"],
+                "slug": slugify(lecon_data["titre"]),
                 "contenu": lecon_data["contenu"],
                 "duree_estimee": lecon_data.get("duree", 15),
+                "gratuit": lecon_data.get("gratuit", False),
             },
         )
 

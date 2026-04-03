@@ -514,17 +514,17 @@ All widgets use Tailwind classes: `w-full px-4 py-2.5 rounded-lg border border-g
 
 | Command | File | Purpose |
 |---------|------|---------|
-| `seed_data` | `seed_data.py` | Idempotent: creates admin + sample Matière/Chapitre/Lecon (Terminale) |
-| `seed_content` | `seed_content.py` | Seed content (Terminale base) |
-| `seed_content_new` | `seed_content_new.py` | Additional Terminale content |
+| `seed_data` | `seed_data.py` | Idempotent: creates admin + sample Matière/Chapitre/Lecon (Terminale). `_create_lecon` includes `slug` (via `slugify`) and `gratuit` in `update_or_create` defaults |
+| `seed_content` | `seed_content.py` | Seed content (Terminale base); first lesson per chapter marked `gratuit: True` |
+| `seed_content_new` | `seed_content_new.py` | Additional Terminale content; first lesson per chapter marked `gratuit: True` |
 | `seed_content_tail` | `seed_content_tail.py` | Terminale tail content |
-| `seed_chimie_seconde` | `seed_chimie_seconde.py` | Chimie Seconde chapters + lessons + quizzes |
-| `seed_physique_seconde` | `seed_physique_seconde.py` | Physique Seconde chapters + lessons + quizzes |
-| `seed_maths_seconde` | `seed_maths_seconde.py` | Maths Seconde chapters + lessons + quizzes |
+| `seed_chimie_seconde` | `seed_chimie_seconde.py` | Chimie Seconde chapters + lessons + quizzes; `slug` in leçon defaults |
+| `seed_physique_seconde` | `seed_physique_seconde.py` | Physique Seconde chapters + lessons + quizzes; `slug` in leçon defaults |
+| `seed_maths_seconde` | `seed_maths_seconde.py` | Maths Seconde chapters + lessons + quizzes; `slug` in leçon defaults |
 | `seed_chimie_premiere` | `seed_chimie_premiere.py` | Chimie Première chapters + lessons + quizzes |
-| `seed_physique_premiere` | `seed_physique_premiere.py` | Physique Première chapters + lessons + quizzes |
-| `seed_maths_premiere` | `seed_maths_premiere.py` | Maths Première chapters + lessons + quizzes |
-| `seed_chimie_orga_terminale` | `seed_chimie_orga_terminale.py` | Chimie orga Terminale content |
+| `seed_physique_premiere` | `seed_physique_premiere.py` | Physique Première chapters + lessons + quizzes; `slug` in leçon defaults |
+| `seed_maths_premiere` | `seed_maths_premiere.py` | Maths Première chapters + lessons + quizzes; `slug` in leçon defaults |
+| `seed_chimie_orga_terminale` | `seed_chimie_orga_terminale.py` | Chimie orga Terminale content; `slug` in leçon defaults |
 | `pad_quiz_questions` | `pad_quiz_questions.py` | Pads quizzes to ensure minimum question count |
 | `import_questions` | `import_questions.py` | CSV import: columns `quiz_lecon_slug`, `texte`, `type`, `reponse_correcte`, `options`, `tolerances`, `difficulte`; supports `--dry-run` |
 | `create_beta_accounts` | `create_beta_accounts.py` | Creates beta-tester student accounts with premium access; args: `email:niveau` or `--csv`; `--dry-run`; `--no-email`; sets `is_beta=True`, unlocks first chapters |

@@ -8711,6 +8711,7 @@ class Command(BaseCommand):
                     ordre=lecon_data['ordre'],
                     defaults={
                         'titre': lecon_data['titre'],
+                        'slug': slugify(lecon_data['titre']),
                         'duree_estimee': lecon_data['duree'],
                         'contenu': lecon_data['contenu'],
                     },

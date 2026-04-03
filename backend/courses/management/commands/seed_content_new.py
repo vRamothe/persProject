@@ -20,6 +20,7 @@ SEED_DATA = {
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Les différentes forces",
                             "duree": 20,
                             "contenu": """# Les différentes forces
@@ -222,6 +223,7 @@ $$\\sum \\vec{F} = \\vec{0}$$
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Les circuits électriques",
                             "duree": 20,
                             "contenu": """# Les circuits électriques
@@ -383,6 +385,7 @@ Une résistance de $R = 100 \\text{ Ω}$ est parcourue par un courant de $I = 0{
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Description du mouvement",
                             "duree": 20,
                             "contenu": """# Description du mouvement
@@ -470,6 +473,7 @@ $$v^2 = v_0^2 + 2a(x - x_0)$$
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Ondes, particules et caractéristiques",
                             "duree": 35,
                             "contenu": r"""# Ondes et particules
@@ -623,6 +627,7 @@ $$\frac{\Delta f}{f} = \frac{v}{c}$$
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Cinématique du point",
                             "duree": 30,
                             "contenu": r"""# Cinématique du point
@@ -765,6 +770,7 @@ L'équation de la trajectoire $z(x)$ est une **parabole**.
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Lois de Kepler et gravitation",
                             "duree": 35,
                             "contenu": r"""# Mouvement des satellites et des planètes
@@ -847,6 +853,7 @@ Un satellite géostationnaire a $T = 24$ h et orbite dans le plan équatorial à
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Travail d'une force et énergie mécanique",
                             "duree": 35,
                             "contenu": r"""# Travail d'une force et énergie mécanique
@@ -994,6 +1001,7 @@ $$\Delta E_m = W(\vec{f}) < 0$$
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Postulats et dilatation des durées",
                             "duree": 30,
                             "contenu": r"""# Temps et relativité restreinte
@@ -1065,6 +1073,7 @@ Pour $v \ll c$ : $\gamma \approx 1$ et $\Delta t \approx \Delta t_0$ → on retr
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Du macroscopique au microscopique et transferts thermiques",
                             "duree": 35,
                             "contenu": r"""# Du macroscopique au microscopique
@@ -1205,6 +1214,7 @@ $m$ : masse de la particule, $v$ : sa vitesse. Pour les objets macroscopiques, $
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Transmission et procédés physiques",
                             "duree": 30,
                             "contenu": r"""# Transmettre et stocker l'information
@@ -1344,6 +1354,7 @@ Exemple : image $1920 \times 1080$ en 24 bits → $1920 \times 1080 \times 3 \ap
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Acoustique musicale",
                             "duree": 35,
                             "contenu": r"""# Acoustique musicale — *Spécialité*
@@ -1489,6 +1500,7 @@ Dans une salle de concert, les **réflexions** du son sur les parois créent une
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Radioactivité et décroissance radioactive",
                             "duree": 35,
                             "contenu": r"""# Radioactivité
@@ -1575,6 +1587,7 @@ $A$ en becquerels (Bq) : nombre de désintégrations par seconde.
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Incertitudes de mesure et chiffres significatifs",
                             "duree": 25,
                             "contenu": r"""# Mesures et incertitudes
@@ -1665,6 +1678,7 @@ Pour $y = f(x_1, x_2, \ldots)$ :
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Structure de l'atome",
                             "duree": 20,
                             "contenu": """# Structure de l'atome
@@ -1835,6 +1849,7 @@ Exemples :
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Acides, bases et pH",
                             "duree": 25,
                             "contenu": """# Acides, bases et pH
@@ -1917,6 +1932,7 @@ Donc : $\\text{pH} + \\text{pOH} = 14$
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Spectroscopie UV-visible et IR",
                             "duree": 35,
                             "contenu": r"""# Spectroscopie UV-visible et infrarouge
@@ -2079,6 +2095,7 @@ Un signal de protons voisins de $n$ protons équivalents est **dédoublé** en $
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Vitesse de réaction et facteurs cinétiques",
                             "duree": 30,
                             "contenu": r"""# Cinétique chimique
@@ -2225,6 +2242,7 @@ Un mélange **équimolaire** (50/50) de deux énantiomères est **optiquement in
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Acides, bases et pH",
                             "duree": 35,
                             "contenu": r"""# Réaction acide-base
@@ -2387,6 +2405,7 @@ On suit la **conductivité** $\sigma$ de la solution. L'équivalence est repér�
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Groupes caractéristiques et réactivité",
                             "duree": 30,
                             "contenu": r"""# Groupes caractéristiques et réactivité
@@ -2541,6 +2560,7 @@ Une réaction est **sélective** quand elle agit préférentiellement sur un sit
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Stratégie et protocole de synthèse",
                             "duree": 35,
                             "contenu": r"""# Stratégie de synthèse organique
@@ -2619,6 +2639,7 @@ Les principes clés :
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Traceurs chimiques et cycle de l'eau",
                             "duree": 30,
                             "contenu": r"""# Eau et environnement — *Spécialité*
@@ -2693,6 +2714,7 @@ L'eau dure provoque l'**entartrage** des canalisations.
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Traitement des eaux et production d'énergie",
                             "duree": 35,
                             "contenu": r"""# Eau et ressources — *Spécialité*
@@ -2772,6 +2794,7 @@ $$2\,\text{H}_2\text{O} \xrightarrow{\text{énergie}} 2\,\text{H}_2 + \text{O}_2
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Tensioactifs, adhésifs et semi-conducteurs",
                             "duree": 35,
                             "contenu": r"""# Les matériaux — *Spécialité*
@@ -2866,6 +2889,7 @@ La **jonction p-n** est à la base des diodes, transistors et cellules photovolt
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Les 12 principes de la chimie verte",
                             "duree": 30,
                             "contenu": r"""# Chimie durable et chimie verte
@@ -2940,6 +2964,7 @@ Le CO₂, déchet de la combustion, peut être **valorisé** :
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Dosage par étalonnage spectrophotométrique",
                             "duree": 30,
                             "contenu": r"""# Dosages par étalonnage
@@ -3037,6 +3062,7 @@ Le dosage par étalonnage est une méthode **non destructive** (on ne modifie pa
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Introduction aux fonctions",
                             "duree": 20,
                             "contenu": """# Introduction aux fonctions
@@ -3190,6 +3216,7 @@ $$\\forall x \\in [a; b], \\quad f(a) \\leq f(x) \\leq f(b)$$
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Les vecteurs",
                             "duree": 25,
                             "contenu": """# Les vecteurs
@@ -3276,6 +3303,7 @@ $$I = \\left(\\frac{x_A + x_B}{2}; \\frac{y_A + y_B}{2}\\right)$$
                     "lecons": [
                         {
                             "ordre": 1,
+                            "gratuit": True,
                             "titre": "Définition et règles de dérivation",
                             "duree": 30,
                             "contenu": """# La dérivée d'une fonction
