@@ -6,7 +6,7 @@
 | **Phase** | 1 — Product & Proof |
 | **Type** | Business |
 | **LLM recommandé** | **Opus** (nécessaire — logique paiement complexe, webhooks, sécurité PCI) |
-| **Statut** | ⬜ À faire |
+| **Statut** | ✅ Terminé |
 | **Priorité** | 3 (première vente = validation business) |
 | **Dépendances** | #02 Paywall Visuel (pour les CTA) |
 | **Bloque** | Toutes les features de monétisation |
