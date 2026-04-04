@@ -1920,3 +1920,94 @@ class TestAdminBetaBadge:
         assert "Bêta-testeur" in response.content.decode()
 
 
+# ============================================================
+# Batch 8 — Preview Paywall Mode
+# ============================================================
+
+
+class TestPreviewPaywallMode:
+    """Tests for preview_paywall_view and exit_preview_paywall_view."""
+
+    @pytest.mark.django_db
+    def test_admin_active_preview_paywall(self, client, admin_user):
+        """
+        Teste: Un admin active le mode preview paywall → session["preview_paywall"] = True + redirect
+        Raison: Vérifier que le mode preview paywall stocke la clé en session et redirige vers le dashboard
+        Features: Preview paywall, Session, Permissions
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        response = client.get(reverse("preview_paywall"))
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+        assert client.session.get("preview_paywall") is True
+
+    @pytest.mark.django_db
+    def test_eleve_cannot_activate_preview_paywall(self, client, eleve):
+        """
+        Teste: Un élève ne peut pas activer le mode preview paywall
+        Raison: Le mode preview paywall est réservé aux admins — un élève ne doit pas pouvoir contourner le paywall
+        Features: Preview paywall, Permissions
+        Criticité: haute
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("preview_paywall"))
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+        assert client.session.get("preview_paywall") is None
+
+    @pytest.mark.django_db
+    def test_anonymous_cannot_activate_preview_paywall(self, client):
+        """
+        Teste: Un utilisateur non authentifié est redirigé vers la connexion
+        Raison: Les vues @login_required doivent empêcher l'accès anonyme
+        Features: Preview paywall, Authentification
+        Criticité: haute
+        """
+        response = client.get(reverse("preview_paywall"))
+        assert response.status_code == 302
+        assert "connexion" in response.url
+
+    @pytest.mark.django_db
+    def test_exit_preview_paywall_clears_session(self, client, admin_user):
+        """
+        Teste: La sortie du mode preview paywall supprime la clé de session
+        Raison: Un résidu de session forcerait l'admin à voir le paywall indéfiniment
+        Features: Preview paywall, Session
+        Criticité: moyenne
+        """
+        client.force_login(admin_user)
+        session = client.session
+        session["preview_paywall"] = True
+        session.save()
+        response = client.get(reverse("exit_preview_paywall"))
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+        assert "preview_paywall" not in client.session
+
+    @pytest.mark.django_db
+    def test_exit_preview_paywall_without_active_session(self, client, admin_user):
+        """
+        Teste: Quitter le mode preview paywall sans session active ne crash pas
+        Raison: L'admin peut cliquer sur «quitter» même si le mode n'est plus actif — robustesse
+        Features: Preview paywall, Robustesse
+        Criticité: basse
+        """
+        client.force_login(admin_user)
+        response = client.get(reverse("exit_preview_paywall"))
+        assert response.status_code == 302
+        assert "tableau-de-bord" in response.url
+
+    @pytest.mark.django_db
+    def test_anonymous_cannot_exit_preview_paywall(self, client):
+        """
+        Teste: Un utilisateur non authentifié est redirigé vers la connexion sur exit
+        Raison: Les vues @login_required doivent empêcher l'accès anonyme
+        Features: Preview paywall, Authentification
+        Criticité: haute
+        """
+        response = client.get(reverse("exit_preview_paywall"))
+        assert response.status_code == 302
+        assert "connexion" in response.url
+
+

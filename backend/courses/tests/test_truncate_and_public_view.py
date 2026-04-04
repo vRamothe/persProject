@@ -326,3 +326,108 @@ class TestPaywallVisuel:
         assert response.status_code == 200
         html = response.content.decode()
         assert "🔒" in html
+
+
+# ===========================================================================
+# Tests Admin Paywall Preview Mode (lecon_publique_view)
+# ===========================================================================
+
+
+class TestAdminPaywallPreviewOnPublicView:
+    """Tests du comportement de lecon_publique_view avec session["preview_paywall"]."""
+
+    @pytest.mark.django_db
+    def test_admin_sans_preview_redirige_vers_lecon_interne(self, client, admin_user, lecon_gratuite):
+        """
+        Teste: Un admin SANS preview_paywall est redirigé vers la vue leçon interne (par PK)
+        Raison: Comportement normal — les admins accèdent à la vue complète, pas à la vue publique
+        Features: lecon_publique_view, redirection admin
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        response = client.get(_url_publique(lecon_gratuite))
+        assert response.status_code == 302
+        assert f"/cours/lecon/{lecon_gratuite.pk}/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_admin_avec_preview_lecon_premium_voit_blur(self, client, admin_user, lecon_premium_courte):
+        """
+        Teste: Un admin AVEC preview_paywall sur une leçon premium voit la page publique avec est_floute
+        Raison: Le mode preview doit simuler la vue d'un visiteur non-abonné face au paywall
+        Features: lecon_publique_view, preview paywall, blur
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        session = client.session
+        session["preview_paywall"] = True
+        session.save()
+        response = client.get(_url_publique(lecon_premium_courte))
+        assert response.status_code == 200
+        assert response.context["est_floute"] is True
+        assert response.context["est_premium"] is True
+
+    @pytest.mark.django_db
+    def test_admin_avec_preview_lecon_gratuite_pas_de_blur(self, client, admin_user, lecon_gratuite):
+        """
+        Teste: Un admin AVEC preview_paywall sur une leçon gratuite voit la page normalement (pas de blur)
+        Raison: Les leçons gratuites ne doivent jamais afficher le paywall, même en mode preview
+        Features: lecon_publique_view, preview paywall, leçons gratuites
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        session = client.session
+        session["preview_paywall"] = True
+        session.save()
+        response = client.get(_url_publique(lecon_gratuite))
+        assert response.status_code == 200
+        assert response.context["est_floute"] is False
+        assert response.context["est_premium"] is False
+
+    @pytest.mark.django_db
+    def test_admin_avec_preview_pas_de_redirect(self, client, admin_user, lecon_premium_courte):
+        """
+        Teste: Un admin AVEC preview_paywall n'est PAS redirigé vers la vue interne
+        Raison: En mode preview, l'admin doit rester sur la page publique pour voir le rendu paywall
+        Features: lecon_publique_view, preview paywall, pas de redirect
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        session = client.session
+        session["preview_paywall"] = True
+        session.save()
+        response = client.get(_url_publique(lecon_premium_courte))
+        # Pas de 302, on reste sur la page publique
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_admin_avec_preview_context_est_floute_true(self, client, admin_user, lecon_premium_courte):
+        """
+        Teste: Le contexte template contient est_floute=True pour une leçon premium en preview paywall
+        Raison: La variable de contexte pilote l'affichage du blur — elle doit être True en preview
+        Features: lecon_publique_view, preview paywall, contexte template
+        Criticité: moyenne
+        """
+        client.force_login(admin_user)
+        session = client.session
+        session["preview_paywall"] = True
+        session.save()
+        response = client.get(_url_publique(lecon_premium_courte))
+        assert response.status_code == 200
+        assert response.context["est_floute"] is True
+        assert response.context["preview_paywall"] is True
+
+    @pytest.mark.django_db
+    def test_admin_avec_preview_lecon_gratuite_context_pas_floute(self, client, admin_user, lecon_gratuite):
+        """
+        Teste: Le contexte template contient est_floute=False pour une leçon gratuite en preview paywall
+        Raison: Les leçons gratuites ne doivent jamais être floutées, même en preview
+        Features: lecon_publique_view, preview paywall, contexte template
+        Criticité: moyenne
+        """
+        client.force_login(admin_user)
+        session = client.session
+        session["preview_paywall"] = True
+        session.save()
+        response = client.get(_url_publique(lecon_gratuite))
+        assert response.status_code == 200
+        assert response.context["est_floute"] is False
