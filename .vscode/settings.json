@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
         "/opt/1A/ttserver/5.6.5/lib"
-    ]
+    ],
+    "github.copilot.chat.terminalChatLocation": "chatView"
 }

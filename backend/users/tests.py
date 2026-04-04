@@ -2011,3 +2011,437 @@ class TestPreviewPaywallMode:
         assert "connexion" in response.url
 
 
+# ============================================================
+# Batch 10 — Dashboard routing, ConnexionLog, Deconnexion,
+#             PasswordReset email, Email verification edge cases,
+#             Webhook subscription updated, Premier chapitres,
+#             Context processor test_report
+# ============================================================
+
+
+class TestTableauDeBordRouting:
+    """Tests for TableauDeBordView dispatch to the correct dashboard template."""
+
+    @pytest.mark.django_db
+    def test_admin_sees_admin_dashboard(self, client, admin_user):
+        """
+        Teste: Un admin voit le template dashboard/admin.html
+        Raison: Le routage du tableau de bord doit diriger l'admin vers son interface dédiée
+        Features: Tableau de bord, Routage, Admin
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        response = client.get(reverse("tableau_de_bord"))
+        assert response.status_code == 200
+        assert "dashboard/admin.html" in [t.name for t in response.templates]
+
+    @pytest.mark.django_db
+    def test_eleve_sees_eleve_dashboard(self, client, eleve):
+        """
+        Teste: Un élève voit le template dashboard/eleve.html
+        Raison: Le routage du tableau de bord doit diriger l'élève vers son interface dédiée
+        Features: Tableau de bord, Routage, Elève
+        Criticité: haute
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("tableau_de_bord"))
+        assert response.status_code == 200
+        assert "dashboard/eleve.html" in [t.name for t in response.templates]
+
+    def test_anonymous_redirected(self, client):
+        """
+        Teste: Un utilisateur anonyme est redirigé vers la page de connexion
+        Raison: Le tableau de bord est protégé par @login_required
+        Features: Tableau de bord, Authentification
+        Criticité: haute
+        """
+        response = client.get(reverse("tableau_de_bord"))
+        assert response.status_code == 302
+        assert "connexion" in response.url
+
+
+class TestDashboardAdmin:
+    """Tests for the admin dashboard context variables."""
+
+    @pytest.mark.django_db
+    def test_admin_context_has_nb_eleves(self, client, admin_user):
+        """
+        Teste: Le contexte admin contient nb_eleves
+        Raison: nb_eleves est affiché dans le dashboard admin — son absence casserait le template
+        Features: Dashboard admin, Contexte
+        Criticité: moyenne
+        """
+        client.force_login(admin_user)
+        response = client.get(reverse("tableau_de_bord"))
+        assert "nb_eleves" in response.context
+
+    @pytest.mark.django_db
+    def test_admin_context_has_nb_chapitres(self, client, admin_user):
+        """
+        Teste: Le contexte admin contient nb_chapitres
+        Raison: nb_chapitres est affiché dans le dashboard admin — son absence casserait le template
+        Features: Dashboard admin, Contexte
+        Criticité: moyenne
+        """
+        client.force_login(admin_user)
+        response = client.get(reverse("tableau_de_bord"))
+        assert "nb_chapitres" in response.context
+
+    @pytest.mark.django_db
+    def test_admin_context_has_derniers_inscrits(self, client, admin_user):
+        """
+        Teste: Le contexte admin contient derniers_inscrits
+        Raison: La liste des derniers inscrits est affichée dans le dashboard admin
+        Features: Dashboard admin, Contexte
+        Criticité: moyenne
+        """
+        client.force_login(admin_user)
+        response = client.get(reverse("tableau_de_bord"))
+        assert "derniers_inscrits" in response.context
+
+    @pytest.mark.django_db
+    def test_eleve_cannot_see_admin_dashboard(self, client, eleve):
+        """
+        Teste: Un élève ne voit pas le template admin.html — il est redirigé vers eleve.html
+        Raison: Un élève ne doit pas voir les statistiques globales réservées aux admins
+        Features: Dashboard admin, Permissions
+        Criticité: haute
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("tableau_de_bord"))
+        assert response.status_code == 200
+        template_names = [t.name for t in response.templates]
+        assert "dashboard/admin.html" not in template_names
+        assert "dashboard/eleve.html" in template_names
+
+
+class TestDashboardEleve:
+    """Tests for the student dashboard context variables."""
+
+    @pytest.mark.django_db
+    def test_eleve_context_has_matieres_data(self, client, eleve):
+        """
+        Teste: Le contexte élève contient matieres_stats
+        Raison: Les stats par matière alimentent les cartes du dashboard élève
+        Features: Dashboard élève, Contexte
+        Criticité: moyenne
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("tableau_de_bord"))
+        assert "matieres_stats" in response.context
+
+    @pytest.mark.django_db
+    def test_eleve_context_has_streak(self, client, eleve):
+        """
+        Teste: Le contexte élève contient streak
+        Raison: Le streak (jours consécutifs d'activité) est affiché sur le dashboard
+        Features: Dashboard élève, Contexte, Streak
+        Criticité: moyenne
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("tableau_de_bord"))
+        assert "streak" in response.context
+
+    @pytest.mark.django_db
+    def test_eleve_context_has_scores_30j(self, client, eleve):
+        """
+        Teste: Le contexte élève contient les données de scores sur 30 jours (Chart.js)
+        Raison: Le graphique de scores nécessite labels_scores_json et data_scores_json
+        Features: Dashboard élève, Contexte, Graphique scores
+        Criticité: moyenne
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("tableau_de_bord"))
+        assert "labels_scores_json" in response.context
+        assert "data_scores_json" in response.context
+
+    @pytest.mark.django_db
+    def test_admin_does_not_see_eleve_dashboard(self, client, admin_user):
+        """
+        Teste: Un admin voit admin.html, pas eleve.html
+        Raison: Le routage doit être strict — un admin ne doit pas atterrir sur le dashboard élève
+        Features: Dashboard admin, Routage
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        response = client.get(reverse("tableau_de_bord"))
+        assert response.status_code == 200
+        template_names = [t.name for t in response.templates]
+        assert "dashboard/admin.html" in template_names
+        assert "dashboard/eleve.html" not in template_names
+
+
+class TestConnexionLog:
+    """Tests for ConnexionLog creation after successful login via ConnexionView."""
+
+    @pytest.mark.django_db
+    def test_successful_login_creates_connexion_log(self, client):
+        """
+        Teste: Une connexion réussie via le formulaire crée un ConnexionLog
+        Raison: Le suivi des connexions est essentiel pour l'analytics et la détection d'anomalies
+        Features: Connexion, ConnexionLog, Analytics
+        Criticité: haute
+        """
+        user = CustomUser.objects.create_user(
+            email="logtest@test.com",
+            password="TestPass123!",
+            prenom="Log",
+            nom="Test",
+            role="eleve",
+            niveau="terminale",
+        )
+        user.is_active = True
+        user.save()
+        response = client.post(reverse("connexion"), {
+            "username": "logtest@test.com",
+            "password": "TestPass123!",
+        })
+        assert response.status_code == 302
+        from users.models import ConnexionLog as CLog
+        assert CLog.objects.filter(user=user).count() == 1
+
+    @pytest.mark.django_db
+    def test_connexion_log_has_user_and_timestamp(self, client):
+        """
+        Teste: Le ConnexionLog créé a un user et un timestamp non null
+        Raison: Ces champs sont indispensables pour le suivi et l'affichage des connexions récentes
+        Features: Connexion, ConnexionLog
+        Criticité: moyenne
+        """
+        user = CustomUser.objects.create_user(
+            email="logts@test.com",
+            password="TestPass123!",
+            prenom="TS",
+            nom="Test",
+            role="eleve",
+            niveau="terminale",
+        )
+        user.is_active = True
+        user.save()
+        client.post(reverse("connexion"), {
+            "username": "logts@test.com",
+            "password": "TestPass123!",
+        })
+        from users.models import ConnexionLog as CLog
+        log = CLog.objects.get(user=user)
+        assert log.user == user
+        assert log.timestamp is not None
+
+
+class TestDeconnexion:
+    """Tests for deconnexion_view (logout)."""
+
+    @pytest.mark.django_db
+    def test_deconnexion_redirects_to_login(self, client, eleve):
+        """
+        Teste: La déconnexion redirige vers la page de connexion
+        Raison: Après logout, l'utilisateur doit être renvoyé vers le formulaire de connexion
+        Features: Déconnexion, Redirection
+        Criticité: moyenne
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("deconnexion"))
+        assert response.status_code == 302
+        assert "connexion" in response.url
+
+    @pytest.mark.django_db
+    def test_deconnexion_actually_logs_out(self, client, eleve):
+        """
+        Teste: Après déconnexion, le dashboard redirige vers la connexion (session invalidée)
+        Raison: La session doit être invalidée — accéder au dashboard doit échouer si la session est vide
+        Features: Déconnexion, Session, Sécurité
+        Criticité: haute
+        """
+        client.force_login(eleve)
+        client.get(reverse("deconnexion"))
+        response = client.get(reverse("tableau_de_bord"))
+        assert response.status_code == 302
+        assert "connexion" in response.url
+
+
+class TestPasswordResetFlow:
+    """Tests for password reset email sending."""
+
+    @pytest.mark.django_db
+    def test_reset_sends_email(self, client, eleve):
+        """
+        Teste: La demande de réinitialisation avec un email valide envoie un email
+        Raison: Le flux de récupération de compte doit effectivement envoyer le lien de réinitialisation
+        Features: Réinitialisation mot de passe, Email
+        Criticité: haute
+        """
+        from django.core import mail
+        client.post(reverse("password_reset"), {"email": eleve.email})
+        assert len(mail.outbox) == 1
+        assert eleve.email in mail.outbox[0].to
+
+    @pytest.mark.django_db
+    def test_reset_invalid_email_no_error(self, client):
+        """
+        Teste: Un email inexistant ne produit pas d'erreur visible (sécurité anti-énumération)
+        Raison: Ne pas révéler l'existence d'un compte via le formulaire de réinitialisation
+        Features: Réinitialisation mot de passe, Sécurité
+        Criticité: haute
+        """
+        response = client.post(reverse("password_reset"), {"email": "noone@example.com"})
+        # Django redirects to password_reset_done even for unknown emails
+        assert response.status_code == 302
+        assert "envoye" in response.url
+
+
+class TestEmailVerificationEdgeCases:
+    """Tests for expired and invalid email verification tokens."""
+
+    @pytest.mark.django_db
+    def test_expired_token_returns_400(self, client):
+        """
+        Teste: Un token de vérification expiré (> 24h) retourne 400 avec mention « expiré »
+        Raison: Un token expiré ne doit pas activer de compte — protection contre la réutilisation
+        Features: Vérification email, Token expiré, Sécurité
+        Criticité: haute
+        """
+        user = CustomUser.objects.create_user(
+            email="expired@test.com", password="Pass123!", prenom="A", nom="B",
+            role="eleve", niveau="seconde", is_active=False,
+        )
+        token = signing.dumps(user.pk, salt="email-verification")
+        with patch("users.views.signing.loads", side_effect=signing.SignatureExpired("expired")):
+            response = client.get(reverse("verifier_email", kwargs={"token": token}))
+        assert response.status_code == 400
+        content = response.content.decode()
+        assert "expir" in content.lower()
+
+    @pytest.mark.django_db
+    def test_invalid_token_returns_400(self, client):
+        """
+        Teste: Un token corrompu retourne 400 avec mention « invalide »
+        Raison: Empêcher l'activation de comptes via des tokens forgés ou corrompus
+        Features: Vérification email, Token invalide, Sécurité
+        Criticité: haute
+        """
+        response = client.get(reverse("verifier_email", kwargs={"token": "zz-corrupted-token-zz"}))
+        assert response.status_code == 400
+        content = response.content.decode()
+        assert "invalide" in content.lower()
+
+
+class TestWebhookSubscriptionUpdated:
+    """Tests for webhook customer.subscription.deleted → statut annulé."""
+
+    def _build_webhook_payload(self, event_type, data_object, event_id="evt_upd1"):
+        return {
+            "id": event_id,
+            "type": event_type,
+            "data": {"object": data_object},
+        }
+
+    @pytest.mark.django_db
+    @patch("users.views.stripe.Webhook.construct_event")
+    def test_subscription_updated_active_to_canceled(
+        self, mock_construct, client, eleve_stripe, abonnement_actif
+    ):
+        """
+        Teste: Le webhook customer.subscription.deleted passe le statut de l'abonnement à annulé
+        Raison: Un abonnement supprimé chez Stripe doit couper l'accès premium côté Django
+        Features: Stripe, Webhook, Abonnement, Annulation
+        Criticité: haute
+        """
+        event_data = self._build_webhook_payload(
+            "customer.subscription.deleted",
+            {
+                "id": "sub_test123",
+                "status": "canceled",
+            },
+        )
+        mock_construct.return_value = event_data
+        response = client.post(
+            reverse("stripe_webhook"),
+            data=json.dumps(event_data),
+            content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="sig_test",
+        )
+        assert response.status_code == 200
+        abonnement_actif.refresh_from_db()
+        assert abonnement_actif.statut == "annule"
+
+
+class TestDeblocagePremierChapitres:
+    """Tests for _debloquer_premiers_chapitres helper."""
+
+    @pytest.mark.django_db
+    def test_inscription_unlocks_first_chapters(self, client, db):
+        """
+        Teste: Après inscription, les chapitres d'ordre 1 du niveau de l'élève sont débloqués
+        Raison: Le premier chapitre doit être accessible immédiatement pour l'onboarding
+        Features: Inscription, Déblocage chapitres
+        Criticité: haute
+        """
+        from progress.models import ChapitreDebloque
+        mat = Matiere.objects.create(nom="mathematiques")
+        Chapitre.objects.create(matiere=mat, niveau="seconde", titre="Premiers pas", ordre=1)
+        Chapitre.objects.create(matiere=mat, niveau="seconde", titre="Chapitre 2", ordre=2)
+
+        response = client.post(reverse("inscription"), {
+            "email": "firstchap@test.com",
+            "prenom": "First",
+            "nom": "Chap",
+            "niveau": "seconde",
+            "password1": "SecurePass99!",
+            "password2": "SecurePass99!",
+        })
+        assert response.status_code == 302
+        user = CustomUser.objects.get(email="firstchap@test.com")
+        # Only ordre=1 should be unlocked
+        assert ChapitreDebloque.objects.filter(user=user).count() == 1
+        assert ChapitreDebloque.objects.filter(
+            user=user, chapitre__ordre=1
+        ).exists()
+
+    @pytest.mark.django_db
+    def test_no_chapters_no_crash(self, client, db):
+        """
+        Teste: L'inscription sans aucun chapitre en base ne plante pas
+        Raison: Sur un premier déploiement sans contenu, l'inscription doit fonctionner
+        Features: Inscription, Robustesse
+        Criticité: moyenne
+        """
+        response = client.post(reverse("inscription"), {
+            "email": "nochap@test.com",
+            "prenom": "No",
+            "nom": "Chap",
+            "niveau": "terminale",
+            "password1": "SecurePass99!",
+            "password2": "SecurePass99!",
+        })
+        assert response.status_code == 302
+        assert CustomUser.objects.filter(email="nochap@test.com").exists()
+
+
+class TestContextProcessorTestReport:
+    """Tests for the test_report_status context processor."""
+
+    @pytest.mark.django_db
+    def test_admin_gets_report_status(self, client, admin_user):
+        """
+        Teste: Un admin a test_report_status dans le contexte de chaque page
+        Raison: Le badge de statut des tests est affiché dans le header admin
+        Features: Context processor, Test report, Admin
+        Criticité: basse
+        """
+        client.force_login(admin_user)
+        response = client.get(reverse("tableau_de_bord"))
+        assert "test_report_status" in response.context
+
+    @pytest.mark.django_db
+    def test_eleve_no_report_status(self, client, eleve):
+        """
+        Teste: Un élève n'a pas test_report_status dans le contexte
+        Raison: Les données de rapport de tests sont réservées aux admins
+        Features: Context processor, Test report, Permissions
+        Criticité: basse
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("tableau_de_bord"))
+        assert "test_report_status" not in response.context
+
+

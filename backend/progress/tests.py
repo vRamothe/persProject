@@ -842,3 +842,94 @@ class TestEnregistrerHistoriqueQuestions:
         _enregistrer_historique_questions(eleve, corrections)
         hist.refresh_from_db()
         assert hist.boite == 1
+
+
+# ---- Soumettre révisions tests ----
+
+class TestSoumettreRevisions:
+    def test_soumettre_revisions_requires_post(self, client, eleve, quiz, question_qcm):
+        """Teste: GET sur soumettre_revisions redirige vers la page révisions
+        Raison: Seul POST modifie les données Leitner — GET doit rediriger
+        Features: soumettre_revisions, méthodes HTTP, redirect
+        Criticité: moyenne"""
+        client.force_login(eleve)
+        response = client.get(reverse("soumettre_revisions"))
+        assert response.status_code == 302
+
+    def test_soumettre_revisions_requires_login(self, client, question_qcm):
+        """Teste: Un utilisateur non connecté est redirigé vers la connexion
+        Raison: Les révisions sont personnelles — @login_required doit bloquer les accès anonymes
+        Features: soumettre_revisions, authentification, @login_required
+        Criticité: haute"""
+        response = client.post(
+            reverse("soumettre_revisions"),
+            {"question_ids": str(question_qcm.id), f"question_{question_qcm.id}": "0"},
+        )
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    def test_soumettre_revisions_updates_leitner_boxes(self, client, eleve, quiz, question_qcm):
+        """Teste: Une bonne réponse en révision fait monter la boîte Leitner
+        Raison: Le mécanisme de progression Leitner doit fonctionner via la vue soumettre_revisions
+        Features: soumettre_revisions, Leitner, UserQuestionHistorique, boîte
+        Criticité: haute"""
+        from django.core.cache import cache
+        cache.clear()
+        hist = UserQuestionHistorique.objects.create(
+            user=eleve,
+            question=question_qcm,
+            boite=2,
+            prochaine_revision=date.today() - timedelta(days=1),
+        )
+        client.force_login(eleve)
+        client.post(
+            reverse("soumettre_revisions"),
+            {
+                "question_ids": str(question_qcm.id),
+                f"question_{question_qcm.id}": "0",
+            },
+        )
+        hist.refresh_from_db()
+        assert hist.boite == 3
+
+    def test_soumettre_revisions_wrong_answer_resets_box(self, client, eleve, quiz, question_qcm):
+        """Teste: Une mauvaise réponse en révision remet la boîte Leitner à 1
+        Raison: Principe Leitner — l'erreur impose un retour en boîte 1
+        Features: soumettre_revisions, Leitner, UserQuestionHistorique, reset boîte
+        Criticité: haute"""
+        from django.core.cache import cache
+        cache.clear()
+        hist = UserQuestionHistorique.objects.create(
+            user=eleve,
+            question=question_qcm,
+            boite=4,
+            prochaine_revision=date.today() - timedelta(days=1),
+        )
+        client.force_login(eleve)
+        client.post(
+            reverse("soumettre_revisions"),
+            {
+                "question_ids": str(question_qcm.id),
+                f"question_{question_qcm.id}": "3",  # mauvaise réponse
+            },
+        )
+        hist.refresh_from_db()
+        assert hist.boite == 1
+
+    def test_soumettre_revisions_rate_limited(self, client, eleve, quiz, question_qcm):
+        """Teste: La vue soumettre_revisions retourne HTTP 429 quand le rate limit est atteint
+        Raison: Protège contre le brute-force de révisions — seuil de 30 req/min
+        Features: soumettre_revisions, rate_limiting, HTTP 429
+        Criticité: haute"""
+        from django.core.cache import cache
+        cache.clear()
+        cache.set(f"quiz_rate_{eleve.id}", 30, timeout=60)
+        client.force_login(eleve)
+        response = client.post(
+            reverse("soumettre_revisions"),
+            {
+                "question_ids": str(question_qcm.id),
+                f"question_{question_qcm.id}": "0",
+            },
+        )
+        assert response.status_code == 429

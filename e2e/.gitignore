@@ -1,0 +1,15 @@
+# Playwright artifacts
+test-results/
+playwright-report/
+screenshots/
+videos/
+traces/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Virtual env
+.venv/
+venv/

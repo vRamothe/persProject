@@ -529,6 +529,7 @@ def catalogue_matiere_view(request, matiere_slug):
     return render(request, "courses/catalogue.html", {
         "matiere": matiere,
         "niveaux_data": niveaux_data,
+        "force_public_layout": True,
     })
 
 
@@ -600,6 +601,7 @@ def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug
         "est_floute": est_floute,
         "a_ete_tronque": a_ete_tronque,
         "preview_paywall": preview_paywall,
+        "force_public_layout": True,
     })
 
 
@@ -636,6 +638,7 @@ def accueil_view(request):
 
     return render(request, "courses/accueil.html", {
         "matieres_data": matieres_data,
+        "force_public_layout": True,
     })
 
 

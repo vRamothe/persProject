@@ -1306,3 +1306,501 @@ class TestErrorPages:
         template = get_template("500.html")
         assert template is not None
 
+
+# ============================================================
+# Batch 7 — Quiz chapitre, révisions détails, recherche avancée,
+#            PDF, vidéo YouTube, navigation leçon, accueil, catalogue
+# ============================================================
+
+
+class TestQuizChapitreView:
+    """Tests pour quiz_chapitre_view."""
+
+    def test_quiz_chapitre_requires_login(self, client, chapitre):
+        """
+        Teste: la vue quiz chapitre redirige vers la connexion pour un visiteur anonyme
+        Raison: le quiz de fin de chapitre requiert une session élève pour enregistrer le résultat
+        Features: vue quiz chapitre, contrôle d'accès, @login_required
+        Criticité: haute
+        """
+        response = client.get(reverse("quiz_chapitre", kwargs={"chapitre_pk": chapitre.pk}))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_quiz_chapitre_returns_200(self, client, eleve, chapitre, lecon_gratuite):
+        """
+        Teste: un élève avec chapitre débloqué et questions existantes obtient 200
+        Raison: vérifier le fonctionnement nominal du quiz de fin de chapitre
+        Features: vue quiz chapitre, accès élève, déblocage
+        Criticité: moyenne
+        """
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=chapitre)
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Quiz Chap")
+        for i in range(10):
+            Question.objects.create(
+                quiz=quiz, texte=f"QC{i}", type="qcm",
+                options=["A", "B", "C"], reponse_correcte="0",
+                points=1, ordre=i + 1,
+            )
+        client.force_login(eleve)
+        response = client.get(reverse("quiz_chapitre", kwargs={"chapitre_pk": chapitre.pk}))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_quiz_chapitre_locked_chapter_redirects(self, client, eleve, chapitre):
+        """
+        Teste: un élève sans ChapitreDebloque est redirigé depuis le quiz chapitre
+        Raison: le mécanisme de déblocage doit empêcher l'accès prématuré au quiz final
+        Features: vue quiz chapitre, déblocage progressif, sécurité
+        Criticité: haute
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("quiz_chapitre", kwargs={"chapitre_pk": chapitre.pk}))
+        assert response.status_code == 302
+
+    @pytest.mark.django_db
+    def test_quiz_chapitre_selects_10_questions(self, client, eleve, chapitre, lecon_gratuite):
+        """
+        Teste: le contexte contient question_ids avec exactement 10 IDs quand le pool est suffisant
+        Raison: le quiz chapitre doit présenter exactement 10 questions pour un score sur 10
+        Features: vue quiz chapitre, sélection 10 questions, question_ids
+        Criticité: moyenne
+        """
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=chapitre)
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Quiz 10Q")
+        for i in range(4):
+            Question.objects.create(
+                quiz=quiz, texte=f"F{i}", type="qcm",
+                options=["A", "B"], reponse_correcte="0",
+                points=1, ordre=i + 1, difficulte="facile",
+            )
+        for i in range(4):
+            Question.objects.create(
+                quiz=quiz, texte=f"M{i}", type="qcm",
+                options=["A", "B"], reponse_correcte="0",
+                points=1, ordre=i + 10, difficulte="moyen",
+            )
+        for i in range(2):
+            Question.objects.create(
+                quiz=quiz, texte=f"D{i}", type="qcm",
+                options=["A", "B"], reponse_correcte="0",
+                points=1, ordre=i + 20, difficulte="difficile",
+            )
+        client.force_login(eleve)
+        response = client.get(reverse("quiz_chapitre", kwargs={"chapitre_pk": chapitre.pk}))
+        question_ids = response.context["question_ids"]
+        ids_list = [qid for qid in question_ids.split(",") if qid.strip()]
+        assert len(ids_list) == 10
+
+    @pytest.mark.django_db
+    def test_admin_bypasses_unlock(self, client, admin_user, chapitre, lecon_gratuite):
+        """
+        Teste: un admin accède au quiz chapitre sans ChapitreDebloque
+        Raison: l'admin doit pouvoir tester tout le contenu sans restriction de déblocage
+        Features: vue quiz chapitre, rôle admin, bypass déblocage
+        Criticité: moyenne
+        """
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Quiz Admin")
+        for i in range(3):
+            Question.objects.create(
+                quiz=quiz, texte=f"A{i}", type="qcm",
+                options=["A", "B"], reponse_correcte="0",
+                points=1, ordre=i + 1,
+            )
+        client.force_login(admin_user)
+        response = client.get(reverse("quiz_chapitre", kwargs={"chapitre_pk": chapitre.pk}))
+        assert response.status_code == 200
+
+
+class TestRevisionsViewDetails:
+    """Tests détaillés pour revisions_view (filtrage, max, vide)."""
+
+    @pytest.mark.django_db
+    def test_revisions_returns_200(self, client, eleve):
+        """
+        Teste: un élève authentifié obtient 200 sur la page révisions
+        Raison: vérifier le fonctionnement nominal de la page répétition espacée
+        Features: vue révisions, accès élève
+        Criticité: moyenne
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("revisions"))
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_revisions_only_due_questions(self, client, eleve, lecon_gratuite):
+        """
+        Teste: seules les questions dont prochaine_revision <= today apparaissent
+        Raison: le système Leitner ne doit présenter que les questions dues
+        Features: vue révisions, filtrage temporel, Leitner
+        Criticité: moyenne
+        """
+        from progress.models import UserQuestionHistorique
+        from datetime import date, timedelta
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Rev Detail")
+        q_due = Question.objects.create(
+            quiz=quiz, texte="Due?", type="qcm",
+            options=["A", "B"], reponse_correcte="0", points=1, ordre=1,
+        )
+        q_future = Question.objects.create(
+            quiz=quiz, texte="Future?", type="qcm",
+            options=["A", "B"], reponse_correcte="0", points=1, ordre=2,
+        )
+        UserQuestionHistorique.objects.create(
+            user=eleve, question=q_due, boite=1,
+            prochaine_revision=date.today(), nb_bonnes=0, nb_total=1,
+        )
+        UserQuestionHistorique.objects.create(
+            user=eleve, question=q_future, boite=2,
+            prochaine_revision=date.today() + timedelta(days=30),
+            nb_bonnes=1, nb_total=1,
+        )
+        client.force_login(eleve)
+        response = client.get(reverse("revisions"))
+        questions = response.context["questions"]
+        assert q_due in questions
+        assert q_future not in questions
+
+    @pytest.mark.django_db
+    def test_revisions_max_10_questions(self, client, eleve, lecon_gratuite):
+        """
+        Teste: la vue révisions retourne au maximum 10 questions même si davantage sont dues
+        Raison: limiter la charge cognitive de la session de révision
+        Features: vue révisions, limite 10 questions, répétition espacée
+        Criticité: moyenne
+        """
+        from progress.models import UserQuestionHistorique
+        from datetime import date
+        quiz = Quiz.objects.create(lecon=lecon_gratuite, titre="Rev Max")
+        for i in range(15):
+            q = Question.objects.create(
+                quiz=quiz, texte=f"Rev{i}", type="qcm",
+                options=["A", "B"], reponse_correcte="0", points=1, ordre=i + 1,
+            )
+            UserQuestionHistorique.objects.create(
+                user=eleve, question=q, boite=1,
+                prochaine_revision=date.today(), nb_bonnes=0, nb_total=1,
+            )
+        client.force_login(eleve)
+        response = client.get(reverse("revisions"))
+        assert len(response.context["questions"]) <= 10
+
+    @pytest.mark.django_db
+    def test_revisions_empty_when_no_due(self, client, eleve):
+        """
+        Teste: si aucune question n'est due, la page affiche une liste vide sans crash
+        Raison: un élève sans historique ne doit pas déclencher d'erreur
+        Features: vue révisions, cas vide, robustesse
+        Criticité: basse
+        """
+        client.force_login(eleve)
+        response = client.get(reverse("revisions"))
+        assert response.status_code == 200
+        assert len(response.context["questions"]) == 0
+
+
+class TestRechercheResults:
+    """Tests avancés pour recherche_view (résultats, filtrage)."""
+
+    @pytest.mark.django_db
+    def test_recherche_finds_matching_title(self, client, eleve, chapitre):
+        """
+        Teste: la recherche retourne une leçon dont le titre correspond à la requête
+        Raison: la recherche plein-texte doit trouver les titres correspondants
+        Features: recherche full-text, titre leçon, SearchVector
+        Criticité: moyenne
+        """
+        Lecon.objects.create(
+            chapitre=chapitre, titre="Cinétique chimique avancée",
+            contenu="Contenu sur la cinétique chimique", ordre=20,
+        )
+        client.force_login(eleve)
+        response = client.get(reverse("recherche"), {"q": "cinétique"})
+        assert response.status_code == 200
+        titres = [r.titre for r in response.context["results"]]
+        assert any("inétique" in t for t in titres)
+
+    @pytest.mark.django_db
+    def test_recherche_eleve_filtered_by_niveau(self, client, matiere):
+        """
+        Teste: un élève seconde ne voit que les leçons de son niveau dans les résultats
+        Raison: le filtrage par niveau protège la cohérence pédagogique des résultats
+        Features: recherche full-text, filtrage niveau, rôle élève
+        Criticité: haute
+        """
+        eleve_sec = CustomUser.objects.create_user(
+            email="sec@test.com", password="TestPass123!",
+            prenom="Sec", nom="Ond", role="eleve", niveau="seconde",
+        )
+        chap_sec = Chapitre.objects.create(
+            matiere=matiere, niveau="seconde", titre="Chap Sec", ordre=1,
+        )
+        chap_term = Chapitre.objects.create(
+            matiere=matiere, niveau="terminale", titre="Chap Term", ordre=1,
+        )
+        Lecon.objects.create(
+            chapitre=chap_sec, titre="Mouvement seconde",
+            contenu="Mouvement en seconde", ordre=1,
+        )
+        Lecon.objects.create(
+            chapitre=chap_term, titre="Mouvement terminale",
+            contenu="Mouvement en terminale", ordre=1,
+        )
+        client.force_login(eleve_sec)
+        response = client.get(reverse("recherche"), {"q": "mouvement"})
+        results = response.context["results"]
+        niveaux = {r.chapitre.niveau for r in results}
+        assert "terminale" not in niveaux
+
+    @pytest.mark.django_db
+    def test_recherche_admin_sees_all(self, client, admin_user, matiere):
+        """
+        Teste: un admin voit les leçons de tous les niveaux dans les résultats de recherche
+        Raison: l'admin doit pouvoir trouver tout le contenu sans restriction de niveau
+        Features: recherche full-text, rôle admin, aucun filtrage
+        Criticité: moyenne
+        """
+        chap_sec = Chapitre.objects.create(
+            matiere=matiere, niveau="seconde", titre="Chap Sec A", ordre=1,
+        )
+        chap_term = Chapitre.objects.create(
+            matiere=matiere, niveau="terminale", titre="Chap Term A", ordre=1,
+        )
+        Lecon.objects.create(
+            chapitre=chap_sec, titre="Force gravitationnelle seconde",
+            contenu="Force gravitationnelle en seconde", ordre=1,
+        )
+        Lecon.objects.create(
+            chapitre=chap_term, titre="Force gravitationnelle terminale",
+            contenu="Force gravitationnelle en terminale", ordre=1,
+        )
+        client.force_login(admin_user)
+        response = client.get(reverse("recherche"), {"q": "gravitationnelle"})
+        results = response.context["results"]
+        niveaux = {r.chapitre.niveau for r in results}
+        assert "seconde" in niveaux
+        assert "terminale" in niveaux
+
+
+class TestLeconPdfView:
+    """Tests pour lecon_pdf_view."""
+
+    def test_pdf_requires_login(self, client, lecon_payante):
+        """
+        Teste: la vue PDF redirige vers la connexion pour un visiteur anonyme
+        Raison: l'export PDF est une feature authentifiée pour les élèves abonnés
+        Features: vue PDF, contrôle d'accès, @login_required
+        Criticité: haute
+        """
+        response = client.get(reverse("lecon_pdf", kwargs={"lecon_pk": lecon_payante.pk}))
+        assert response.status_code == 302
+        assert "/connexion/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_pdf_premium_without_subscription_redirects(self, client, eleve, lecon_payante):
+        """
+        Teste: un élève sans abonnement est redirigé vers lecon_publique pour une leçon premium
+        Raison: l'export PDF d'une leçon premium ne doit pas contourner le paywall
+        Features: vue PDF, paywall, accès premium, redirection
+        Criticité: haute
+        """
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_payante.chapitre)
+        client.force_login(eleve)
+        response = client.get(reverse("lecon_pdf", kwargs={"lecon_pk": lecon_payante.pk}))
+        assert response.status_code == 302
+        assert "lecon_publique" in response["Location"] or f"/{lecon_payante.chapitre.matiere.slug}/" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_pdf_preview_paywall_redirects(self, client, admin_user, lecon_gratuite):
+        """
+        Teste: avec session preview_paywall active, l'admin est redirigé vers lecon_publique
+        Raison: le mode preview paywall doit simuler le parcours complet d'un non-abonné
+        Features: vue PDF, preview paywall, redirection admin
+        Criticité: moyenne
+        """
+        client.force_login(admin_user)
+        session = client.session
+        session["preview_paywall"] = True
+        session.save()
+        response = client.get(reverse("lecon_pdf", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert response.status_code == 302
+        chapitre = lecon_gratuite.chapitre
+        assert f"/{chapitre.matiere.slug}/" in response["Location"]
+
+
+class TestLeconVideoYoutube:
+    """Tests pour l'intégration vidéo YouTube dans lecon_view."""
+
+    @pytest.mark.django_db
+    def test_lecon_with_youtube_url_has_youtube_id(self, client, eleve, chapitre):
+        """
+        Teste: une leçon avec video_youtube_url a youtube_id dans le contexte
+        Raison: l'identifiant YouTube est nécessaire pour l'intégration iframe dans le template
+        Features: vue leçon, vidéo YouTube, contexte template
+        Criticité: moyenne
+        """
+        from progress.models import ChapitreDebloque
+        lecon_video = Lecon.objects.create(
+            chapitre=chapitre, titre="Lecon Video", contenu="# Video",
+            ordre=50, gratuit=True,
+            video_youtube_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        )
+        ChapitreDebloque.objects.create(user=eleve, chapitre=chapitre)
+        client.force_login(eleve)
+        response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_video.pk}))
+        assert response.status_code == 200
+        assert response.context["youtube_id"] == "dQw4w9WgXcQ"
+
+    @pytest.mark.django_db
+    def test_lecon_without_video_no_youtube_id(self, client, eleve, lecon_gratuite):
+        """
+        Teste: une leçon sans vidéo YouTube a youtube_id=None dans le contexte
+        Raison: vérifier que l'absence de vidéo n'introduit pas d'erreur dans le template
+        Features: vue leçon, pas de vidéo, contexte template
+        Criticité: basse
+        """
+        from progress.models import ChapitreDebloque
+        ChapitreDebloque.objects.create(user=eleve, chapitre=lecon_gratuite.chapitre)
+        client.force_login(eleve)
+        response = client.get(reverse("lecon", kwargs={"lecon_pk": lecon_gratuite.pk}))
+        assert response.status_code == 200
+        assert response.context["youtube_id"] is None
+
+
+class TestLeconNavigation:
+    """Tests pour get_lecon_suivante et get_lecon_precedente."""
+
+    @pytest.mark.django_db
+    def test_get_lecon_suivante(self, chapitre):
+        """
+        Teste: get_lecon_suivante retourne la leçon suivante dans le même chapitre
+        Raison: la navigation inter-leçons doit permettre un parcours séquentiel
+        Features: navigation leçon, get_lecon_suivante, modèle Lecon
+        Criticité: moyenne
+        """
+        l1 = Lecon.objects.create(chapitre=chapitre, titre="L1", contenu="c", ordre=1)
+        l2 = Lecon.objects.create(chapitre=chapitre, titre="L2", contenu="c", ordre=2)
+        assert l1.get_lecon_suivante() == l2
+
+    @pytest.mark.django_db
+    def test_get_lecon_precedente(self, chapitre):
+        """
+        Teste: get_lecon_precedente retourne la leçon précédente dans le même chapitre
+        Raison: la navigation inter-leçons doit permettre un retour en arrière
+        Features: navigation leçon, get_lecon_precedente, modèle Lecon
+        Criticité: moyenne
+        """
+        l1 = Lecon.objects.create(chapitre=chapitre, titre="L1", contenu="c", ordre=1)
+        l2 = Lecon.objects.create(chapitre=chapitre, titre="L2", contenu="c", ordre=2)
+        assert l2.get_lecon_precedente() == l1
+
+    @pytest.mark.django_db
+    def test_get_lecon_suivante_last_returns_none(self, chapitre):
+        """
+        Teste: get_lecon_suivante retourne None pour la dernière leçon du chapitre
+        Raison: il n'y a pas de leçon suivante après la dernière du chapitre
+        Features: navigation leçon, dernière leçon, cas limite
+        Criticité: basse
+        """
+        l1 = Lecon.objects.create(chapitre=chapitre, titre="L1", contenu="c", ordre=1)
+        assert l1.get_lecon_suivante() is None
+
+    @pytest.mark.django_db
+    def test_get_lecon_precedente_first_returns_none(self, chapitre):
+        """
+        Teste: get_lecon_precedente retourne None pour la première leçon du chapitre
+        Raison: il n'y a pas de leçon précédente avant la première du chapitre
+        Features: navigation leçon, première leçon, cas limite
+        Criticité: basse
+        """
+        l1 = Lecon.objects.create(chapitre=chapitre, titre="L1", contenu="c", ordre=1)
+        assert l1.get_lecon_precedente() is None
+
+
+class TestAccueilViewExtended:
+    """Tests étendus pour accueil_view."""
+
+    @pytest.mark.django_db
+    def test_accueil_accessible_anonymous(self, client):
+        """
+        Teste: la page d'accueil est accessible sans authentification
+        Raison: la landing page est publique et sert de porte d'entrée
+        Features: page accueil, accès anonyme
+        Criticité: haute
+        """
+        response = client.get("/")
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_accueil_has_matieres(self, client, matiere):
+        """
+        Teste: le contexte de la page d'accueil contient des matières
+        Raison: les matières doivent apparaître sur la landing pour guider les visiteurs
+        Features: page accueil, matieres_data, contexte
+        Criticité: moyenne
+        """
+        response = client.get("/")
+        matieres_data = response.context["matieres_data"]
+        assert len(matieres_data) >= 1
+
+    @pytest.mark.django_db
+    def test_accueil_shows_gratuit_badge(self, client, lecon_gratuite):
+        """
+        Teste: la page d'accueil affiche le badge Gratuit pour les leçons gratuites
+        Raison: le badge Gratuit est un élément de conversion pour les visiteurs
+        Features: page accueil, badge gratuit, conversion
+        Criticité: moyenne
+        """
+        response = client.get("/")
+        assert b"Gratuit" in response.content
+
+
+class TestCatalogueMatiereExtended:
+    """Tests étendus pour catalogue_matiere_view."""
+
+    @pytest.mark.django_db
+    def test_catalogue_returns_200(self, client, matiere):
+        """
+        Teste: le catalogue d'une matière existante retourne 200 pour un visiteur anonyme
+        Raison: le catalogue public doit être accessible sans connexion
+        Features: vue catalogue, accès anonyme, code 200
+        Criticité: haute
+        """
+        response = client.get(
+            reverse("catalogue_matiere", kwargs={"matiere_slug": matiere.slug})
+        )
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_catalogue_context_has_chapitres(self, client, chapitre):
+        """
+        Teste: le contexte catalogue a niveaux_data contenant des chapitres groupés
+        Raison: la structure par niveaux est essentielle pour l'affichage du catalogue
+        Features: vue catalogue, niveaux_data, chapitres groupés
+        Criticité: moyenne
+        """
+        response = client.get(
+            reverse("catalogue_matiere", kwargs={"matiere_slug": chapitre.matiere.slug})
+        )
+        niveaux_data = response.context["niveaux_data"]
+        assert len(niveaux_data) >= 1
+        first_niveau = niveaux_data[0]
+        assert len(first_niveau["chapitres"]) >= 1
+
+    @pytest.mark.django_db
+    def test_catalogue_invalid_slug_returns_404(self, client):
+        """
+        Teste: un slug de matière inexistant retourne 404
+        Raison: éviter un crash 500 sur les URLs de catalogue invalides
+        Features: vue catalogue, 404, robustesse URL
+        Criticité: moyenne
+        """
+        response = client.get(
+            reverse("catalogue_matiere", kwargs={"matiere_slug": "slug-inexistant"})
+        )
+        assert response.status_code == 404
+

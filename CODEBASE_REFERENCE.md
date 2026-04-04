@@ -404,7 +404,7 @@ All widgets use Tailwind classes: `w-full px-4 py-2.5 rounded-lg border border-g
 
 | Template | Description |
 |----------|-------------|
-| `base.html` | Master layout: sidebar, header, dark mode toggle + global CSS overrides, KaTeX, HTMX, Alpine.js, Tailwind CDN |
+| `base.html` | Master layout: sidebar, header, dark mode toggle + global CSS overrides, KaTeX, HTMX, Alpine.js, Tailwind CDN. Layout switch: `{% if user.is_authenticated and not force_public_layout %}` → sidebar layout (`{% block content %}`), else → public layout (`{% block full_content %}`). Views using `{% block full_content %}` must pass `force_public_layout: True` in context so authenticated users (e.g. admin in paywall preview) get the public layout. |
 | `404.html` | Custom 404 page (extends `base.html`) |
 | `500.html` | Custom 500 page (self-contained HTML, no extends) |
 
@@ -578,9 +578,12 @@ Icons: physique=⚛, chimie=🧪, mathematiques=∑
 
 - **Entry**: admin hits `/admin-panel/preview-paywall/` → `session["preview_paywall"]` = `True`
 - **Exit**: `/admin-panel/preview-paywall/exit/` → pops session key
-- **Effect**: `lecon_publique_view` skips admin redirect and treats admin as non-subscriber; blur + paywall modal shown
-- **Banner**: amber notice shown in `base.html` when session key is set
+- **Effect on internal views**: `lecon_view`, `quiz_view`, `lecon_pdf_view` → if `preview_paywall` active, redirect to `lecon_publique` (slug-based URL) for ALL lessons (premium and free)
+- **Effect on `lecon_publique_view`**: skips admin redirect; treats admin as non-subscriber (`user_a_acces = False`); passes `preview_paywall` to template context
+- **Layout**: `lecon_publique_view` passes `force_public_layout: True` in context → forces `base.html` to use `{% block full_content %}` layout (no sidebar) even for authenticated admin
+- **Banner**: amber notice shown in `base.html` in both layouts (sidebar + full_content) when session key is set
 - **Dashboard**: card in `admin.html` to activate/deactivate
+- **Combinable**: works with `preview_niveau` — admin sees paywall as a student of a specific level
 
 ### 8.3 Quiz Evaluation (`_evaluer_reponses`)
 
@@ -672,3 +675,71 @@ Parses `backend/test_report.html`; status: `green` (0 failures), `orange` (1-3 f
 - **Customer Portal**: `portail_client` view redirects to Stripe Billing Portal for subscription management
 - **Profile page**: shows subscription status + Stripe portal link if active, upgrade CTA if not
 - **Admin**: `AbonnementAdmin` registered with list_display, filters, search
+
+---
+
+## 9. E2E Tests (Playwright)
+
+### 9.1 Setup
+
+| Item | Value |
+|------|-------|
+| Framework | Playwright 1.49 + pytest-playwright 0.6 |
+| Location | `e2e/` (project root, separate from `backend/`) |
+| Config | `e2e/pytest.ini` (`base_url = http://localhost`) |
+| Dependencies | `e2e/requirements.txt` (installed on host, NOT in Docker) |
+| Runner | `run_e2e_tests.sh` (checks app health, installs deps, runs pytest) |
+| Credentials | Read from `.env` via `python-decouple` (`FIRST_ADMIN_EMAIL`, `FIRST_ADMIN_PASSWORD`) |
+| Base URL | `E2E_BASE_URL` from `.env` (default: `http://localhost`) |
+
+### 9.2 Test Files
+
+| File | Tests | Description |
+|------|-------|-------------|
+| `e2e/test_smoke.py` | 5 | Homepage, login, register, admin login, health endpoint |
+| `e2e/test_paywall_preview.py` | 7 | Paywall preview activation/deactivation, blur, modal, banner |
+| `e2e/test_auth.py` | 6 | Login valid/invalid, logout redirect+protection, inscription form, password error |
+| `e2e/test_dashboard.py` | 5 | Admin stats cards, derniers inscrits, preview cards, analytics, user list |
+| `e2e/test_navigation.py` | 5 | Matières page, chapitre→leçons, leçon contenu, quiz link, nav prev/next |
+| `e2e/test_quiz.py` | 3 | Quiz has questions, submit shows score, corrections displayed |
+| `e2e/test_search.py` | 3 | Search page loads, returns results, short query no results |
+| `e2e/test_public.py` | 6 | Catalogue anonymous, premium/gratuit badges, free lesson, blur, paywall modal |
+| `e2e/test_ui.py` | 4 | Dark mode toggle add/remove/persist, KaTeX rendering |
+| `e2e/test_admin.py` | 6 | User list, search, filters, preview seconde, exit preview, analytics |
+| `e2e/test_profil.py` | 3 | Profile page loads, info fields, password form |
+
+### 9.3 Fixtures (`e2e/conftest.py`)
+
+| Fixture | Scope | Description |
+|---------|-------|-------------|
+| `base_url` | session | `http://localhost` or `E2E_BASE_URL` from `.env` |
+| `admin_credentials` | function | `{email, password}` from `.env` |
+| `admin_page` | function | Playwright `Page` logged in as admin |
+| `anonymous_page` | function | Playwright `Page` not logged in |
+
+### 9.4 Running
+
+```bash
+# Prerequisites: app running via docker compose
+docker compose up --build -d
+
+# Install E2E deps (once)
+pip install -r e2e/requirements.txt && playwright install chromium
+
+# Run all E2E tests
+./run_e2e_tests.sh
+
+# Run specific test file
+cd e2e && python3 -m pytest test_smoke.py -v
+
+# Run with headed browser (debugging)
+cd e2e && python3 -m pytest --headed -v
+```
+
+### 9.5 Conventions
+
+- Tests are **separate from Django unit tests** — no `DJANGO_SETTINGS_MODULE`, no DB access
+- Tests navigate via HTTP to the running app (black-box)
+- Admin credentials from `.env` (same as `seed_data`); app must be seeded before running
+- Fixtures handle login/logout — tests should use `admin_page` or `anonymous_page`
+- Test names and docstrings in French

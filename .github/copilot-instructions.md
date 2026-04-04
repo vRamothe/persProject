@@ -55,6 +55,7 @@ Always respect this mapping when adding UI for subject-specific elements.
 - Non-authenticated pages use `{% block full_content %}` (full page, no sidebar)
 - **Never** add dark-mode Tailwind classes in child templates — dark mode is handled globally in `base.html` via `html.dark { }` CSS overrides
 - Dark mode toggle (sun/moon button) lives in the top-right of the header; theme is persisted in `localStorage`; the `<html>` tag gets/loses the `dark` class; initialisation script in `<head>` prevents flash-of-unstyled-content
+- `force_public_layout` context variable: when `True`, `base.html` uses `{% block full_content %}` layout (no sidebar) even for authenticated users — required for public views (`lecon_publique_view`, `catalogue_matiere_view`, `accueil_view`) so they render correctly when accessed by authenticated admins in paywall preview mode
 
 ## Admin Preview Mode
 Admins can simulate the exact student view for any level without creating dummy accounts:
@@ -71,8 +72,11 @@ Admins can preview the paywall (blur + modal) as seen by non-subscribed students
 - Views: `preview_paywall_view(request)` and `exit_preview_paywall_view(request)` in `users/views.py`
 - URLs: `preview_paywall` and `exit_preview_paywall` in `users/urls.py`
 - Session key: `request.session["preview_paywall"]` — `True` | absent
+- **Internal views redirect**: `lecon_view`, `quiz_view`, `lecon_pdf_view` redirect to `lecon_publique` (slug URL) when `preview_paywall` active — all lessons, premium and free
 - `lecon_publique_view` in `courses/views.py` respects this session key: skips admin redirect and treats admin as non-subscriber
-- An amber banner is shown on every page while paywall preview is active
+- **Layout fix**: public views pass `force_public_layout: True` in context → forces `base.html` to use `{% block full_content %}` layout even for authenticated admin
+- An amber banner is shown on every page (both sidebar and full_content layouts) while paywall preview is active
+- **Combinable with preview_niveau**: admin can see paywall as a student of a specific level
 
 ## Codebase Reference
 `CODEBASE_REFERENCE.md` at the project root contains a compact summary of all models, URLs, views, forms, templates, settings, management commands, and key patterns. **All agents must read this file first** before reading source files. After any code change, the corresponding section must be updated.
@@ -160,3 +164,17 @@ Admin credentials from `.env`: `FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`.
 - Forms render with custom widgets defined in `users/forms.py` (Tailwind classes baked in)
 - No JavaScript files — all JS lives inline in templates or in Alpine.js `x-data` blocks
 - Migrations: always run `makemigrations` before `migrate`; never edit migration files manually unless fixing a squash
+
+## E2E Tests (Playwright)
+- **Location**: `e2e/` directory at project root (separate from `backend/`)
+- **Stack**: Playwright 1.49 + pytest-playwright — runs on **host machine**, not in Docker
+- **Target**: tests navigate to `http://localhost` (app running via `docker compose`)
+- **Credentials**: read from `.env` via `python-decouple` (`FIRST_ADMIN_EMAIL`, `FIRST_ADMIN_PASSWORD`)
+- **Test files**: `e2e/test_smoke.py` (5 smoke tests), `e2e/test_paywall_preview.py` (7 paywall tests)
+- **Fixtures**: `admin_page` (logged-in Playwright Page), `anonymous_page`, `admin_credentials`, `base_url`
+- **Runner**: `./run_e2e_tests.sh` — checks health, installs deps if needed, runs pytest
+- **Setup** (one-time): `pip install -r e2e/requirements.txt && playwright install chromium`
+- **Running**: `./run_e2e_tests.sh` or `cd e2e && python3 -m pytest -v`
+- **Headed mode** (debug): `cd e2e && python3 -m pytest --headed -v`
+- E2E tests are **black-box** — no Django imports, no DB access, HTTP only
+- E2E tests are NOT managed by the `test-writer` agent — they have their own setup

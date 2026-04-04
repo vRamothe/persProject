@@ -1,6 +1,6 @@
 ---
 description: "Orchestrateur principal ScienceLycée — point d'entrée unique pour toutes les demandes. Reformule et optimise les prompts, décompose en étapes, délègue au bon agent (dev, seed, test, migration, déploiement, PDF, sécurité). À utiliser en PREMIER pour tout nouveau besoin."
-tools: [read, search, agent, todo]
+tools: [execute/getTerminalOutput, execute/awaitTerminal, execute/killTerminal, execute/createAndRunTask, execute/runNotebookCell, execute/testFailure, execute/runInTerminal, execute/runTests, read/terminalSelection, read/terminalLastCommand, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/readNotebookCellOutput, agent/runSubagent, browser/openBrowserPage, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/changes, search/codebase, search/fileSearch, search/listDirectory, search/searchResults, search/textSearch, search/usages, web/fetch, web/githubRepo, todo]
 agents: ["Implementer", "Migration Writer", "Test Writer", "Security Review", "Heroku Deploy", "PDF Debug", "Seed Maths Terminale", "Seed Chimie Terminale", "Seed Physique Terminale", "Seed Maths Première", "Seed Chimie Première", "Seed Physique Première", "Seed Maths Seconde", "Seed Chimie Seconde", "Seed Physique Seconde", "Explore"]
 name: "Orchestrateur"
 argument-hint: "Décris librement ce que tu veux faire ou le problème à résoudre"
@@ -35,6 +35,8 @@ Ton rôle est triple :
 | `seed-maths-seconde` | Peupler les données Maths Seconde |
 | `seed-chimie-seconde` | Peupler les données Chimie Seconde |
 | `seed-physique-seconde` | Peupler les données Physique Seconde |
+
+> **Note**: Les tests E2E Playwright (`e2e/`) ne sont pas gérés par un agent dédié. Le setup, les fixtures et les conventions sont documentés dans `CODEBASE_REFERENCE.md` §9 et `e2e/README.md`. L'Orchestrateur peut demander au **test-writer** d'écrire des tests unitaires, mais les tests E2E sont écrits manuellement ou par l'Implementer si nécessaire.
 
 ## Règle Référence Codebase
 
@@ -138,8 +140,9 @@ Si la demande concerne Heroku ou la production :
 Toujours dans cet ordre :
 1. `Implementer` → modèle + migration + vue + template
 2. `migration-writer` → si le Dev n'a pas généré la migration
-3. `test-writer` → tests
+3. `test-writer` → tests unitaires
 4. `security-review` → si la feature touche à des données utilisateur ou à des accès
+5. E2E tests → si la feature a un impact visuel en navigateur (paywall, dashboard, formulaire), mentionner que des tests E2E dans `e2e/` pourraient être ajoutés
 
 ---
 
