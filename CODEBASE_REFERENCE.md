@@ -267,6 +267,8 @@ Handlers: `handler404` → `config.views.custom_404`, `handler500` → `config.v
 | `exit_preview` | `/admin-panel/preview/exit/` | `exit_preview_view` | GET |
 | `preview_niveau` | `/admin-panel/preview/<str:niveau>/` | `preview_niveau_view` | GET |
 | `admin_analytics` | `/admin-panel/analytics/` | `admin_analytics_view` | GET |
+| `preview_paywall` | `/admin-panel/preview-paywall/` | `preview_paywall_view` | GET |
+| `exit_preview_paywall` | `/admin-panel/preview-paywall/exit/` | `exit_preview_paywall_view` | GET |
 | `admin_test_report` | `/admin-panel/rapport-tests/` | `admin_test_report_view` | GET |
 | `admin_serve_report` | `/admin-panel/rapport-tests/raw/` | `admin_serve_test_report` | GET |
 | `checkout` | `/checkout/` | `creer_checkout_session` | POST |
@@ -329,6 +331,8 @@ Handlers: `handler404` → `config.views.custom_404`, `handler500` → `config.v
 | `admin_toggle_chapitre` | `@login_required` | Admin: lock/unlock a chapter for student | POST only; creates/deletes `ChapitreDebloque` |
 | `preview_niveau_view` | `@login_required` | Admin: enter preview mode | Sets `session["preview_niveau"]`; valid values: `seconde`, `premiere`, `terminale` |
 | `exit_preview_view` | `@login_required` | Admin: exit preview mode | Pops `session["preview_niveau"]` |
+| `preview_paywall_view` | `@login_required` | Admin: enter paywall preview | Sets `session["preview_paywall"]` = True |
+| `exit_preview_paywall_view` | `@login_required` | Admin: exit paywall preview | Pops `session["preview_paywall"]` |
 | `inscription_confirmation_view` | — | Post-registration confirmation page | |
 | `verifier_email_view` | — | Email verification link handler | `signing.loads(token, salt="email-verification", max_age=86400)`; activates user + auto-login |
 | `admin_analytics_view` | `@login_required` | Admin: analytics dashboard | Weak questions (<40%), lesson completion %, chapter quiz pass rates |
@@ -359,7 +363,7 @@ Private helpers: `_handle_checkout_completed(session)`, `_handle_subscription_ch
 | `revisions_view` | `@login_required` | Spaced repetition quiz | Leitner: due questions (≤today), ordered by box asc, max 10 |
 | `soumettre_revisions` | `@login_required` | Submit revision answers | Rate-limited; IDOR check on niveau; updates Leitner boxes |
 | `catalogue_matiere_view` | — (public) | Public subject catalogue | Lists chapters by niveau with lesson list; shows `gratuit` badge; premium lessons clickable with lock+Premium badge |
-| `lecon_publique_view` | — (public) | Public lesson view (free or premium with blur) | Premium: truncates to 2000 words + blur overlay + paywall modal; admin → redirect to PK view; `est_premium`, `est_floute`, `a_ete_tronque` context vars |
+| `lecon_publique_view` | — (public) | Public lesson view (free or premium with blur) | Premium: truncates to 2000 words + blur overlay + paywall modal; admin → redirect to PK view (unless `preview_paywall` active); `est_premium`, `est_floute`, `a_ete_tronque`, `preview_paywall` context vars |
 | `accueil_view` | — (public) | Homepage for anon users | All matières + chapitres + leçons with gratuit flag |
 | `recherche_view` | `@login_required` | Full-text search | PostgreSQL `SearchVector` on titre (A) + contenu (B); min 2 chars; max 20 results |
 | `lecon_pdf_view` | `@login_required` | PDF export | **Premium check**: non-gratuit + no subscription → redirect to `lecon_publique`; WeasyPrint; LaTeX→SVG via `render_markdown_to_html(latex_to_svg=True)` |
@@ -569,6 +573,14 @@ Icons: physique=⚛, chimie=🧪, mathematiques=∑
 - **Exit**: `/admin-panel/preview/exit/` → pops session key
 - **Effect**: `matieres_view` and `lecon_view` filter by `preview_niveau` instead of `user.niveau`; `lecon_view` skips progression writes when preview is active
 - **Banner**: yellow notice shown in `base.html` when session key is set
+
+### 8.2b Paywall Preview Mode
+
+- **Entry**: admin hits `/admin-panel/preview-paywall/` → `session["preview_paywall"]` = `True`
+- **Exit**: `/admin-panel/preview-paywall/exit/` → pops session key
+- **Effect**: `lecon_publique_view` skips admin redirect and treats admin as non-subscriber; blur + paywall modal shown
+- **Banner**: amber notice shown in `base.html` when session key is set
+- **Dashboard**: card in `admin.html` to activate/deactivate
 
 ### 8.3 Quiz Evaluation (`_evaluer_reponses`)
 

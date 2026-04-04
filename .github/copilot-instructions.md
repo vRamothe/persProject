@@ -65,6 +65,15 @@ Admins can simulate the exact student view for any level without creating dummy 
 - `matieres_view` and `lecon_view` in `courses/views.py` already respect this session key
 - A yellow banner is shown on every page while preview is active; progress writes are skipped in preview mode
 
+## Admin Paywall Preview Mode
+Admins can preview the paywall (blur + modal) as seen by non-subscribed students:
+- Entry point: dashboard card in `admin.html`
+- Views: `preview_paywall_view(request)` and `exit_preview_paywall_view(request)` in `users/views.py`
+- URLs: `preview_paywall` and `exit_preview_paywall` in `users/urls.py`
+- Session key: `request.session["preview_paywall"]` — `True` | absent
+- `lecon_publique_view` in `courses/views.py` respects this session key: skips admin redirect and treats admin as non-subscriber
+- An amber banner is shown on every page while paywall preview is active
+
 ## Codebase Reference
 `CODEBASE_REFERENCE.md` at the project root contains a compact summary of all models, URLs, views, forms, templates, settings, management commands, and key patterns. **All agents must read this file first** before reading source files. After any code change, the corresponding section must be updated.
 

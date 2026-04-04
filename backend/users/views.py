@@ -519,6 +519,24 @@ def exit_preview_view(request):
     return redirect("tableau_de_bord")
 
 
+# ---- Prévisualisation paywall ----
+
+@login_required
+def preview_paywall_view(request):
+    """Active la prévisualisation du paywall."""
+    if not request.user.is_admin:
+        return redirect("tableau_de_bord")
+    request.session["preview_paywall"] = True
+    return redirect("tableau_de_bord")
+
+
+@login_required
+def exit_preview_paywall_view(request):
+    """Quitte le mode prévisualisation du paywall."""
+    request.session.pop("preview_paywall", None)
+    return redirect("tableau_de_bord")
+
+
 # ---- Helpers ----
 
 def _envoyer_email_verification(request, user):

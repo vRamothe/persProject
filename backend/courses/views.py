@@ -527,15 +527,22 @@ def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug
 
     est_premium = not lecon.gratuit
     from users.views import _user_has_active_subscription
-    user_a_acces = (
-        request.user.is_authenticated and (
-            request.user.is_admin or
-            _user_has_active_subscription(request.user)
+
+    preview_paywall = request.session.get("preview_paywall", False)
+
+    # Si preview_paywall actif, l'admin est traité comme non-abonné
+    if preview_paywall:
+        user_a_acces = False
+    else:
+        user_a_acces = (
+            request.user.is_authenticated and (
+                request.user.is_admin or
+                _user_has_active_subscription(request.user)
+            )
         )
-    )
 
     # Admin with full access → redirect to internal view
-    if request.user.is_authenticated and request.user.is_admin:
+    if request.user.is_authenticated and request.user.is_admin and not preview_paywall:
         return redirect("lecon", lecon_pk=lecon.pk)
 
     if est_premium and not user_a_acces:
@@ -574,6 +581,7 @@ def lecon_publique_view(request, matiere_slug, niveau, chapitre_slug, lecon_slug
         "est_premium": est_premium,
         "est_floute": est_floute,
         "a_ete_tronque": a_ete_tronque,
+        "preview_paywall": preview_paywall,
     })
 
 
