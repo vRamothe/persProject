@@ -222,6 +222,15 @@ def lecon_view(request, lecon_pk):
     lecon = get_object_or_404(Lecon.objects.select_related("chapitre__matiere"), pk=lecon_pk)
     chapitre = lecon.chapitre
 
+    # Mode prévisualisation paywall : rediriger vers la vue publique
+    preview_paywall = request.session.get("preview_paywall", False)
+    if user.is_admin and preview_paywall:
+        return redirect("lecon_publique",
+                         matiere_slug=chapitre.matiere.slug,
+                         niveau=chapitre.niveau,
+                         chapitre_slug=chapitre.slug,
+                         lecon_slug=lecon.slug)
+
     # Vérifier l'accès au niveau
     if not user.is_admin and chapitre.niveau != user.niveau:
         return redirect("matieres")
@@ -292,6 +301,15 @@ def quiz_view(request, lecon_pk):
     user = request.user
     lecon = get_object_or_404(Lecon.objects.select_related("chapitre__matiere"), pk=lecon_pk)
     chapitre = lecon.chapitre
+
+    # Mode prévisualisation paywall : rediriger vers la vue publique
+    preview_paywall = request.session.get("preview_paywall", False)
+    if user.is_admin and preview_paywall:
+        return redirect("lecon_publique",
+                         matiere_slug=chapitre.matiere.slug,
+                         niveau=chapitre.niveau,
+                         chapitre_slug=chapitre.slug,
+                         lecon_slug=lecon.slug)
 
     if not user.is_admin and chapitre.niveau != user.niveau:
         return redirect("matieres")
@@ -659,9 +677,19 @@ def lecon_pdf_view(request, lecon_pk):
 
     lecon = get_object_or_404(Lecon.objects.select_related("chapitre__matiere"), pk=lecon_pk)
     user = request.user
+    chapitre = lecon.chapitre
+
+    # Mode prévisualisation paywall : rediriger vers la vue publique
+    preview_paywall = request.session.get("preview_paywall", False)
+    if user.is_admin and preview_paywall:
+        return redirect("lecon_publique",
+                         matiere_slug=chapitre.matiere.slug,
+                         niveau=chapitre.niveau,
+                         chapitre_slug=chapitre.slug,
+                         lecon_slug=lecon.slug)
 
     # Vérification d'accès niveau
-    if not user.is_admin and lecon.chapitre.niveau != user.niveau:
+    if not user.is_admin and chapitre.niveau != user.niveau:
         return redirect("matieres")
 
     # Vérifier l'accès premium côté serveur

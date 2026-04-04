@@ -357,8 +357,8 @@ Private helpers: `_handle_checkout_completed(session)`, `_handle_subscription_ch
 |------|-----------|---------|-----------|
 | `matieres_view` | `@login_required` | List subjects + chapters | Respects `preview_niveau` session; admin sees all niveaux; student filtered by niveau |
 | `chapitre_view` | `@login_required` | Chapter detail: list lessons | Checks niveau + unlock; shows chapter quiz CTA if all lessons done |
-| `lecon_view` | `@login_required` | Display lesson (Markdown→HTML) | **Premium check**: non-gratuit + no subscription → redirect to `lecon_publique`; auto-marks `en_cours`; skips writes in preview; renders video (YouTube/file); injects note |
-| `quiz_view` | `@login_required` | Display quiz | **Premium check**: non-gratuit + no subscription → redirect to `lecon_publique`; random sample of 5 from all questions; hidden `question_ids` field |
+| `lecon_view` | `@login_required` | Display lesson (Markdown→HTML) | If `preview_paywall` active → redirect to `lecon_publique`; **Premium check**: non-gratuit + no subscription → redirect to `lecon_publique`; auto-marks `en_cours`; skips writes in preview; renders video (YouTube/file); injects note |
+| `quiz_view` | `@login_required` | Display quiz | If `preview_paywall` active → redirect to `lecon_publique`; **Premium check**: non-gratuit + no subscription → redirect to `lecon_publique`; random sample of 5 from all questions; hidden `question_ids` field |
 | `quiz_chapitre_view` | `@login_required` | Display chapter quiz | `_selectionner_questions_chapitre()`: 4 facile + 4 moyen + 2 difficile (10 total) |
 | `revisions_view` | `@login_required` | Spaced repetition quiz | Leitner: due questions (≤today), ordered by box asc, max 10 |
 | `soumettre_revisions` | `@login_required` | Submit revision answers | Rate-limited; IDOR check on niveau; updates Leitner boxes |
@@ -366,7 +366,7 @@ Private helpers: `_handle_checkout_completed(session)`, `_handle_subscription_ch
 | `lecon_publique_view` | — (public) | Public lesson view (free or premium with blur) | Premium: truncates to 2000 words + blur overlay + paywall modal; admin → redirect to PK view (unless `preview_paywall` active); `est_premium`, `est_floute`, `a_ete_tronque`, `preview_paywall` context vars |
 | `accueil_view` | — (public) | Homepage for anon users | All matières + chapitres + leçons with gratuit flag |
 | `recherche_view` | `@login_required` | Full-text search | PostgreSQL `SearchVector` on titre (A) + contenu (B); min 2 chars; max 20 results |
-| `lecon_pdf_view` | `@login_required` | PDF export | **Premium check**: non-gratuit + no subscription → redirect to `lecon_publique`; WeasyPrint; LaTeX→SVG via `render_markdown_to_html(latex_to_svg=True)` |
+| `lecon_pdf_view` | `@login_required` | PDF export | If `preview_paywall` active → redirect to `lecon_publique`; **Premium check**: non-gratuit + no subscription → redirect to `lecon_publique`; WeasyPrint; LaTeX→SVG via `render_markdown_to_html(latex_to_svg=True)` |
 
 Private helpers: `_selectionner_questions_chapitre(chapitre, nb_total=10)`, `_extraire_youtube_id(url)`, `_generer_video_html(lecon, youtube_id)`
 

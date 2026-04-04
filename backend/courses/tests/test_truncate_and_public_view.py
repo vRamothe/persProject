@@ -431,3 +431,141 @@ class TestAdminPaywallPreviewOnPublicView:
         response = client.get(_url_publique(lecon_gratuite))
         assert response.status_code == 200
         assert response.context["est_floute"] is False
+
+
+# ===========================================================================
+# Tests Paywall Preview Redirect from Internal Views (lecon_view, quiz_view, lecon_pdf_view)
+# ===========================================================================
+
+
+class TestPaywallPreviewRedirectFromInternalViews:
+    """Tests : les vues internes redirigent vers lecon_publique quand preview_paywall est actif."""
+
+    def _url_lecon(self, lecon):
+        return reverse("lecon", kwargs={"lecon_pk": lecon.pk})
+
+    def _url_quiz(self, lecon):
+        return reverse("quiz", kwargs={"lecon_pk": lecon.pk})
+
+    def _url_pdf(self, lecon):
+        return reverse("lecon_pdf", kwargs={"lecon_pk": lecon.pk})
+
+    def _expected_redirect(self, lecon):
+        ch = lecon.chapitre
+        return reverse("lecon_publique", kwargs={
+            "matiere_slug": ch.matiere.slug,
+            "niveau": ch.niveau,
+            "chapitre_slug": ch.slug,
+            "lecon_slug": lecon.slug,
+        })
+
+    def _activate_preview_paywall(self, client):
+        session = client.session
+        session["preview_paywall"] = True
+        session.save()
+
+    # ---- lecon_view ----
+
+    @pytest.mark.django_db
+    def test_lecon_view_preview_paywall_premium_redirige(self, client, admin_user, lecon_premium_courte):
+        """
+        Teste: Admin + preview_paywall actif + leçon premium → 302 vers lecon_publique
+        Features: lecon_view, preview paywall, redirect
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        self._activate_preview_paywall(client)
+        response = client.get(self._url_lecon(lecon_premium_courte))
+        assert response.status_code == 302
+        assert response["Location"] == self._expected_redirect(lecon_premium_courte)
+
+    @pytest.mark.django_db
+    def test_lecon_view_preview_paywall_gratuite_redirige(self, client, admin_user, lecon_gratuite):
+        """
+        Teste: Admin + preview_paywall actif + leçon gratuite → 302 vers lecon_publique aussi
+        Features: lecon_view, preview paywall, redirect, leçon gratuite
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        self._activate_preview_paywall(client)
+        response = client.get(self._url_lecon(lecon_gratuite))
+        assert response.status_code == 302
+        assert response["Location"] == self._expected_redirect(lecon_gratuite)
+
+    @pytest.mark.django_db
+    def test_lecon_view_sans_preview_paywall_pas_de_redirect(self, client, admin_user, lecon_premium_courte):
+        """
+        Teste: Admin SANS preview_paywall → 200 (comportement normal)
+        Features: lecon_view, pas de preview paywall
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        response = client.get(self._url_lecon(lecon_premium_courte))
+        assert response.status_code == 200
+
+    # ---- quiz_view ----
+
+    @pytest.mark.django_db
+    def test_quiz_view_preview_paywall_redirige(self, client, admin_user, lecon_premium_courte):
+        """
+        Teste: Admin + preview_paywall actif → 302 vers lecon_publique depuis quiz_view
+        Features: quiz_view, preview paywall, redirect
+        Criticité: haute
+        """
+        from courses.models import Quiz
+        Quiz.objects.create(lecon=lecon_premium_courte, titre="Quiz test", score_minimum=60.0)
+        client.force_login(admin_user)
+        self._activate_preview_paywall(client)
+        response = client.get(self._url_quiz(lecon_premium_courte))
+        assert response.status_code == 302
+        assert response["Location"] == self._expected_redirect(lecon_premium_courte)
+
+    @pytest.mark.django_db
+    def test_quiz_view_sans_preview_paywall_pas_de_redirect(self, client, admin_user, lecon_premium_courte):
+        """
+        Teste: Admin SANS preview_paywall sur quiz_view → 200
+        Features: quiz_view, pas de preview paywall
+        Criticité: haute
+        """
+        from courses.models import Quiz, Question
+        quiz = Quiz.objects.create(lecon=lecon_premium_courte, titre="Quiz test", score_minimum=60.0)
+        Question.objects.create(
+            quiz=quiz, ordre=1, texte="Q?", type="qcm",
+            options=["A", "B"], reponse_correcte="0", points=1,
+        )
+        client.force_login(admin_user)
+        response = client.get(self._url_quiz(lecon_premium_courte))
+        assert response.status_code == 200
+
+    # ---- lecon_pdf_view ----
+
+    @pytest.mark.django_db
+    def test_pdf_view_preview_paywall_redirige(self, client, admin_user, lecon_premium_courte):
+        """
+        Teste: Admin + preview_paywall actif → 302 vers lecon_publique depuis lecon_pdf_view
+        Features: lecon_pdf_view, preview paywall, redirect
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        self._activate_preview_paywall(client)
+        response = client.get(self._url_pdf(lecon_premium_courte))
+        assert response.status_code == 302
+        assert response["Location"] == self._expected_redirect(lecon_premium_courte)
+
+    # ---- Combinaison preview_paywall + preview_niveau ----
+
+    @pytest.mark.django_db
+    def test_lecon_view_preview_paywall_et_niveau_redirige(self, client, admin_user, lecon_premium_courte):
+        """
+        Teste: Admin + preview_paywall + preview_niveau=terminale + leçon premium → 302 vers lecon_publique
+        Features: lecon_view, preview paywall, preview niveau, redirect
+        Criticité: haute
+        """
+        client.force_login(admin_user)
+        session = client.session
+        session["preview_paywall"] = True
+        session["preview_niveau"] = "terminale"
+        session.save()
+        response = client.get(self._url_lecon(lecon_premium_courte))
+        assert response.status_code == 302
+        assert response["Location"] == self._expected_redirect(lecon_premium_courte)
